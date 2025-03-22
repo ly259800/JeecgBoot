@@ -3,7 +3,6 @@ import {FormSchema} from '/@/components/Table';
 import { rules} from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { getWeekMonthQuarterYear } from '/@/utils';
-import {UploadTypeEnum} from "@/components/Form/src/jeecg/components/JUpload";
 //列表数据
 export const columns: BasicColumn[] = [
    {
@@ -19,16 +18,12 @@ export const columns: BasicColumn[] = [
    {
     title: '头像',
     align:"center",
-    dataIndex: 'avatar',
-     customRender: render.renderAvatar,
+    dataIndex: 'avatar'
    },
    {
     title: '身份',
     align:"center",
-    dataIndex: 'identity',
-     customRender: ({ text }) => {
-       return render.renderDict(text, 'customer_identity');
-     },
+    dataIndex: 'identity_dictText'
    },
 ];
 //查询数据
@@ -48,11 +43,9 @@ export const searchFormSchema: FormSchema[] = [
 	{
       label: "身份",
       field: 'identity',
-      component: 'JDictSelectTag',
+      component: 'JSelectMultiple',
       componentProps:{
-        dictCode: 'customer_identity',
-        placeholder: '请选择身份',
-        stringToNumber: true,
+          dictCode:"customer_identity"
       },
       //colProps: {span: 6},
  	},
@@ -82,12 +75,7 @@ export const formSchema: FormSchema[] = [
   {
     label: '头像',
     field: 'avatar',
-    component: 'JUpload',
-    helpMessage: '最多上传1张图片',
-    componentProps: {
-      fileType: UploadTypeEnum.image,
-      maxCount: 1,
-    },
+    component: 'Input',
   },
   {
     label: '身份',
