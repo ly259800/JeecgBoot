@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jeecg-module-demo</artifactId>
+    <artifactId>jeecg-module-rider</artifactId>
 
     <dependencies>
         <dependency>

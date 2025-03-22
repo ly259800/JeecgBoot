@@ -32,7 +32,7 @@
         <!-- 引入demo模块 -->
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
-            <artifactId>jeecg-module-demo</artifactId>
+            <artifactId>jeecg-module-rider</artifactId>
             <version>${jeecgboot.version}</version>
         </dependency>
     </dependencies>

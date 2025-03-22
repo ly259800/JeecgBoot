@@ -1,6 +1,6 @@
 FROM registry.cn-hangzhou.aliyuncs.com/jeecgdocker/mysql:8.0.19
 
-MAINTAINER jeecgos@163.com
+MAINTAINER leiyong@163.com
 
 ENV TZ=Asia/Shanghai
 

@@ -6,13 +6,13 @@
   <packaging>pom</packaging>
   <name>JEECG BOOT ${project.version}</name>
 
-	<developers>
+	<!--<developers>
 		<developer>
-			<name>北京国炬信息技术有限公司</name>
-			<email>jeecgos@163.com</email>
+			<name>优骑优选</name>
+			<email>leiyong@163.com</email>
 			<url>http://www.guojusoft.com</url>
 		</developer>
-	</developers>
+	</developers>-->
 
 	<scm>
 		<connection>http://www.jeecg.com</connection>
@@ -83,7 +83,7 @@
 
 	<modules>
         <module>jeecg-boot-base-core</module>
-        <module>jeecg-module-demo</module>
+        <module>jeecg-module-rider</module>
         <module>jeecg-module-system</module>
     </modules>
 

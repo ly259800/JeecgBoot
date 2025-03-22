@@ -1,6 +1,6 @@
 FROM registry.cn-hangzhou.aliyuncs.com/jeecgdocker/alpine-java:8_server-jre_unlimited
 
-MAINTAINER jeecgos@163.com
+MAINTAINER leiyong@163.com
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
