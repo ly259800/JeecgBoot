@@ -119,6 +119,7 @@ export const searchFormSchema: FormSchema[] = [
       field: 'status',
       component: 'JSelectMultiple',
       componentProps:{
+        dictCode:"yn"
       },
       //colProps: {span: 6},
  	},
@@ -127,6 +128,7 @@ export const searchFormSchema: FormSchema[] = [
       field: 'passStatus',
       component: 'JSelectMultiple',
       componentProps:{
+        dictCode:"yn"
       },
       //colProps: {span: 6},
  	},
@@ -257,15 +259,15 @@ export const superQuerySchema = {
   age: {title: '年龄',order: 2,view: 'number', type: 'number',},
   phone: {title: '手机号码',order: 3,view: 'text', type: 'string',},
   city: {title: '报道城市',order: 4,view: 'text', type: 'string',},
-  jobType: {title: '是否全职',order: 5,view: 'number', type: 'number',dictCode: '',},
-  accommodation: {title: '是否需要住宿',order: 6,view: 'number', type: 'number',dictCode: '',},
-  socialSecurity: {title: '是否需要购买社保',order: 7,view: 'number', type: 'number',dictCode: '',},
+  jobType: {title: '是否全职',order: 5,view: 'number', type: 'number',dictCode: 'yn',},
+  accommodation: {title: '是否需要住宿',order: 6,view: 'number', type: 'number',dictCode: 'yn',},
+  socialSecurity: {title: '是否需要购买社保',order: 7,view: 'number', type: 'number',dictCode: 'yn',},
   siteName: {title: '报道站点',order: 8,view: 'text', type: 'string',},
   expectRegion: {title: '期望区域地址',order: 9,view: 'pca', type: 'string',},
   reference: {title: '推广人',order: 10,view: 'text', type: 'string',},
   source: {title: '数据来源',order: 11,view: 'text', type: 'string',},
-  status: {title: '面试状态',order: 12,view: 'number', type: 'number',dictCode: '',},
-  passStatus: {title: '通过状态',order: 13,view: 'number', type: 'number',dictCode: '',},
+  status: {title: '面试状态',order: 12,view: 'number', type: 'number',dictCode: 'yn',},
+  passStatus: {title: '通过状态',order: 13,view: 'number', type: 'number',dictCode: 'yn',},
 };
 
 /**

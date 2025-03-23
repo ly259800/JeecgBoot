@@ -3,6 +3,7 @@ import {FormSchema} from '/@/components/Table';
 import { rules} from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { getWeekMonthQuarterYear } from '/@/utils';
+import {UploadTypeEnum} from "@/components/Form/src/jeecg/components/JUpload";
 //列表数据
 export const columns: BasicColumn[] = [
    {
@@ -18,7 +19,8 @@ export const columns: BasicColumn[] = [
    {
     title: '头像',
     align:"center",
-    dataIndex: 'avatar'
+    dataIndex: 'avatar',
+    customRender: render.renderAvatar,
    },
    {
     title: '身份',
@@ -67,23 +69,21 @@ export const formSchema: FormSchema[] = [
     field: 'phone',
     component: 'Input',
     dynamicRules: ({model,schema}) => {
-          return [
-                 { required: true, message: '请输入手机号!'},
-          ];
+      return [
+        { required: true, message: '请输入手机号码!'},
+        { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码!'},
+      ];
      },
   },
   {
     label: '头像',
     field: 'avatar',
-    component: 'Input',
-  },
-  {
-    label: '身份',
-    field: 'identity',
-    component: 'JDictSelectTag',
-    componentProps:{
-        dictCode:"customer_identity"
-     },
+    component: 'JUpload',
+    helpMessage: '最多上传1张图片',
+    componentProps: {
+      fileType: UploadTypeEnum.image,
+      maxCount: 1,
+    },
   },
 	// TODO 主键隐藏字段，目前写死为ID
 	{
