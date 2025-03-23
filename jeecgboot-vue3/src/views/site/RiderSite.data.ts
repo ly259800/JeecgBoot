@@ -25,6 +25,21 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'gap'
    },
+  {
+    title: '佣金',
+    align:"center",
+    dataIndex: 'commission'
+  },
+  {
+    title: '利润',
+    align:"center",
+    dataIndex: 'profit'
+  },
+  {
+    title: '备注',
+    align:"center",
+    dataIndex: 'memo'
+  },
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [
@@ -49,6 +64,21 @@ export const formSchema: FormSchema[] = [
   {
     label: '缺口',
     field: 'gap',
+    component: 'InputNumber',
+  },
+  {
+    label: '佣金',
+    field: 'commission',
+    component: 'InputNumber',
+  },
+  {
+    label: '利润',
+    field: 'profit',
+    component: 'InputNumber',
+  },
+  {
+    label: '备注',
+    field: 'memo',
     component: 'Input',
   },
 	// TODO 主键隐藏字段，目前写死为ID
@@ -65,7 +95,10 @@ export const superQuerySchema = {
   city: {title: '城市',order: 0,view: 'text', type: 'string',},
   region: {title: '区域',order: 1,view: 'text', type: 'string',},
   name: {title: '名称',order: 2,view: 'text', type: 'string',},
-  gap: {title: '缺口',order: 3,view: 'text', type: 'string',},
+  gap: {title: '缺口',order: 3,view: 'text', type: 'number',},
+  commission: {title: '佣金',order: 4,view: 'number', type: 'number',},
+  profit: {title: '利润',order: 5,view: 'number', type: 'number',},
+  memo: {title: '备注',order: 6,view: 'text', type: 'string',},
 };
 
 /**

@@ -23,7 +23,7 @@ import lombok.experimental.Accessors;
 /**
  * @Description: 站点管理
  * @Author: jeecg-boot
- * @Date:   2025-03-22
+ * @Date:   2025-03-23
  * @Version: V1.0
  */
 @Data
@@ -72,5 +72,17 @@ public class RiderSite implements Serializable {
 	/**缺口*/
 	@Excel(name = "缺口", width = 15)
     @ApiModelProperty(value = "缺口")
-    private java.lang.String gap;
+    private java.lang.Integer gap;
+	/**佣金*/
+	@Excel(name = "佣金", width = 15)
+    @ApiModelProperty(value = "佣金")
+    private java.lang.Integer commission;
+	/**利润*/
+	@Excel(name = "利润", width = 15)
+    @ApiModelProperty(value = "利润")
+    private java.lang.Integer profit;
+	/**备注*/
+	@Excel(name = "备注", width = 15)
+    @ApiModelProperty(value = "备注")
+    private java.lang.String memo;
 }
