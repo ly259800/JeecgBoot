@@ -335,3 +335,39 @@ justauth:
     type: default
     prefix: 'demo::'
     timeout: 1h
+wechat:
+  #微信小程序
+  miniprogram:
+    appid: wx9befcc63985204f1
+    secret: 9d03a4e5093c4ae81b02bd723458fa87
+  #微信网站应用
+  web:
+    appid: wx0b8ddbaa2b2cdce3
+    secret: d0c8dbf12722cbcb80b93f3e0a50d321
+  #  第三方平台appid 第三方平台appsecret
+  tripartitePlatform:
+    appid: wx5e499eea947f5778
+    secret: 9c43c025a83d4e38b272966af736d737
+  officialAccounts:
+    appid: wx29934891a70b50ef
+    secret: 7a386c3ff6fc0cd030ace91913697cc0
+
+# 微信支付配置
+wechatpay:
+  #开启验签
+  openSignCheck: true
+  merchant:
+    #商户号
+    id: 1389731502
+    #商户序列号
+    serialNO: 3AACA8B2DEB32326AB26F70C5FE7A0D26174F03C
+  api:
+    #商户API证书私钥
+    privateKey: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCnjSZZCFj9eMMG5nXFmqLkjmGFtvd8/zMSHk/TCBLk06sizblT8fFBDY61CItu7RryB9N31bbo/hcpt0Cgz6WGp1p2/MzHlaJx52hV9yGxWm7DQy21rtbn5hiSSNryurEo+yBQvm4MIkGa9Hgy/cU1eQZVgnqVgtyPFAIYXkPhwywp2HGmE6PO8mJ+djNJZ3YI4+XdcsM0iM7Np5sm205bNi6Qai9p3CZVZDrDFAveTAicnoA3VVMHVO0pmboHy6jUr+alp5LcPPY2mqWJhO2saoD2/tAS4LUkxU23cY00uaL1NmrYGml2csNr5egvAt5NeQDGz3/yTP/EbbJlFn4BAgMBAAECggEANOntt2ZcfEgcB1zWyr4IPXf9snXS+QW7QjiSawn8tYlnXYlswucAktPOQrvdFP4KaW8xSIIUzsYX2JPH9EE/fCPz/OnfXhSShbhYCfYPDOyLWF0p3VvHANt43RHnG4r8Ef4k+Xr6VBipcV9NaoUcN8PtzSl0vyzhrMnb04hJlc1DjpKtjM5pI2fpfqoj5n6wj0DZuyc87GE9O2FEMp6Sa3jU/Ftc3v3l7TIDAXfwoBpoLBIsMbMbnj9y23psyY4bhxvP1j9MxQ5Vq6rrudfeMXGnJvRI5QcVPpWD5uuu8K7wlxGUIk/PArOfPaWlqypYIBqm3u6zJzCxT6s9tYkkMQKBgQDV6ZlVIU1teyK8+kQK0tA9qcqUeX1OEEGGIIG8CkljuXa+x8UOeeBZ4tHieJGF16rXUTOgDCEyJQT3A3HbV9AEDRTYwZU8pxrtp6WQJY1HSu8KU2h2KU3rj/vJqMNVVsbzc6dfmCa7UaKTprCbDfze8Zpii/eI/RNhCpumHPL4dQKBgQDIhGvWAnr101vpXYKpF6bal0Ldivuz9LfFmFMo0c11y1Q94pc8SwvtwYX8XxrVYm55+yBco5Y4/Jh0YAB1ig+kqmxTN9UZED9Z6K/M3Kf7KoEVfF9S27VEx60MhLwfZYzZQ3bvMsrCglbfaxoSxk830UptFLDUCq/l5Gy3iFXd3QKBgQC+qpPIZIGuNxZUmUHy38tLWz89Lji5TxYIZoscv5KAt/wWuttzNsD5fYoUseEMCpq1hyRb4NPp7UNKpSBkIRZBtiNBvPK3eD8xW7/gBwixZiJA8u1mfRR+Bf2o1qsdMtbsgsbKF0VWq8Icl3RNEJ+3XGR+uEFwMhuG4LyxyJXtTQKBgB+DkF8mLKUN/tgCdlKVAQhB1aRz/3Mc9vT7J7a2oo/s0OSZBCPZt5o6XBB58gGvYqWRLljg7O8v49YGcIwIksTSdAvwLnGt+AbtZxPPaiczWu5Bicm/9hFFQJFDGz3j++r5i2u0k+FWEskyT/q7aB/hqMzT/6aTt2luKRf/OV+RAoGAc3TsI6T+yqqKFmQ97LqCdiUlFwMhWA+BU6gyKUMdoV/ZlFmRr6Gz3+AbGj8+6KEepm3HiQpCh4oVdW3JhODsws/NYTU928xLIaBpUcgVGNBPKMQRVNVsCyYj2xHZDVUpcMkm0YbCdrsq+Kl3OV9iDHG1WRsW6cKv/HHZDJ9h03A=
+    #商户APIV3密钥
+    V3Key: Jack9507189507189507188888888888
+  test:
+    mobile: 15231138726,15717964217,18810062052,15381713062
+  #支付回调地址
+  notify:
+    url:

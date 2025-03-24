@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.jeecg.modules.rider.pay.dao.PayOrderinfoMapper">
+
+    <resultMap type="org.jeecg.modules.rider.pay.entity.PayOrderinfoEntity" id="payOrderinfoMap">
+        <result property="id" column="id"/>
+        <result property="appid" column="appid"/>
+        <result property="mchid" column="mchid"/>
+        <result property="outTradeNo" column="out_trade_no"/>
+        <result property="description" column="description"/>
+        <result property="transactionId" column="transaction_id"/>
+        <result property="tradeType" column="trade_type"/>
+        <result property="tradeState" column="trade_state"/>
+        <result property="openid" column="openid"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="currency" column="currency"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="payCurrency" column="pay_currency"/>
+        <result property="bankType" column="bank_type"/>
+        <result property="successTime" column="success_time"/>
+        <result property="closeState" column="close_state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+</mapper>
