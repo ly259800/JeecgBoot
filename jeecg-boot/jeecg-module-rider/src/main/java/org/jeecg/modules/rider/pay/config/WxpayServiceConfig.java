@@ -90,7 +90,7 @@ public class WxpayServiceConfig {
     private String notifyUrl;
 
     /**
-     * 微信支付回调地址
+     * 微信支付回调手机号
      */
     @Value("${wechatpay.test.mobile}")
     private String mobile;
