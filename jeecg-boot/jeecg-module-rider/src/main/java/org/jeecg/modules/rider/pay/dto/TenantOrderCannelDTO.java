@@ -6,17 +6,17 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 /**
- * 租户订单取消支付入参
+ * 用户订单取消支付入参
  * @author leiyong
  * @date 2022-04-24
  */
 @Data
 public class TenantOrderCannelDTO {
     /**
-     * 租户订单号
+     * 用户订单号
      */
     @ApiModelProperty(value = "订单id", required = true)
     @NotNull
-    private Long orderId;
+    private String orderId;
 
 }

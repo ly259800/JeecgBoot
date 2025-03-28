@@ -1,8 +1,10 @@
 package org.jeecg.modules.rider.customer.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.mapper.RiderCustomerMapper;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,4 +18,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 @Service
 public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, RiderCustomer> implements IRiderCustomerService {
 
+    @Override
+    public RiderCustomer getByOpenId(String openid) {
+        QueryWrapper<RiderCustomer> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(RiderCustomer::getWxOpenId,openid).last("limit 1");
+        return baseMapper.selectOne(wrapper);
+    }
 }

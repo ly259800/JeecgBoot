@@ -5,6 +5,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.order.entity.RiderPayOrder;
+import org.jeecg.modules.rider.order.entity.RiderUserOrder;
+import org.jeecg.modules.rider.order.service.IRiderPayOrderService;
+import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
 import org.jeecg.modules.rider.pay.constants.BaseErrorCodeEnum;
 import org.jeecg.modules.rider.pay.constants.TradeStateEnum;
 import org.jeecg.modules.rider.pay.constants.TradeTypeEnum;
@@ -13,12 +19,8 @@ import org.jeecg.modules.rider.pay.dto.OrderCloseDTO;
 import org.jeecg.modules.rider.pay.dto.OrderQueryDTO;
 import org.jeecg.modules.rider.pay.dto.WechatPayApiOutDTO;
 import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
-import org.jeecg.modules.rider.pay.entity.PayOrderinfoEntity;
-import org.jeecg.modules.rider.pay.entity.SysTenantOrderEntity;
 import org.jeecg.modules.rider.pay.enums.OrderStateEnum;
 import org.jeecg.modules.rider.pay.exception.WechatPayException;
-import org.jeecg.modules.rider.pay.service.PayOrderinfoService;
-import org.jeecg.modules.rider.pay.service.TenantOrderService;
 import org.jeecg.modules.rider.pay.service.WeChatPayApiInvoke;
 import org.jeecg.modules.rider.pay.service.WeChatPayService;
 import org.jeecg.modules.rider.pay.util.PriceUtils;
@@ -35,11 +37,11 @@ public class WeChatPayServiceImpl implements WeChatPayService {
     @Resource
     private WeChatPayApiInvoke weChatPayApiInvoke;
     @Resource
-    private PayOrderinfoService payOrderinfoService;
-   /* @Resource
-    private SysUserDao sysUserDao;*/
+    private IRiderPayOrderService payOrderinfoService;
     @Resource
-    private TenantOrderService tenantOrderService;
+    private IRiderCustomerService riderCustomerService;
+    @Resource
+    private IRiderUserOrderService tenantOrderService;
 
     /**
      * 预下单处理
@@ -58,9 +60,9 @@ public class WeChatPayServiceImpl implements WeChatPayService {
             throw new WechatPayException(BaseErrorCodeEnum.TRADE_TYPE_NOT_EXSIT,payDto.getTradeType());
         }
         //根据订单号获取订单信息
-        SysTenantOrderEntity tenantOrder = tenantOrderService.getByOutTradeNo(payDto.getOutTradeNo());
+        RiderUserOrder tenantOrder = tenantOrderService.getByOutTradeNo(payDto.getOutTradeNo());
         if(Objects.isNull(tenantOrder)){
-            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("租户订单【%s】不存在", payDto.getOutTradeNo()));
+            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("用户订单【%s】不存在", payDto.getOutTradeNo()));
         }
         //判断订单是否已支付
         if(Objects.equals(tenantOrder.getOrderState(), OrderStateEnum.SUCCESS.getCode())){
@@ -69,8 +71,8 @@ public class WeChatPayServiceImpl implements WeChatPayService {
         if(Objects.equals(tenantOrder.getOrderState(), OrderStateEnum.CANNEL.getCode())){
             throw new WechatPayException(BaseErrorCodeEnum.REQ_FAIL.getStatus(), "订单已取消支付!");
         }
-        /*//根据用户id获取用户openid
-        SysUserEntity userEntity = sysUserDao.selectById(payDto.getUserId());
+        //根据用户id获取用户openid
+        RiderCustomer userEntity = riderCustomerService.getById(payDto.getUserId());
         if(Objects.isNull(userEntity)){
             throw new JeecgBootException("用户不存在!");
         }
@@ -78,14 +80,14 @@ public class WeChatPayServiceImpl implements WeChatPayService {
             throw new JeecgBootException("用户未绑定微信,请先绑定微信!");
         }
         payDto.setOpenid(userEntity.getWxOpenId());
-        payDto.setMobile(userEntity.getMobile());*/
+        payDto.setMobile(userEntity.getPhone());
         // 金额保留2位小数
         payDto.setTotalAmount(payDto.getTotalAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
         //1. 给该订单加锁,不允许订单号相同的多个线程同时进入
         Object intern = payDto.getOutTradeNo().intern();
         synchronized (intern){
             //2.订单重复支付申请校验
-            PayOrderinfoEntity payOrderinfo = payOrderinfoService.getByOutTradeNo(payDto.getOutTradeNo());
+            RiderPayOrder payOrderinfo = payOrderinfoService.getByOutTradeNo(payDto.getOutTradeNo());
             if (Objects.nonNull(payOrderinfo)) {
                 //若已存在支付订单,则判断是否已经生成预支付id
                 if(StringUtils.isNotEmpty(payOrderinfo.getPrePayId())){
@@ -96,7 +98,7 @@ public class WeChatPayServiceImpl implements WeChatPayService {
                 payDto.setPayOrderId(payOrderinfo.getId());
             } else {
                 //3.生成支付订单
-                PayOrderinfoEntity orderinfoEntity = payOrderinfoService.saveOrderinfo(payDto, tradeTypeEnum);
+                RiderPayOrder orderinfoEntity = payOrderinfoService.saveOrderinfo(payDto, tradeTypeEnum);
                 payDto.setPayOrderId(orderinfoEntity.getId());
             }
         }
@@ -142,7 +144,7 @@ public class WeChatPayServiceImpl implements WeChatPayService {
         WechatPayApiOutDTO outVO = weChatPayApiInvoke.close(closeDto);
         if(Objects.equals(outVO.getStatus(),204) || Objects.equals(outVO.getStatus(),200)){
             //订单关闭成功后更新支付订单状态
-            PayOrderinfoEntity orderinfoEntity = payOrderinfoService.getByOutTradeNo(closeDto.getOutTradeNo());
+            RiderPayOrder orderinfoEntity = payOrderinfoService.getByOutTradeNo(closeDto.getOutTradeNo());
             if(Objects.nonNull(orderinfoEntity)){
                 orderinfoEntity.setTradeState(TradeStateEnum.CLOSED.getStatus());
                 orderinfoEntity.setCloseState(WechatPayContants.PayCloseStatus.CLOSE);
@@ -158,7 +160,7 @@ public class WeChatPayServiceImpl implements WeChatPayService {
         if(Objects.equals(outVO.getStatus(),BaseErrorCodeEnum.REQ_SUCCESS.getStatus())){
             //下单成功，则更新支付订单的预支付id
             JSONObject jsonObject = WechatPayContants.OBJECT_MAPPER.readValue(outVO.getData().toString(), JSONObject.class);
-            PayOrderinfoEntity orderinfoEntity = new PayOrderinfoEntity();
+            RiderPayOrder orderinfoEntity = new RiderPayOrder();
             orderinfoEntity.setId(payDto.getPayOrderId());
             orderinfoEntity.setPrePayId(jsonObject.getString("package"));
             payOrderinfoService.updateById(orderinfoEntity);

@@ -74,4 +74,8 @@ public class RiderCustomer implements Serializable {
 	@Dict(dicCode = "customer_identity")
     @ApiModelProperty(value = "身份")
     private java.lang.Integer identity;
+    /**微信openid*/
+    @ApiModelProperty(value = "微信openid")
+    private java.lang.String wxOpenId;
+
 }

@@ -1,24 +1,26 @@
-package org.jeecg.modules.rider.pay.service.impl;
+package org.jeecg.modules.rider.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.jeecg.common.util.RedisUtil;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.order.entity.RiderPayOrder;
+import org.jeecg.modules.rider.order.entity.RiderUserOrder;
+import org.jeecg.modules.rider.order.mapper.RiderPayOrderMapper;
+import org.jeecg.modules.rider.order.service.IRiderPayOrderService;
+import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
 import org.jeecg.modules.rider.pay.config.WxpayServiceConfig;
 import org.jeecg.modules.rider.pay.constants.TradeStateEnum;
 import org.jeecg.modules.rider.pay.constants.TradeTypeEnum;
 import org.jeecg.modules.rider.pay.constants.WechatPayContants;
-import org.jeecg.modules.rider.pay.dao.PayOrderinfoMapper;
-import org.jeecg.modules.rider.pay.dao.TenantOrderMapper;
 import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
 import org.jeecg.modules.rider.pay.entity.CallbackDecryptData;
-import org.jeecg.modules.rider.pay.entity.PayOrderinfoEntity;
-import org.jeecg.modules.rider.pay.entity.SysTenantOrderEntity;
 import org.jeecg.modules.rider.pay.enums.OrderStateEnum;
 import org.jeecg.modules.rider.pay.enums.PayMethodEnum;
-import org.jeecg.modules.rider.pay.service.PayOrderinfoService;
 import org.jeecg.modules.rider.pay.util.PriceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,26 +29,29 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * @Description: 支付订单
+ * @Author: jeecg-boot
+ * @Date:   2025-03-28
+ * @Version: V1.0
+ */
 @Service
-public class PayOrderinfoServiceImpl implements PayOrderinfoService {
-    @Resource
-    private PayOrderinfoMapper payOrderinfoMapper;
-
-    @Resource
-    private TenantOrderMapper tenantOrderMapper;
+public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, RiderPayOrder> implements IRiderPayOrderService {
 
     @Resource
     private WxpayServiceConfig wxpayServiceConfig;
 
-    @Lazy
     @Autowired
-    private RedisUtil redisUtil;
+    private IRiderUserOrderService riderUserOrderService;
+
+    @Autowired
+    private IRiderCustomerService riderCustomerService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PayOrderinfoEntity saveOrderinfo(WechatPayDTO paydto, TradeTypeEnum tradeTypeEnum) {
+    public RiderPayOrder saveOrderinfo(WechatPayDTO paydto, TradeTypeEnum tradeTypeEnum) {
         // 构建订单参数
-        PayOrderinfoEntity orderinfo = new PayOrderinfoEntity();
+        RiderPayOrder orderinfo = new RiderPayOrder();
         orderinfo.setAppid(wxpayServiceConfig.getAppid());
         orderinfo.setMchid(wxpayServiceConfig.getMchid());
         orderinfo.setOutTradeNo(paydto.getOutTradeNo());//订单号
@@ -57,28 +62,22 @@ public class PayOrderinfoServiceImpl implements PayOrderinfoService {
         orderinfo.setTotalAmount(paydto.getTotalAmount());//订单总金额,单位为元
         orderinfo.setCurrency("CNY");// 货币类型(CNY-人民币)
         orderinfo.setCloseState(WechatPayContants.PayCloseStatus.OPEN);// 订单关闭状态默认为开启
-        payOrderinfoMapper.insert(orderinfo);
+        this.save(orderinfo);
         return orderinfo;
     }
 
     @Override
-    public PayOrderinfoEntity getByOutTradeNo(String outTradeNo) {
-        QueryWrapper<PayOrderinfoEntity> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(PayOrderinfoEntity::getOutTradeNo, outTradeNo)
-                .eq(PayOrderinfoEntity::getCloseState, WechatPayContants.PayCloseStatus.OPEN)
+    public RiderPayOrder getByOutTradeNo(String outTradeNo) {
+        QueryWrapper<RiderPayOrder> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(RiderPayOrder::getOutTradeNo, outTradeNo)
+                .eq(RiderPayOrder::getCloseState, WechatPayContants.PayCloseStatus.OPEN)
                 .last("limit 1");
-        return payOrderinfoMapper.selectOne(wrapper);
+        return baseMapper.selectOne(wrapper);
     }
 
-    /**
-     * 更新支付订单、租户订单和租户信息
-     * @param payOrderinfo
-     * @param payOrderinfo
-     * @param consumeData
-     */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateOrderinfo(SysTenantOrderEntity tenantOrder, PayOrderinfoEntity payOrderinfo, CallbackDecryptData consumeData) {
+    public void updateOrderinfo(RiderUserOrder tenantOrder, RiderPayOrder payOrderinfo, CallbackDecryptData consumeData) {
         // 1.更新支付订单
         Date payOrderUpdateTime = payOrderinfo.getUpdateTime();
         TradeStateEnum tradeStateEnum = TradeStateEnum.getEnum(consumeData.getTradeState());
@@ -95,10 +94,10 @@ public class PayOrderinfoServiceImpl implements PayOrderinfoService {
         payOrderinfo.setBankType(consumeData.getBankType());//银行类型
         payOrderinfo.setSuccessTime(consumeData.getSuccessTime());//支付完成时间
         payOrderinfo.setUpdateTime(new Date());
-        QueryWrapper<PayOrderinfoEntity> payOrderWrapper = new QueryWrapper<>();
-        payOrderWrapper.lambda().eq(PayOrderinfoEntity::getId, payOrderinfo.getId())
-                .eq(PayOrderinfoEntity::getUpdateTime, payOrderUpdateTime);
-        payOrderinfoMapper.update(payOrderinfo,payOrderWrapper);
+        QueryWrapper<RiderPayOrder> payOrderWrapper = new QueryWrapper<>();
+        payOrderWrapper.lambda().eq(RiderPayOrder::getId, payOrderinfo.getId())
+                .eq(RiderPayOrder::getUpdateTime, payOrderUpdateTime);
+        this.baseMapper.update(payOrderinfo,payOrderWrapper);
         // 2.更新租户订单
         Date tenantOrderUpdateTime = tenantOrder.getUpdateTime();
         tenantOrder.setActualAmount(payAmount);//实际支付金额
@@ -112,18 +111,17 @@ public class PayOrderinfoServiceImpl implements PayOrderinfoService {
             tenantOrder.setOrderState(OrderStateEnum.PAYERROR.getCode());//支付失败
         }
         tenantOrder.setUpdateTime(new Date());
-        QueryWrapper<SysTenantOrderEntity> tenantOrderWrapper = new QueryWrapper<>();
-        tenantOrderWrapper.lambda().eq(SysTenantOrderEntity::getId, tenantOrder.getId())
-                .eq(SysTenantOrderEntity::getUpdateTime, tenantOrderUpdateTime);
-        int flag = tenantOrderMapper.update(tenantOrder, tenantOrderWrapper);
-        // 3.订单更新时间未修改，则更新租户信息
+        QueryWrapper<RiderUserOrder> tenantOrderWrapper = new QueryWrapper<>();
+        tenantOrderWrapper.lambda().eq(RiderUserOrder::getId, tenantOrder.getId())
+                .eq(RiderUserOrder::getUpdateTime, tenantOrderUpdateTime);
+        int flag = riderUserOrderService.getBaseMapper().update(tenantOrder, tenantOrderWrapper);
+        // 3.订单更新时间未修改，则更新客户信息为合伙人
         if(flag>0){
-
-
+            RiderCustomer riderCustomer = new RiderCustomer();
+            riderCustomer.setIdentity(2);
+            riderCustomer.setId(tenantOrder.getCustomerId());
+            riderCustomerService.updateById(riderCustomer);
         }
-    }
-    @Override
-    public void updateById(PayOrderinfoEntity orderinfoEntity) {
-        payOrderinfoMapper.updateById(orderinfoEntity);
+
     }
 }

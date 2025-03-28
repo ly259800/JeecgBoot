@@ -11,4 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IRiderCustomerService extends IService<RiderCustomer> {
 
+    RiderCustomer getByOpenId(String openid);
+
 }
