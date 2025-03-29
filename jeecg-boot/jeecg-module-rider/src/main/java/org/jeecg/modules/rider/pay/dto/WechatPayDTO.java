@@ -46,7 +46,7 @@ public class WechatPayDTO {
     /** 用户id */
     @ApiModelProperty(value = "用户id", required = true)
     @NotNull
-    private Long userId;
+    private String userId;
 
     /**
      * 微信openid
@@ -61,6 +61,6 @@ public class WechatPayDTO {
     /**
      * 支付订单id
      */
-    private Long payOrderId;
+    private String payOrderId;
     
 }

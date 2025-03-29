@@ -5,6 +5,12 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.exception.JeecgBootException;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.order.entity.RiderPayOrder;
+import org.jeecg.modules.rider.order.entity.RiderUserOrder;
+import org.jeecg.modules.rider.order.service.IRiderPayOrderService;
+import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
 import org.jeecg.modules.rider.pay.config.WxpayServiceConfig;
 import org.jeecg.modules.rider.pay.constants.BaseErrorCodeEnum;
 import org.jeecg.modules.rider.pay.constants.EventTypeEnum;
@@ -31,13 +37,13 @@ public class WeChatPayNotifyInvoke {
     private WxpayServiceConfig wxpayServiceConfig;
 
     @Resource
-    private TenantOrderService tenantOrderService;
+    private IRiderUserOrderService tenantOrderService;
 
     @Resource
-    private PayOrderinfoService payOrderinfoService;
+    private IRiderPayOrderService payOrderinfoService;
 
-    /*@Resource
-    private SysUserService sysUserService;*/
+    @Resource
+    private IRiderCustomerService sysUserService;
 
     @SneakyThrows
     public ResponseSignVerifyParams getRequestParam(HttpServletRequest request) {
@@ -95,11 +101,11 @@ public class WeChatPayNotifyInvoke {
             throw new WechatPayException(BaseErrorCodeEnum.TRADE_STATE_NOT_EXSIT, consumeData.getTradeState());
         }
         // 3.根据租户订单号校验订单真实性
-        SysTenantOrderEntity tenantOrder = tenantOrderService.getByOutTradeNo(consumeData.getOutTradeNo());
+        RiderUserOrder tenantOrder = tenantOrderService.getByOutTradeNo(consumeData.getOutTradeNo());
         if(Objects.isNull(tenantOrder)){
-            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("租户订单【%s】不存在", consumeData.getOutTradeNo()));
+            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("用户订单【%s】不存在", consumeData.getOutTradeNo()));
         }
-        PayOrderinfoEntity payOrderinfo = payOrderinfoService.getByOutTradeNo(consumeData.getOutTradeNo());
+        RiderPayOrder payOrderinfo = payOrderinfoService.getByOutTradeNo(consumeData.getOutTradeNo());
         if(Objects.isNull(payOrderinfo)){
             throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("微信支付订单【%s】不存在或已关闭", consumeData.getOutTradeNo()));
         }
@@ -109,11 +115,11 @@ public class WeChatPayNotifyInvoke {
             throw new WechatPayException(BaseErrorCodeEnum.CALLBACK_HANDLED, consumeData.getOutTradeNo());
         }
         // 5.根据openid获取支付人信息
-        /*SysUserDTO user = sysUserService.getByOpenId(consumeData.getPayer().getOpenid());
+        RiderCustomer user = sysUserService.getByOpenId(consumeData.getPayer().getOpenid());
         if(Objects.nonNull(user)){
             tenantOrder.setPayId(user.getId());
-            tenantOrder.setPayer(user.getUsername());
-        }*/
+            tenantOrder.setPayer(user.getName());
+        }
         // 6.更新支付订单、租户订单及租户信息
         payOrderinfoService.updateOrderinfo(tenantOrder,payOrderinfo,consumeData);
     }
