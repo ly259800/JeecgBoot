@@ -1,4 +1,4 @@
-package org.jeecg.modules.rider.site.entity;
+package org.jeecg.modules.rider.city.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -21,17 +21,17 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * @Description: 站点管理
+ * @Description: 城市管理
  * @Author: jeecg-boot
- * @Date:   2025-03-23
+ * @Date:   2025-03-31
  * @Version: V1.0
  */
 @Data
-@TableName("rider_site")
+@TableName("rider_city")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="rider_site对象", description="站点管理")
-public class RiderSite implements Serializable {
+@ApiModel(value="rider_city对象", description="城市管理")
+public class RiderCity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**主键*/
@@ -57,33 +57,12 @@ public class RiderSite implements Serializable {
 	/**所属部门*/
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
-	/**城市*/
-	@Excel(name = "城市", width = 15)
-    @ApiModelProperty(value = "城市")
-    private java.lang.String city;
-	/**区域*/
-	@Excel(name = "区域", width = 15)
-    @ApiModelProperty(value = "区域")
-    private java.lang.String region;
-	/**名称*/
-	@Excel(name = "名称", width = 15)
-    @ApiModelProperty(value = "名称")
+	/**城市名称*/
+	@Excel(name = "城市名称", width = 15)
+    @ApiModelProperty(value = "城市名称")
     private java.lang.String name;
-	/**缺口*/
-	@Excel(name = "缺口", width = 15)
-    @ApiModelProperty(value = "缺口")
-    private java.lang.Integer gap;
-	/**佣金*/
-	@Excel(name = "美团佣金", width = 15)
-    @ApiModelProperty(value = "美团佣金")
-    private java.lang.Integer commission;
-	/**利润*/
-	@Excel(name = "利润", width = 15)
-    @ApiModelProperty(value = "利润")
-    private java.lang.Integer profit;
-
-	/**备注*/
-	@Excel(name = "备注", width = 15)
-    @ApiModelProperty(value = "备注")
-    private java.lang.String memo;
+	/**城市站点链接*/
+	@Excel(name = "城市站点链接", width = 15)
+    @ApiModelProperty(value = "城市站点链接")
+    private java.lang.String url;
 }

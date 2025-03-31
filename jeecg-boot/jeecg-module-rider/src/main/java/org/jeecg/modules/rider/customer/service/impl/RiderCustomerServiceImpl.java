@@ -24,4 +24,12 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
         wrapper.lambda().eq(RiderCustomer::getWxOpenId,openid).last("limit 1");
         return baseMapper.selectOne(wrapper);
     }
+
+
+    @Override
+    public RiderCustomer getByPhone(String phone) {
+        QueryWrapper<RiderCustomer> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(RiderCustomer::getPhone,phone).last("limit 1");
+        return baseMapper.selectOne(wrapper);
+    }
 }

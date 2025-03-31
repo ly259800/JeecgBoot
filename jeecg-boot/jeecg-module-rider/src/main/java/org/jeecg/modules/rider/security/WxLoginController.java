@@ -7,10 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.RedisUtil;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.pay.service.WeChatPayApiInvoke;
 import org.jeecg.modules.rider.pay.util.Result;
 import org.jeecg.modules.rider.security.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,6 +33,9 @@ public class WxLoginController {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private IRiderCustomerService riderCustomerService;
 
     @SuppressWarnings("AlibabaRemoveCommentedCode")
     @PostMapping("wx/login")
@@ -62,10 +68,7 @@ public class WxLoginController {
         if (StringUtils.isNotEmpty(login.getSessionKey())) {
             WxResultDTO resultDTO = (WxResultDTO) redisUtil.get(login.getSessionKey());
             if (Objects.isNull(resultDTO)) {
-                Result result = new Result();
-                result.setCode(10070);
-                result.setMsg("sessionKey已失效,请重新授权!");
-                return result;
+                throw new JeecgBootException("sessionKey已失效,请重新授权!");
             }
             openId = resultDTO.getOpenid();
         }
@@ -74,23 +77,12 @@ public class WxLoginController {
             throw new JeecgBootException("鉴权不能为空!");
         }
         //根据openid查找用户
-        /*SysUserDTO userDTO = sysUserService.getByOpenId(openId);
-        if (Objects.nonNull(userDTO)) {
-            Result token = sysUserOpenIdService.createToken(userDTO.getId());
-            if (Objects.isNull(userDTO.getTenantCode())) {
-                token.setCode(-3);
-                token.setMsg("当前未加入任何企业");
-                return token;
-            }
-            //用户已存在，直接返回该用户
-            return token;
-        } else {
-            Result res = new Result();
-            res.setCode(201);
-            res.setMsg("微信未绑定用户!");
-            return res;
-        }*/
-        return new Result();
+        RiderCustomer userDTO = riderCustomerService.getByOpenId(openId);
+        if (Objects.isNull(userDTO)) {
+            throw new JeecgBootException("微信未绑定用户!");
+        }
+        //用户已存在，直接返回该用户
+        return new Result().ok(userDTO);
     }
 /*
     @PostMapping("user/bindLogin")

@@ -13,7 +13,6 @@ CREATE TABLE `rider_customer` (
                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 CREATE TABLE `rider_interview` (
                                    `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
                                    `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
@@ -35,6 +34,9 @@ CREATE TABLE `rider_interview` (
                                    `source` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '数据来源',
                                    `status` int DEFAULT '0' COMMENT '面试状态',
                                    `pass_status` int DEFAULT '0' COMMENT '通过状态',
+                                   `electric_vehicle` int DEFAULT NULL COMMENT '是否需要电动车',
+                                   `site_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '站点id',
+                                   `entrance` int DEFAULT NULL COMMENT '小程序入口',
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -50,8 +52,9 @@ CREATE TABLE `rider_site` (
                               `name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '名称',
                               `gap` int DEFAULT NULL COMMENT '缺口',
                               `memo` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
-                              `commission` int DEFAULT NULL COMMENT '佣金',
+                              `commission` int DEFAULT NULL COMMENT '美团佣金',
                               `profit` int DEFAULT NULL COMMENT '利润',
+                              `site_commission` int DEFAULT NULL COMMENT '站长佣金',
                               PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
