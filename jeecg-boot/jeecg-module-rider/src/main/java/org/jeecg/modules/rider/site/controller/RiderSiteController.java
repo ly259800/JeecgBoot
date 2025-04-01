@@ -14,6 +14,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.site.dto.RiderSiteDTO;
 import org.jeecg.modules.rider.site.entity.RiderSite;
 import org.jeecg.modules.rider.site.service.IRiderSiteService;
 
@@ -28,6 +29,7 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,14 +67,21 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 	//@AutoLog(value = "站点管理-分页列表查询")
 	@ApiOperation(value="站点管理-分页列表查询", notes="站点管理-分页列表查询")
 	@GetMapping(value = "/list")
-	public Result<IPage<RiderSite>> queryPageList(RiderSite riderSite,
-								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-								   HttpServletRequest req) {
+	public Result<IPage<RiderSiteDTO>> queryPageList(RiderSite riderSite,
+													 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+													 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+													 HttpServletRequest req) {
         QueryWrapper<RiderSite> queryWrapper = QueryGenerator.initQueryWrapper(riderSite, req.getParameterMap());
 		Page<RiderSite> page = new Page<RiderSite>(pageNo, pageSize);
 		IPage<RiderSite> pageList = riderSiteService.page(page, queryWrapper);
-		return Result.OK(pageList);
+		IPage<RiderSiteDTO> siteDTOIPage = pageList.convert(x -> {
+			RiderSiteDTO siteDTO = new RiderSiteDTO();
+			BeanUtils.copyProperties(x, siteDTO);
+			//设置站长佣金
+			siteDTO.setSite_commission(x.getCommission() - x.getProfit());
+			return siteDTO;
+		});
+		return Result.OK(siteDTOIPage);
 	}
 	
 	/**

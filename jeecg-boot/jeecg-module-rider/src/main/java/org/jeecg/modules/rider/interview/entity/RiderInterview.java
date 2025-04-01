@@ -86,6 +86,10 @@ public class RiderInterview implements Serializable {
 	@Excel(name = "是否需要住宿", width = 15)
     @ApiModelProperty(value = "是否需要住宿")
     private java.lang.Integer accommodation;
+    /**是否需要住宿*/
+    @Excel(name = "是否需要电动车", width = 15)
+    @ApiModelProperty(value = "是否需要电动车")
+    private java.lang.Integer electricVehicle;
 	/**是否需要购买社保*/
 	@Excel(name = "是否需要购买社保", width = 15)
     @ApiModelProperty(value = "是否需要购买社保")
@@ -94,6 +98,12 @@ public class RiderInterview implements Serializable {
 	@Excel(name = "报道站点", width = 15)
     @ApiModelProperty(value = "报道站点")
     private java.lang.String siteName;
+
+    @Excel(name = "站点ID", width = 15)
+    @ApiModelProperty(value = "站点ID")
+    private java.lang.String siteId;
+
+
 	/**期望区域地址*/
     @Excel(name = "期望区域地址", width = 15,exportConvert=true,importConvert = true )
     @ApiModelProperty(value = "期望区域地址")
@@ -122,4 +132,8 @@ public class RiderInterview implements Serializable {
 	@Excel(name = "通过状态", width = 15)
     @ApiModelProperty(value = "通过状态")
     private java.lang.Integer passStatus;
+
+    @Excel(name = "小程序入口", width = 15)
+    @ApiModelProperty(value = "小程序入口")
+    private java.lang.Integer entrance;
 }
