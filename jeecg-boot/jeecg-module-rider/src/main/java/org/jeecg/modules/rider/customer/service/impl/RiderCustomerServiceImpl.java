@@ -9,6 +9,7 @@ import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @Description: 客户管理
@@ -35,6 +36,7 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveRiderCustomer(RiderCustomerDTO riderCustomerDTO) {
 
     }
