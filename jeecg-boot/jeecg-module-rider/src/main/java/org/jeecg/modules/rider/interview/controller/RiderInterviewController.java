@@ -17,6 +17,7 @@ import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
@@ -124,7 +125,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 if(riderCustomer == null){
 			 return Result.error("用户未注册");
 		 }
-		 if(riderCustomer.getIdentity() != 3 ){
+		 if(riderCustomer.getIdentity() != CustomerIdentityEnum.PARTNER.getCode() ){
 			 return Result.error("您当前不是合伙人，不能申请");
 		 }
 		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("entrance", 2));

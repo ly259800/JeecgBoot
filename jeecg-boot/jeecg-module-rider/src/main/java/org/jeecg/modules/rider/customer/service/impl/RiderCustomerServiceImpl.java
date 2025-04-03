@@ -6,6 +6,8 @@ import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.mapper.RiderCustomerMapper;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.order.entity.RiderUserOrder;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -35,9 +37,4 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
         return baseMapper.selectOne(wrapper);
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void saveRiderCustomer(RiderCustomerDTO riderCustomerDTO) {
-
-    }
 }

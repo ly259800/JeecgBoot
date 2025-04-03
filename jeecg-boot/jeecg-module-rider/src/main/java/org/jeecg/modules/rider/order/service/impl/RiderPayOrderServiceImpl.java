@@ -2,6 +2,7 @@ package org.jeecg.modules.rider.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.order.entity.RiderPayOrder;
 import org.jeecg.modules.rider.order.entity.RiderUserOrder;
@@ -118,7 +119,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         // 3.订单更新时间未修改，则更新客户信息为合伙人
         if(flag>0){
             RiderCustomer riderCustomer = new RiderCustomer();
-            riderCustomer.setIdentity(2);
+            riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
             riderCustomer.setId(tenantOrder.getCustomerId());
             riderCustomerService.updateById(riderCustomer);
         }
