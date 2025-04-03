@@ -78,7 +78,7 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 			RiderSiteDTO siteDTO = new RiderSiteDTO();
 			BeanUtils.copyProperties(x, siteDTO);
 			//设置站长佣金
-			siteDTO.setSite_commission(x.getCommission() - x.getProfit());
+			siteDTO.setSiteCommission(x.getCommission() - x.getProfit());
 			return siteDTO;
 		});
 		return Result.OK(siteDTOIPage);

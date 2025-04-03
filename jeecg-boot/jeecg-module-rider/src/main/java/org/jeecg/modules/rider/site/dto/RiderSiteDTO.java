@@ -9,5 +9,5 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class RiderSiteDTO extends RiderSite {
     @Excel(name = "站长佣金", width = 15)
     @ApiModelProperty(value = "站长佣金")
-    private java.lang.Integer site_commission;
+    private java.lang.Integer siteCommission;
 }

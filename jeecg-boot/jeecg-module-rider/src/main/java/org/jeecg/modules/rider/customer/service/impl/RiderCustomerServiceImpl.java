@@ -1,6 +1,7 @@
 package org.jeecg.modules.rider.customer.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.mapper.RiderCustomerMapper;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
@@ -31,5 +32,10 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
         QueryWrapper<RiderCustomer> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(RiderCustomer::getPhone,phone).last("limit 1");
         return baseMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public void saveRiderCustomer(RiderCustomerDTO riderCustomerDTO) {
+
     }
 }

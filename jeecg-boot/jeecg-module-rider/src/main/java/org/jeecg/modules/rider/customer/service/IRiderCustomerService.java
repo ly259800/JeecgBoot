@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.customer.service;
 
+import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -15,5 +16,7 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
 
 
     RiderCustomer getByPhone(String phone);
+
+    void saveRiderCustomer(RiderCustomerDTO riderCustomerDTO);
 
 }

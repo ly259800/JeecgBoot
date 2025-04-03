@@ -54,7 +54,18 @@ CREATE TABLE `rider_site` (
                               `memo` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
                               `commission` int DEFAULT NULL COMMENT '美团佣金',
                               `profit` int DEFAULT NULL COMMENT '利润',
-                              `site_commission` int DEFAULT NULL COMMENT '站长佣金',
+                              PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `rider_city` (
+                              `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                              `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                              `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                              `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                              `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                              `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                              `name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '名称',
+                              `url` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '链接',
                               PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

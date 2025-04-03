@@ -1,19 +1,23 @@
 package org.jeecg.modules.rider.interview.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 
@@ -52,6 +56,9 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class RiderInterviewController extends JeecgController<RiderInterview, IRiderInterviewService> {
 	@Autowired
 	private IRiderInterviewService riderInterviewService;
+
+	 @Autowired
+	 private IRiderCustomerService riderCustomerService;
 	
 	/**
 	 * 分页列表查询
@@ -88,9 +95,50 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 	@RequiresPermissions("interview:rider_interview:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody RiderInterview riderInterview) {
+		RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("entrance", 1));
+		if(one != null){
+			return Result.error("该手机号已报名");
+		}
+		//小程序入口，1-骑手
+		riderInterview.setEntrance(1);
 		riderInterviewService.save(riderInterview);
-		return Result.OK("添加成功！");
+		return Result.OK("报名成功！");
 	}
+
+	 /**
+	  *   站点申请
+	  */
+	 @AutoLog(value = "站点申请")
+	 @ApiOperation(value="站点申请", notes="站点申请")
+	 @RequiresPermissions("interview:rider_interview:add")
+	 @PostMapping(value = "/siteAdd")
+	 public Result<String> siteAdd(@RequestBody RiderInterview riderInterview) {
+		 if(StringUtils.isEmpty(riderInterview.getSiteId()) || StringUtils.isEmpty(riderInterview.getSiteName())){
+			 return Result.error("站点不能为空");
+		 }
+		 LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if(Objects.isNull(sysUser)){
+			 throw new JeecgBootException("请先登录");
+		 }
+		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(sysUser.getPhone());
+		 if(riderCustomer == null){
+			 return Result.error("用户未注册");
+		 }
+		 if(riderCustomer.getIdentity() != 3 ){
+			 return Result.error("您当前不是合伙人，不能申请");
+		 }
+		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("entrance", 2));
+		 if(one != null){
+			 riderInterview.setId(one.getId());
+			 riderInterviewService.updateById(riderInterview);
+			 return Result.OK("登记信息修改成功！");
+		 }
+		 //小程序入口，2-合伙人
+		 riderInterview.setEntrance(2);
+		 riderInterview.setReference(riderCustomer.getId());
+		 riderInterviewService.save(riderInterview);
+		 return Result.OK("登记成功！");
+	 }
 	
 	/**
 	 *  编辑

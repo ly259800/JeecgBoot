@@ -78,4 +78,7 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "微信openid")
     private java.lang.String wxOpenId;
 
+    @ApiModelProperty(value = "微信unionid")
+    private java.lang.String unionid;
+
 }

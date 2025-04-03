@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.RedisUtil;
+import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.pay.service.WeChatPayApiInvoke;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -84,6 +86,21 @@ public class WxLoginController {
         //用户已存在，直接返回该用户
         return new Result().ok(userDTO);
     }
+
+    @PostMapping("user/register")
+    @ApiOperation(value = "用户注册")
+    @Transactional(rollbackFor = Exception.class)
+    public Result registerUser(@RequestBody @Valid RiderCustomerDTO dto) {
+        if (StringUtils.isEmpty(dto.getSessionKey())) {
+            throw new JeecgBootException("sessionKey已失效,请重新授权!");
+        }
+        WxResultDTO resultDTO = (WxResultDTO) redisUtil.get(dto.getSessionKey());
+        dto.setWxOpenId(resultDTO.getOpenid());
+        dto.setUnionid(resultDTO.getUnionid());
+        riderCustomerService.saveRiderCustomer(dto);
+        return new Result();
+    }
+
 /*
     @PostMapping("user/bindLogin")
     @ApiOperation(value = "用户绑定微信登录")
