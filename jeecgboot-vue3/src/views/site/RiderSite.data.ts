@@ -26,7 +26,7 @@ export const columns: BasicColumn[] = [
     dataIndex: 'gap'
    },
   {
-    title: '佣金',
+    title: '美团佣金',
     align:"center",
     dataIndex: 'commission'
   },
@@ -34,6 +34,11 @@ export const columns: BasicColumn[] = [
     title: '利润',
     align:"center",
     dataIndex: 'profit'
+  },
+  {
+    title: '站长佣金',
+    align:"center",
+    dataIndex: 'siteCommission'
   },
   {
     title: '备注',
