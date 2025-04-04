@@ -72,12 +72,6 @@ public class WxpayServiceConfig {
     private String serialNO;
 
     /**
-     * 商户API证书私钥
-     */
-    @Value("${wechatpay.api.privateKey}")
-    private String privateKey;
-
-    /**
      * 商户APIV3密钥
      */
     @Value("${wechatpay.api.V3Key}")
