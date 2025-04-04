@@ -4,9 +4,9 @@
    <BasicTable @register="registerTable" :rowSelection="rowSelection">
      <!--插槽:table标题-->
       <template #tableTitle>
-          <a-button type="primary" v-auth="'city:rider_city:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button  type="primary" v-auth="'city:rider_city:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-          <j-upload-button type="primary" v-auth="'city:rider_city:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+          <a-button type="primary" v-auth="'params:rider_params:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
+          <a-button  type="primary" v-auth="'params:rider_params:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+          <j-upload-button type="primary" v-auth="'params:rider_params:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -16,7 +16,7 @@
                   </a-menu-item>
                 </a-menu>
               </template>
-              <a-button v-auth="'city:rider_city:deleteBatch'">批量操作
+              <a-button v-auth="'params:rider_params:deleteBatch'">批量操作
                 <Icon icon="mdi:chevron-down"></Icon>
               </a-button>
         </a-dropdown>
@@ -32,18 +32,18 @@
       </template>
     </BasicTable>
     <!-- 表单区域 -->
-    <RiderCityModal @register="registerModal" @success="handleSuccess"></RiderCityModal>
+    <RiderParamsModal @register="registerModal" @success="handleSuccess"></RiderParamsModal>
   </div>
 </template>
 
-<script lang="ts" name="city-riderCity" setup>
+<script lang="ts" name="params-riderParams" setup>
   import {ref, reactive, computed, unref} from 'vue';
   import {BasicTable, useTable, TableAction} from '/@/components/Table';
   import {useModal} from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage'
-  import RiderCityModal from './components/RiderCityModal.vue'
-  import {columns, searchFormSchema, superQuerySchema} from './RiderCity.data';
-  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './RiderCity.api';
+  import RiderParamsModal from './components/RiderParamsModal.vue'
+  import {columns, searchFormSchema, superQuerySchema} from './RiderParams.data';
+  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './RiderParams.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   const queryParam = reactive<any>({});
@@ -54,7 +54,7 @@
   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
-           title: '城市管理',
+           title: '参数配置',
            api: list,
            columns,
            canResize:false,
@@ -77,7 +77,7 @@
             },
       },
        exportConfig: {
-            name:"城市管理",
+            name:"参数配置",
             url: getExportUrl,
             params: queryParam,
           },
@@ -156,7 +156,7 @@
          {
            label: '编辑',
            onClick: handleEdit.bind(null, record),
-           auth: 'city:rider_city:edit'
+           auth: 'params:rider_params:edit'
          }
        ]
    }
@@ -175,7 +175,7 @@
              confirm: handleDelete.bind(null, record),
              placement: 'topLeft',
            },
-           auth: 'city:rider_city:delete'
+           auth: 'params:rider_params:delete'
          }
        ]
    }

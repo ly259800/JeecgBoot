@@ -41,8 +41,10 @@ import java.util.UUID;
 
 
 /**
- * 登录
+ * 小程序登录
  */
+@Api(tags="小程序登录")
+@RequestMapping("/wx")
 @RestController
 @Slf4j
 public class WxLoginController {
@@ -65,7 +67,7 @@ public class WxLoginController {
     private BaseCommonService baseCommonService;
 
     @SuppressWarnings("AlibabaRemoveCommentedCode")
-    @PostMapping("wx/login")
+    @PostMapping("login")
     @ApiOperation(value = "获取openid")
     public Result WxLogin(HttpServletRequest request, @RequestBody WxLoginDTO login) {
         String code = login.getCode();

@@ -119,3 +119,17 @@ CREATE TABLE `rider_user_order` (
                                     `payment_method` int DEFAULT NULL COMMENT '支付方式',
                                     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `rider_params` (
+                                `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                                `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                                `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                                `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                                `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                                `param_code` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '参数编码',
+                                `param_value` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '参数值',
+                                `memo` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
+                                PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

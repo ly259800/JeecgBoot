@@ -6,14 +6,19 @@ import { getWeekMonthQuarterYear } from '/@/utils';
 //列表数据
 export const columns: BasicColumn[] = [
    {
-    title: '城市名称',
+    title: '参数编码',
     align:"center",
-    dataIndex: 'name'
+    dataIndex: 'paramCode'
    },
    {
-    title: '城市站点链接',
+    title: '参数值',
     align:"center",
-    dataIndex: 'url'
+    dataIndex: 'paramValue'
+   },
+   {
+    title: '备注',
+    align:"center",
+    dataIndex: 'memo'
    },
 ];
 //查询数据
@@ -22,18 +27,28 @@ export const searchFormSchema: FormSchema[] = [
 //表单数据
 export const formSchema: FormSchema[] = [
   {
-    label: '城市名称',
-    field: 'name',
+    label: '参数编码',
+    field: 'paramCode',
     component: 'Input',
     dynamicRules: ({model,schema}) => {
           return [
-                 { required: true, message: '请输入城市名称!'},
+                 { required: true, message: '请输入参数编码!'},
           ];
      },
   },
   {
-    label: '城市站点链接',
-    field: 'url',
+    label: '参数值',
+    field: 'paramValue',
+    component: 'Input',
+    dynamicRules: ({model,schema}) => {
+          return [
+                 { required: true, message: '请输入参数值!'},
+          ];
+     },
+  },
+  {
+    label: '备注',
+    field: 'memo',
     component: 'Input',
   },
 	// TODO 主键隐藏字段，目前写死为ID
@@ -47,8 +62,9 @@ export const formSchema: FormSchema[] = [
 
 // 高级查询数据
 export const superQuerySchema = {
-  name: {title: '城市名称',order: 0,view: 'text', type: 'string',},
-  url: {title: '城市站点链接',order: 1,view: 'text', type: 'string',},
+  paramCode: {title: '参数编码',order: 0,view: 'text', type: 'string',},
+  paramValue: {title: '参数值',order: 1,view: 'text', type: 'string',},
+  memo: {title: '备注',order: 2,view: 'text', type: 'string',},
 };
 
 /**

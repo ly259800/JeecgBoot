@@ -12,11 +12,11 @@
     import {computed, defineComponent} from 'vue';
     import {defHttp} from '/@/utils/http/axios';
     import { propTypes } from '/@/utils/propTypes';
-    import {getBpmFormSchema} from '../RiderCity.data';
-    import {saveOrUpdate} from '../RiderCity.api';
+    import {getBpmFormSchema} from '../RiderParams.data';
+    import {saveOrUpdate} from '../RiderParams.api';
     
     export default defineComponent({
-        name: "RiderCityForm",
+        name: "RiderParamsForm",
         components:{
             BasicForm
         },
@@ -40,7 +40,7 @@
             });
 
             let formData = {};
-            const queryByIdUrl = '/city/riderCity/queryById';
+            const queryByIdUrl = '/params/riderParams/queryById';
             async function initFormData(){
                 let params = {id: props.formData.dataId};
                 const data = await defHttp.get({url: queryByIdUrl, params});
