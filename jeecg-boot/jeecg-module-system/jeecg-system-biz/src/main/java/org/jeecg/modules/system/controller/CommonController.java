@@ -9,6 +9,9 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.CommonUtils;
 import org.jeecg.common.util.filter.SsrfFileTypeFilter;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.oss.entity.OssFile;
+import org.jeecg.modules.oss.service.IOssFileService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.util.AntPathMatcher;
@@ -44,6 +47,9 @@ public class CommonController {
      */
     @Value(value="${jeecg.uploadType}")
     private String uploadType;
+
+    @Autowired
+    private IOssFileService ossFileService;
 
     /**
      * @Author 政辉
@@ -87,6 +93,10 @@ public class CommonController {
                 bizPath = "";
             }
         }
+        String fileName = file.getOriginalFilename();
+        fileName = CommonUtils.getFileName(fileName);
+        OssFile ossFile = new OssFile();
+        ossFile.setFileName(fileName);
         if(CommonConstant.UPLOAD_TYPE_LOCAL.equals(uploadType)){
             //update-begin-author:liusq date:20221102 for: 过滤上传文件类型
             SsrfFileTypeFilter.checkUploadFileType(file);
@@ -111,6 +121,9 @@ public class CommonController {
             //update-end-author:taoyan date:20200814 for:文件上传改造
         }
         if(oConvertUtils.isNotEmpty(savePath)){
+            ossFile.setUrl(savePath);
+            //插入文件日志
+            ossFileService.save(ossFile);
             result.setMessage(savePath);
             result.setSuccess(true);
         }else {

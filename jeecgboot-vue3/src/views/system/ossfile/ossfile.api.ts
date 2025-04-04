@@ -5,6 +5,7 @@ enum Api {
   deleteFile = '/sys/oss/file/delete',
   ossUpload = '/sys/oss/file/upload',
   minioUpload = '/sys/upload/uploadMinio',
+  localUpload = '/sys/common/upload',
 }
 
 /**
@@ -17,6 +18,8 @@ export const getOssUrl = Api.ossUpload;
  * @param params
  */
 export const getMinioUrl = Api.minioUpload;
+
+export const getLocalUrl = Api.localUpload;
 /**
  * 列表接口
  * @param params

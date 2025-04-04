@@ -17,6 +17,17 @@
         >
           <a-button type="primary" preIcon="ant-design:upload-outlined">MINIO文件上传</a-button>
         </a-upload>
+
+        <a-upload
+          name="file"
+          :showUploadList="false"
+          :action="localAction"
+          :headers="tokenHeader"
+          :beforeUpload="beforeUpload"
+          @change="handleChange"
+        >
+          <a-button type="primary" preIcon="ant-design:upload-outlined">本地文件上传</a-button>
+        </a-upload>
       </template>
       <!--操作栏-->
       <template #action="{ record }">
@@ -32,7 +43,7 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { columns, searchFormSchema } from './ossfile.data';
-  import { list, deleteFile, getOssUrl, getMinioUrl } from './ossfile.api';
+  import {list, deleteFile, getOssUrl, getMinioUrl, getLocalUrl} from './ossfile.api';
   import { useGlobSetting } from '/@/hooks/setting';
   import { getToken } from '/@/utils/auth';
   import {encryptByBase64} from "@/utils/cipher";
@@ -73,6 +84,7 @@
    */
   const ossAction = computed(() => `${glob.uploadUrl}${getOssUrl}`);
   const minioAction = computed(() => `${glob.uploadUrl}${getMinioUrl}`);
+  const localAction = computed(() => `${glob.uploadUrl}${getLocalUrl}`);
 
   /**
    * 预览
