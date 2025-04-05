@@ -88,6 +88,28 @@ public class WxLoginController {
         return new Result().ok(tempResult);
     }
 
+    @PostMapping("getPhone")
+    @ApiOperation(value = "获取手机号")
+    public Result WxGetPhone(HttpServletRequest request, @RequestBody WxLoginDTO login) {
+        String code = login.getCode();
+        JSONObject tempResult = new JSONObject();
+        if (StringUtils.isEmpty(code)) {
+            throw new JeecgBootException("参数不能为空");
+        }
+        WxSacnLoginResDTO accessToken = weChatPayApiInvoke.getAccessToken();
+        if(StringUtils.isNotEmpty(accessToken.getAccess_token())){
+            String phone = weChatPayApiInvoke.getPhoneByCode(login, accessToken);
+            //接口返回成功
+            if (StringUtils.isNotEmpty(phone)) {
+                tempResult.put("phone", phone);
+            } else {
+                throw new JeecgBootException("获取手机号失败,请退出页面重试!");
+            }
+        }
+
+        return new Result().ok(tempResult);
+    }
+
 
     @SuppressWarnings("AlibabaRemoveCommentedCode")
     @PostMapping("user/login")

@@ -1,6 +1,7 @@
 package org.jeecg.modules.rider.pay.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
@@ -201,6 +202,60 @@ public class WeChatPayApiInvoke {
                 log.info("微信-- 通过code获取小程序openid，返回结果result：{}",bodyAsString);
                 WxResultDTO wxResultDTO = JSONObject.parseObject(bodyAsString, WxResultDTO.class);
                 return wxResultDTO;
+            }
+        }
+    }
+
+    /**
+     * 通过code获取小程序手机号
+     * @param loginDTO
+     * @return
+     */
+    @SneakyThrows
+    public String getPhoneByCode(WxLoginDTO loginDTO,WxSacnLoginResDTO accessToken){
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={access_token}")
+                .build()
+                .expand(accessToken.getAccess_token())
+                .toUri();
+        HttpPost httpPost = new HttpPost(uri);
+        httpPost.addHeader("Accept", "application/json");
+        httpPost.addHeader("Content-type","application/json; charset=utf-8");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode rootNode = objectMapper.createObjectNode();
+        rootNode.put("code",loginDTO.getCode());
+        objectMapper.writeValue(bos, rootNode);
+        log.info("微信-- 通过code获取手机号,请求url：{},请求参数：{}", uri.toString(),objectMapper.writeValueAsString(rootNode));
+        httpPost.setEntity(new StringEntity(bos.toString("UTF-8"), "UTF-8"));
+        try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                String bodyAsString = EntityUtils.toString(response.getEntity());
+                log.info("微信-- 通过code获取手机号，返回结果result：{}",bodyAsString);
+                JsonNode root = objectMapper.readTree(bodyAsString);
+                return root.path("phone_info").path("purePhoneNumber").asText();
+            }
+        }
+    }
+
+    /**
+     * 小程序获取access_token
+     * @return
+     */
+    @SneakyThrows
+    public WxSacnLoginResDTO getAccessToken(){
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={secret}")
+                .build()
+                .expand(wxpayServiceConfig.getAppid(),wxpayServiceConfig.getSecret())
+                .toUri();
+        log.info("获取手机号-- 获取access_token，请求url：{}", uri.toString());
+        HttpGet httpGet = new HttpGet(uri);
+        httpGet.addHeader("Accept", "application/json");
+        try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                String bodyAsString = EntityUtils.toString(response.getEntity());
+                log.info("获取手机号-- 获取access_token，返回结果result：{}",bodyAsString);
+                WxSacnLoginResDTO wxSacnLoginResDTO = JSONObject.parseObject(bodyAsString, WxSacnLoginResDTO.class);
+                return wxSacnLoginResDTO;
             }
         }
     }
