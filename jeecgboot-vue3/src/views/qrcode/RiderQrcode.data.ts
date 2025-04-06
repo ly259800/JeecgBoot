@@ -3,12 +3,20 @@ import {FormSchema} from '/@/components/Table';
 import { rules} from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { getWeekMonthQuarterYear } from '/@/utils';
+import {getAllRolesListNoByTenant} from "@/views/system/user/user.api";
+import {getAllCustomerList} from "@/views/qrcode/RiderQrcode.api";
 //列表数据
 export const columns: BasicColumn[] = [
    {
     title: '二维码链接',
     align:"center",
-    dataIndex: 'url'
+    dataIndex: 'url',
+     customRender: ({ text }) => {
+       if(!text){
+         return text;
+       }
+       return render.renderImage({text});
+     },
    },
    {
     title: '二维码传参',
@@ -40,6 +48,19 @@ export const formSchema: FormSchema[] = [
     label: '二维码跳转页面',
     field: 'page',
     component: 'Input',
+  },
+  {
+    label: '推广人',
+    field: 'customerId',
+    component: 'ApiSelect',
+    componentProps: {
+      //mode: 'multiple',
+      api: getAllCustomerList,
+      numberToString: true,
+      labelField: 'phone',
+      valueField: 'id',
+      immediate: false,
+    },
   },
 	// TODO 主键隐藏字段，目前写死为ID
 	{

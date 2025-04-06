@@ -1,10 +1,6 @@
 package org.jeecg.modules.rider.qrcode.controller;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,8 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.system.query.QueryRuleEnum;
-import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
@@ -24,18 +18,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -90,26 +76,21 @@ public class RiderQrcodeController extends JeecgController<RiderQrcode, IRiderQr
 	@RequiresPermissions("qrcode:rider_qrcode:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody RiderQrcode riderQrcode) {
+		RiderCustomer riderCustomer = null;
+		if(StringUtils.isNotEmpty(riderQrcode.getCustomerId())){
+			riderCustomer = riderCustomerService.getById(riderQrcode.getCustomerId());
+			if(Objects.isNull(riderCustomer)){
+				throw new JeecgBootException("用户不存在!");
+			}
+			riderQrcode.setPhone(riderCustomer.getPhone());
+		}
 		riderQrcodeService.saveRiderQrcode(riderQrcode);
+		if(Objects.nonNull(riderCustomer)){
+			riderCustomer.setQrcode(riderQrcode.getUrl());
+			riderCustomerService.updateById(riderCustomer);
+		}
 		return Result.OK("添加成功！");
 	}
-
-	 @AutoLog(value = "小程序二维码-绑定用户")
-	 @ApiOperation(value="小程序二维码-绑定用户", notes="小程序二维码-绑定用户")
-	 @RequiresPermissions("qrcode:rider_qrcode:bind")
-	 @PostMapping(value = "/bind")
-	 public Result<String> bind(@RequestBody RiderQrcode riderQrcode) {
-		if(StringUtils.isEmpty(riderQrcode.getCustomerId())){
-			throw new JeecgBootException("请选择绑定用户!");
-		}
-		 RiderCustomer riderCustomer = riderCustomerService.getById(riderQrcode.getCustomerId());
-		 if(Objects.isNull(riderCustomer)){
-			 throw new JeecgBootException("用户不存在!");
-		 }
-		 riderQrcode.setPhone(riderCustomer.getPhone());
-		 riderQrcodeService.updateById(riderQrcode);
-		 return Result.OK("添加成功！");
-	 }
 	
 	/**
 	 *  编辑
@@ -122,7 +103,23 @@ public class RiderQrcodeController extends JeecgController<RiderQrcode, IRiderQr
 	@RequiresPermissions("qrcode:rider_qrcode:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody RiderQrcode riderQrcode) {
+		RiderCustomer riderCustomer = null;
+		if(StringUtils.isNotEmpty(riderQrcode.getCustomerId())){
+			riderCustomer = riderCustomerService.getById(riderQrcode.getCustomerId());
+			if(Objects.isNull(riderCustomer)){
+				throw new JeecgBootException("用户不存在!");
+			}
+			riderQrcode.setPhone(riderCustomer.getPhone());
+		}
+		RiderQrcode qrcode = riderQrcodeService.getById(riderQrcode.getId());
+		if (Objects.isNull(qrcode)){
+			throw new JeecgBootException("二维码不存在!");
+		}
 		riderQrcodeService.updateById(riderQrcode);
+		if(Objects.nonNull(riderCustomer)){
+			riderCustomer.setQrcode(qrcode.getUrl());
+			riderCustomerService.updateById(riderCustomer);
+		}
 		return Result.OK("编辑成功!");
 	}
 	

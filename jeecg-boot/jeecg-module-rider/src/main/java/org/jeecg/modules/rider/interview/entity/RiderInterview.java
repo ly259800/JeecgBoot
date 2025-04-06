@@ -124,16 +124,21 @@ public class RiderInterview implements Serializable {
 	@Excel(name = "数据来源", width = 15)
     @ApiModelProperty(value = "数据来源")
     private java.lang.String source;
-	/**面试状态*/
-	@Excel(name = "面试状态", width = 15)
-    @ApiModelProperty(value = "面试状态")
+	/**处理状态*/
+	@Excel(name = "处理状态", width = 15)
+    @ApiModelProperty(value = "处理状态")
     private java.lang.Integer status;
-	/**通过状态*/
-	@Excel(name = "通过状态", width = 15)
-    @ApiModelProperty(value = "通过状态")
+	/**入职状态*/
+	@Excel(name = "入职状态", width = 15)
+    @ApiModelProperty(value = "入职状态")
     private java.lang.Integer passStatus;
 
     @Excel(name = "小程序入口", width = 15)
     @ApiModelProperty(value = "小程序入口")
     private java.lang.Integer entrance;
+
+    /**备注*/
+    @Excel(name = "备注", width = 15)
+    @ApiModelProperty(value = "备注")
+    private java.lang.String memo;
 }

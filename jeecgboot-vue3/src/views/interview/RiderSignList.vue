@@ -4,9 +4,10 @@
    <BasicTable @register="registerTable" :rowSelection="rowSelection">
      <!--插槽:table标题-->
       <template #tableTitle>
-          <a-button type="primary" v-auth="'qrcode:rider_qrcode:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button  type="primary" v-auth="'qrcode:rider_qrcode:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-          <j-upload-button type="primary" v-auth="'qrcode:rider_qrcode:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+<!--          <a-button type="primary" v-auth="'interview:rider_interview:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>-->
+          <a-button type="primary" v-auth="'interview:rider_interview:passBatch'" @click="handlePassStatus" preIcon="ant-design:plus-outlined">确认入职</a-button>
+          <a-button  type="primary" v-auth="'interview:rider_interview:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+<!--          <j-upload-button type="primary" v-auth="'interview:rider_interview:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -16,7 +17,7 @@
                   </a-menu-item>
                 </a-menu>
               </template>
-              <a-button v-auth="'qrcode:rider_qrcode:deleteBatch'">批量操作
+              <a-button v-auth="'interview:rider_interview:deleteBatch'">批量操作
                 <Icon icon="mdi:chevron-down"></Icon>
               </a-button>
         </a-dropdown>
@@ -29,23 +30,35 @@
       </template>
       <!--字段回显插槽-->
       <template v-slot:bodyCell="{ column, record, index, text }">
+        <template v-if="column.dataIndex==='expectRegion'">
+          <!--省市区字段回显插槽-->
+          {{ getAreaTextByCode(text) }}
+        </template>
       </template>
     </BasicTable>
     <!-- 表单区域 -->
-    <RiderQrcodeModal @register="registerModal" @success="handleSuccess"></RiderQrcodeModal>
+    <RiderInterviewModal @register="registerModal" @success="handleSuccess"></RiderInterviewModal>
   </div>
 </template>
 
-<script lang="ts" name="qrcode-riderQrcode" setup>
+<script lang="ts" name="interview-riderInterview" setup>
   import {ref, reactive, computed, unref} from 'vue';
   import {BasicTable, useTable, TableAction} from '/@/components/Table';
   import {useModal} from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage'
-  import RiderQrcodeModal from './components/RiderQrcodeModal.vue'
-  import {columns, searchFormSchema, superQuerySchema} from './RiderQrcode.data';
-  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './RiderQrcode.api';
+  import RiderInterviewModal from './components/RiderInterviewModal.vue'
+  import {columns, searchFormSchema, superQuerySchema} from './RiderInterview.data';
+  import {
+    signList,
+    deleteOne,
+    batchDelete,
+    getImportUrl,
+    getExportUrl,
+    batchPass
+  } from './RiderInterview.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
+  import { getAreaTextByCode } from '/@/components/Form/src/utils/Area';
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -54,8 +67,8 @@
   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
-           title: '小程序二维码',
-           api: list,
+           title: '报名管理',
+           api: signList,
            columns,
            canResize:false,
            formConfig: {
@@ -77,7 +90,7 @@
             },
       },
        exportConfig: {
-            name:"小程序二维码",
+            name:"报名管理",
             url: getExportUrl,
             params: queryParam,
           },
@@ -110,6 +123,7 @@
        showFooter: true,
      });
   }
+
    /**
     * 编辑事件
     */
@@ -142,6 +156,33 @@
   async function batchHandleDelete() {
      await batchDelete({ids: selectedRowKeys.value}, handleSuccess);
    }
+
+  async function handlePassStatus() {
+    await batchPass({ids: selectedRowKeys.value}, handleSuccess);
+  }
+
+  /**
+   * 跟踪维护
+   */
+  function handleStatus(record: Recordable) {
+    openModal(true, {
+      record,
+      isUpdate: true,
+      showFooter: true,
+    });
+  }
+
+  /**
+   * 跟踪维护
+   */
+  function handleSite(record: Recordable) {
+    openModal(true, {
+      record,
+      isUpdate: true,
+      showFooter: true,
+    });
+  }
+
    /**
     * 成功回调
     */
@@ -156,7 +197,7 @@
          {
            label: '编辑',
            onClick: handleEdit.bind(null, record),
-           auth: 'qrcode:rider_qrcode:edit'
+           auth: 'interview:rider_interview:edit'
          }
        ]
    }
@@ -175,7 +216,7 @@
              confirm: handleDelete.bind(null, record),
              placement: 'topLeft',
            },
-           auth: 'qrcode:rider_qrcode:delete'
+           auth: 'interview:rider_interview:delete'
          }
        ]
    }

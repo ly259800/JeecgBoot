@@ -7,11 +7,11 @@ enum Api {
   list = '/qrcode/riderQrcode/list',
   save='/qrcode/riderQrcode/add',
   edit='/qrcode/riderQrcode/edit',
-  bind='/qrcode/riderQrcode/bind',
   deleteOne = '/qrcode/riderQrcode/delete',
   deleteBatch = '/qrcode/riderQrcode/deleteBatch',
   importExcel = '/qrcode/riderQrcode/importExcel',
   exportXls = '/qrcode/riderQrcode/exportXls',
+  allCustomerList = '/customer/riderCustomer/queryList',
 }
 /**
  * 导出api
@@ -63,3 +63,8 @@ export const saveOrUpdate = (params, isUpdate) => {
   let url = isUpdate ? Api.edit : Api.save;
   return defHttp.post({url: url, params});
 }
+
+/**
+ * 获取全部客户
+ */
+export const getAllCustomerList = (params) => defHttp.get({ url: Api.allCustomerList, params });

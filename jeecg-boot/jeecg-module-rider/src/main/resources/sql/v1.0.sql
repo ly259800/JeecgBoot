@@ -10,6 +10,7 @@ CREATE TABLE `rider_customer` (
                                   `avatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '头像',
                                   `identity` int DEFAULT '1' COMMENT '身份',
                                   `wx_open_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '微信openid',
+                                  `qrcode` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '二维码链接',
                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -32,11 +33,12 @@ CREATE TABLE `rider_interview` (
                                    `expect_region` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '期望区域地址',
                                    `reference` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '推广人',
                                    `source` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '数据来源',
-                                   `status` int DEFAULT '0' COMMENT '面试状态',
-                                   `pass_status` int DEFAULT '0' COMMENT '通过状态',
+                                   `status` int DEFAULT '0' COMMENT '处理状态',
+                                   `pass_status` int DEFAULT '0' COMMENT '入职状态',
                                    `electric_vehicle` int DEFAULT NULL COMMENT '是否需要电动车',
                                    `site_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '站点id',
                                    `entrance` int DEFAULT NULL COMMENT '小程序入口',
+                                   `memo` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -131,5 +133,20 @@ CREATE TABLE `rider_params` (
                                 `param_code` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '参数编码',
                                 `param_value` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '参数值',
                                 `memo` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
+                                PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `rider_qrcode` (
+                                `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                                `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                                `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                                `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                                `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                                `url` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '二维码链接',
+                                `scene` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '二维码传参',
+                                `customer_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '绑定推广人',
+                                `phone` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+                                `page` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '二维码跳转页面',
                                 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

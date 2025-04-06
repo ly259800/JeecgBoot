@@ -1,18 +1,13 @@
 package org.jeecg.modules.rider.site.controller;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.site.dto.RiderSiteDTO;
 import org.jeecg.modules.rider.site.entity.RiderSite;
@@ -23,19 +18,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
@@ -83,6 +70,24 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 		});
 		return Result.OK(siteDTOIPage);
 	}
+
+	 /**
+	  * 查询站点信息列表
+	  * @return
+	  */
+	 @RequestMapping(value = "/queryList", method = RequestMethod.GET)
+	 public Result<List<RiderSite>> queryList(@RequestParam(name="ids",required=false) String ids) {
+		 Result<List<RiderSite>> result = new Result<List<RiderSite>>();
+		 LambdaQueryWrapper<RiderSite> query = new LambdaQueryWrapper<>();
+		 if(oConvertUtils.isNotEmpty(ids)){
+			 query.in(RiderSite::getId, ids.split(","));
+		 }
+		 //此处查询忽略时间条件
+		 List<RiderSite> ls = riderSiteService.list(query);
+		 result.setSuccess(true);
+		 result.setResult(ls);
+		 return result;
+	 }
 	
 	/**
 	 *   添加

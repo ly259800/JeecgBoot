@@ -11,4 +11,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IRiderInterviewService extends IService<RiderInterview> {
 
+    void passBatch(String ids);
+
+    void handle(RiderInterview riderInterview);
+
+    void updateSite(RiderInterview riderInterview);
+
 }

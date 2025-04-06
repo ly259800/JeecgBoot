@@ -100,6 +100,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 
 		//小程序入口，1-骑手
 		riderInterview.setEntrance(InterviewEntranceEnum.RIDER.getCode());
+		riderInterview.setSource("骑手报名");
 		riderInterviewService.save(riderInterview);
 		//更新用户身份为骑手
 		riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
@@ -137,6 +138,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 }
 		 //小程序入口，2-合伙人
 		 riderInterview.setEntrance(InterviewEntranceEnum.PARTNER.getCode());
+		 riderInterview.setSource("站点申请");
 		 riderInterview.setReference(riderCustomer.getId());
 		 riderInterviewService.save(riderInterview);
 		 //更新用户身份为合伙人
@@ -156,9 +158,42 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 	@RequiresPermissions("interview:rider_interview:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody RiderInterview riderInterview) {
-		riderInterviewService.updateById(riderInterview);
+		if(StringUtils.isNotEmpty(riderInterview.getMemo())){
+			riderInterviewService.handle(riderInterview);
+		}
+		if(StringUtils.isNotEmpty(riderInterview.getSiteId())){
+			riderInterviewService.updateSite(riderInterview);
+		}
 		return Result.OK("编辑成功!");
 	}
+
+	 /**
+	  *  跟踪维护
+	  * @param riderInterview
+	  * @return
+	  */
+	 @AutoLog(value = "面试管理-跟踪维护")
+	 @ApiOperation(value="面试管理-跟踪维护", notes="面试管理-跟踪维护")
+	 @RequiresPermissions("interview:rider_interview:handle")
+	 @RequestMapping(value = "/handle", method = {RequestMethod.POST})
+	 public Result<String> handle(@RequestBody RiderInterview riderInterview) {
+		 riderInterviewService.handle(riderInterview);
+		 return Result.OK("维护成功!");
+	 }
+
+	 /**
+	  *  站点维护
+	  * @param riderInterview
+	  * @return
+	  */
+	 @AutoLog(value = "面试管理-站点维护")
+	 @ApiOperation(value="面试管理-站点维护", notes="面试管理-站点维护")
+	 @RequiresPermissions("interview:rider_interview:site")
+	 @RequestMapping(value = "/site", method = {RequestMethod.POST})
+	 public Result<String> site(@RequestBody RiderInterview riderInterview) {
+		 riderInterviewService.updateSite(riderInterview);
+		 return Result.OK("维护成功!");
+	 }
 	
 	/**
 	 *   通过id删除
@@ -189,6 +224,23 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		this.riderInterviewService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.OK("批量删除成功!");
 	}
+
+	 /**
+	  *  批量入职
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "面试管理-批量入职")
+	 @ApiOperation(value="面试管理-批量入职", notes="面试管理-批量入职")
+	 @RequiresPermissions("interview:rider_interview:passBatch")
+	 @PostMapping(value = "/passBatch")
+	 public Result<String> passBatch(@RequestParam(name="ids",required=true) String ids) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 this.riderInterviewService.passBatch(ids);
+		 return Result.OK("批量入职成功!");
+	 }
 	
 	/**
 	 * 通过id查询

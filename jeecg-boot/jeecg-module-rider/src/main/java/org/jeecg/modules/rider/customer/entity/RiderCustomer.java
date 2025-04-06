@@ -81,4 +81,9 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "微信unionid")
     private java.lang.String unionid;
 
+    /**二维码链接*/
+    @Excel(name = "二维码", width = 15)
+    @ApiModelProperty(value = "二维码")
+    private java.lang.String qrcode;
+
 }
