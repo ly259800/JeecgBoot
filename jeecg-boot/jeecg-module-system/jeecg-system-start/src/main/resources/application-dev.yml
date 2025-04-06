@@ -339,7 +339,7 @@ wechat:
   #微信小程序
   miniprogram:
     appid: wx2c7a632342b357c8
-    secret: 9d03a4e5093c4ae81b02bd723458fa87
+    secret: d63332e39de4a4ac0eac31d8f6537da6
   #微信网站应用
   web:
     appid: wx0b8ddbaa2b2cdce3

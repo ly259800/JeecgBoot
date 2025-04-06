@@ -14,6 +14,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.jeecg.common.constant.WeChatConstants;
+import org.jeecg.common.util.RedisUtil;
 import org.jeecg.modules.rider.pay.config.WxpayServiceConfig;
 import org.jeecg.modules.rider.pay.constants.BaseErrorCodeEnum;
 import org.jeecg.modules.rider.pay.constants.WeChatServerEnum;
@@ -25,6 +27,7 @@ import org.jeecg.modules.rider.pay.dto.WechatPayApiOutDTO;
 import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
 import org.jeecg.modules.rider.pay.exception.WechatPayException;
 import org.jeecg.modules.rider.pay.util.PriceUtils;
+import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.security.dto.WxLoginDTO;
 import org.jeecg.modules.rider.security.dto.WxResultDTO;
 import org.jeecg.modules.rider.security.dto.WxSacnLoginResDTO;
@@ -50,6 +53,9 @@ public class WeChatPayApiInvoke {
 
     @Resource
     private WxpayServiceConfig wxpayServiceConfig;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * JSAPI/小程序下单API
@@ -212,10 +218,10 @@ public class WeChatPayApiInvoke {
      * @return
      */
     @SneakyThrows
-    public String getPhoneByCode(WxLoginDTO loginDTO,WxSacnLoginResDTO accessToken){
+    public String getPhoneByCode(WxLoginDTO loginDTO,String accessToken){
         URI uri = UriComponentsBuilder.fromHttpUrl("https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={access_token}")
                 .build()
-                .expand(accessToken.getAccess_token())
+                .expand(accessToken)
                 .toUri();
         HttpPost httpPost = new HttpPost(uri);
         httpPost.addHeader("Accept", "application/json");
@@ -243,6 +249,11 @@ public class WeChatPayApiInvoke {
      */
     @SneakyThrows
     public WxSacnLoginResDTO getAccessToken(){
+        Object accessToken = redisUtil.get(WeChatConstants.AccessToken);
+        if(Objects.nonNull(accessToken)){
+            WxSacnLoginResDTO wxSacnLoginResDTO = JSONObject.parseObject(accessToken.toString(), WxSacnLoginResDTO.class);
+            return wxSacnLoginResDTO;
+        }
         URI uri = UriComponentsBuilder.fromHttpUrl("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={secret}")
                 .build()
                 .expand(wxpayServiceConfig.getAppid(),wxpayServiceConfig.getSecret())
@@ -255,7 +266,48 @@ public class WeChatPayApiInvoke {
                 String bodyAsString = EntityUtils.toString(response.getEntity());
                 log.info("获取手机号-- 获取access_token，返回结果result：{}",bodyAsString);
                 WxSacnLoginResDTO wxSacnLoginResDTO = JSONObject.parseObject(bodyAsString, WxSacnLoginResDTO.class);
+                if(StringUtils.isNotEmpty(wxSacnLoginResDTO.getAccess_token())){
+                    //有2小时的有效时间，放缓存
+                    redisUtil.set(WeChatConstants.AccessToken,bodyAsString,WeChatConstants.expiresTime);
+                }
                 return wxSacnLoginResDTO;
+            }
+        }
+    }
+
+    /**
+     * 生成小程序二维码
+     * @param riderQrcode
+     * @return
+     */
+    @SneakyThrows
+    public byte[] createQrCode(RiderQrcode riderQrcode, String accessToken) {
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token={access_token}")
+                .build()
+                .expand(accessToken)
+                .toUri();
+        HttpPost httpPost = new HttpPost(uri);
+        httpPost.addHeader("Accept", "application/json");
+        httpPost.addHeader("Content-type","application/json; charset=utf-8");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode rootNode = objectMapper.createObjectNode();
+        rootNode.put("scene",riderQrcode.getScene());
+        if(StringUtils.isNotEmpty(riderQrcode.getPage())){
+            rootNode.put("page",riderQrcode.getPage());
+        }
+        objectMapper.writeValue(bos, rootNode);
+        log.info("微信-- 生成小程序二维码,请求url：{},请求参数：{}", uri.toString(),objectMapper.writeValueAsString(rootNode));
+        httpPost.setEntity(new StringEntity(bos.toString("UTF-8"), "UTF-8"));
+        try(CloseableHttpClient httpClient = HttpClients.createDefault()){
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                byte[] bytes = EntityUtils.toByteArray(response.getEntity());
+                // 检查是否是错误响应(微信接口错误时返回JSON而不是图片)
+                if (bytes.length > 0 && bytes[0] == '{') {
+                    String error = new String(bytes);
+                    throw new WechatPayException(500,"生成二维码失败: " + error);
+                }
+                return bytes;
             }
         }
     }

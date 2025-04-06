@@ -98,13 +98,15 @@ public class WxLoginController {
         }
         WxSacnLoginResDTO accessToken = weChatPayApiInvoke.getAccessToken();
         if(StringUtils.isNotEmpty(accessToken.getAccess_token())){
-            String phone = weChatPayApiInvoke.getPhoneByCode(login, accessToken);
+            String phone = weChatPayApiInvoke.getPhoneByCode(login, accessToken.getAccess_token());
             //接口返回成功
             if (StringUtils.isNotEmpty(phone)) {
                 tempResult.put("phone", phone);
             } else {
                 throw new JeecgBootException("获取手机号失败,请退出页面重试!");
             }
+        } else {
+            throw new JeecgBootException("获取access_token失败,请退出页面重试!");
         }
 
         return new Result().ok(tempResult);
