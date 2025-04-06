@@ -11,4 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IRiderSiteService extends IService<RiderSite> {
 
+    void updateProfit(String ids,Integer profit);
+
 }

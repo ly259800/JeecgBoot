@@ -9,6 +9,8 @@ enum Api {
   edit='/site/riderSite/edit',
   deleteOne = '/site/riderSite/delete',
   deleteBatch = '/site/riderSite/deleteBatch',
+  updateProfitBatch = '/site/riderSite/updateProfitBatch',
+  updateProfitAll = '/site/riderSite/updateProfitAll',
   importExcel = '/site/riderSite/importExcel',
   exportXls = '/site/riderSite/exportXls',
 }
@@ -54,6 +56,45 @@ export const batchDelete = (params, handleSuccess) => {
     }
   });
 }
+
+/**
+ * 批量更新利润
+ * @param params
+ */
+export const updateProfit = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认更新',
+    content: '是否更新选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.updateProfitBatch, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
+
+/**
+ * 更新全部利润
+ * @param params
+ */
+export const updateAllProfit = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认更新',
+    content: '是否更新选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.updateProfitAll, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
+
 /**
  * 保存或者更新
  * @param params

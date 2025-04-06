@@ -5,7 +5,9 @@
      <!--插槽:table标题-->
       <template #tableTitle>
           <a-button type="primary" v-auth="'site:rider_site:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button  type="primary" v-auth="'site:rider_site:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+          <a-button type="primary" v-auth="'site:rider_site:updateProfitBatch'" @click="updateProfitBatch" preIcon="ant-design:plus-outlined">设置利润</a-button>
+        <a-button type="primary" v-auth="'site:rider_site:updateProfitAll'" @click="updateProfitAll()" preIcon="ant-design:plus-outlined">设置全部利润</a-button>
+        <a-button  type="primary" v-auth="'site:rider_site:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
           <j-upload-button type="primary" v-auth="'site:rider_site:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
@@ -33,24 +35,36 @@
     </BasicTable>
     <!-- 表单区域 -->
     <RiderSiteModal @register="registerModal" @success="handleSuccess"></RiderSiteModal>
+    <RiderSiteSetProfitModal @register="register4"  @success="handleSuccess" />
   </div>
 </template>
 
 <script lang="ts" name="site-riderSite" setup>
-  import {ref, reactive, computed, unref} from 'vue';
+import {ref, reactive, computed, unref, nextTick} from 'vue';
   import {BasicTable, useTable, TableAction} from '/@/components/Table';
   import {useModal} from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage'
   import RiderSiteModal from './components/RiderSiteModal.vue'
+  import RiderSiteSetProfitModal from './components/RiderSiteSetProfitModal.vue'
   import {columns, searchFormSchema, superQuerySchema} from './RiderSite.data';
-  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './RiderSite.api';
+  import {
+    list,
+    deleteOne,
+    batchDelete,
+    updateProfit,
+    getImportUrl,
+    getExportUrl,
+    updateAllProfit
+  } from './RiderSite.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
+
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
   //注册model
   const [registerModal, {openModal}] = useModal();
+  const [register4, { openModal: openModal4 }] = useModal();
   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
@@ -142,6 +156,18 @@
   async function batchHandleDelete() {
      await batchDelete({ids: selectedRowKeys.value}, handleSuccess);
    }
+
+  /**
+   * 批量更新利润事件
+   */
+  async function updateProfitBatch() {
+    await updateProfit({ids: selectedRowKeys.value,profit: 100}, handleSuccess);
+  }
+
+  async function updateProfitAll() {
+    await updateAllProfit({profit: 100}, handleSuccess);
+  }
+
    /**
     * 成功回调
     */

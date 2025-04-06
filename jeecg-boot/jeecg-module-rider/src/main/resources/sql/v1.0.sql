@@ -148,5 +148,6 @@ CREATE TABLE `rider_qrcode` (
                                 `customer_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '绑定推广人',
                                 `phone` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
                                 `page` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '二维码跳转页面',
+                                `env_version` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '小程序版本',
                                 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

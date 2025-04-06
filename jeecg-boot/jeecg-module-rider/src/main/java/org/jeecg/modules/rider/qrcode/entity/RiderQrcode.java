@@ -70,6 +70,10 @@ public class RiderQrcode implements Serializable {
     @ApiModelProperty(value = "二维码跳转页面")
     private java.lang.String page;
 
+    @Excel(name = "小程序版本", width = 15)
+    @ApiModelProperty(value = "小程序版本")
+    private java.lang.String envVersion;
+
 	/**绑定推广人*/
 	@Excel(name = "绑定推广人", width = 15)
     @ApiModelProperty(value = "绑定推广人")

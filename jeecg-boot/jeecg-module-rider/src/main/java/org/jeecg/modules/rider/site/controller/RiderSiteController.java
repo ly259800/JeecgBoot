@@ -2,10 +2,12 @@ package org.jeecg.modules.rider.site.controller;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
@@ -148,6 +150,44 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 		this.riderSiteService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.OK("批量删除成功!");
 	}
+
+	 /**
+	  *  设置利润
+	  *
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "站点管理-设置利润")
+	 @ApiOperation(value="站点管理-设置利润", notes="站点管理-设置利润")
+	 @RequiresPermissions("site:rider_site:updateProfitBatch")
+	 @PostMapping(value = "/updateProfitBatch")
+	 public Result<String> updateProfitBatch(@RequestParam(name="ids",required=true) String ids,@RequestParam(name="profit",required=true) Integer profit) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 if(Objects.nonNull(profit)){
+			 return Result.error("利润不能为空!");
+		 }
+		 this.riderSiteService.updateProfit(ids,profit);
+		 return Result.OK("批量更新成功!");
+	 }
+
+	 /**
+	  *  设置全部利润
+	  * @param profit
+	  * @return
+	  */
+	 @AutoLog(value = "站点管理-设置全部利润")
+	 @ApiOperation(value="站点管理-设置全部利润", notes="站点管理-设置全部利润")
+	 @RequiresPermissions("site:rider_site:updateProfitAll")
+	 @PostMapping(value = "/updateProfitAll")
+	 public Result<String> updateProfitAll(@RequestParam(name="profit",required=true) Integer profit) {
+		 if(Objects.nonNull(profit)){
+			 return Result.error("利润不能为空!");
+		 }
+		 this.riderSiteService.updateProfit(null,profit);
+		 return Result.OK("批量更新成功!");
+	 }
 	
 	/**
 	 * 通过id查询

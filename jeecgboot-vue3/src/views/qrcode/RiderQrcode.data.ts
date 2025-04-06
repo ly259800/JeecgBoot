@@ -48,6 +48,10 @@ export const formSchema: FormSchema[] = [
     label: '二维码跳转页面',
     field: 'page',
     component: 'Input',
+  },{
+    label: '小程序版本',
+    field: 'envVersion',
+    component: 'Input',
   },
   {
     label: '推广人',

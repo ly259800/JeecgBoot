@@ -182,10 +182,7 @@
         */
   function getDropDownAction(record){
        return [
-         {
-           label: '详情',
-           onClick: handleDetail.bind(null, record),
-         }, {
+          {
            label: '删除',
            popConfirm: {
              title: '是否确认删除',

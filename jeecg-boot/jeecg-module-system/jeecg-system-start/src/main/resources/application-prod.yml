@@ -337,3 +337,37 @@ justauth:
     type: default
     prefix: 'demo::'
     timeout: 1h
+wechat:
+  #微信小程序
+  miniprogram:
+    appid: wx2c7a632342b357c8
+    secret: d63332e39de4a4ac0eac31d8f6537da6
+  #微信网站应用
+  web:
+    appid: wx2c7a632342b357c8
+    secret: d63332e39de4a4ac0eac31d8f6537da6
+  #  第三方平台appid 第三方平台appsecret
+  tripartitePlatform:
+    appid: wx5e499eea947f5778
+    secret: 9c43c025a83d4e38b272966af736d737
+  officialAccounts:
+    appid: wx29934891a70b50ef
+    secret: 7a386c3ff6fc0cd030ace91913697cc0
+
+# 微信支付配置
+wechatpay:
+  #开启验签
+  openSignCheck: true
+  merchant:
+    #商户号
+    id: 1712181250
+    #商户序列号
+    serialNO: 25BED71679CEE2EC94066CB0DF57BF8B8BAC68C1
+  api:
+    #商户APIV3密钥
+    V3Key: RiderR2tY4vB8nL3cX6zW1eD5kH0jU7p
+  test:
+    mobile: 15717964217
+  #支付回调地址
+  notify:
+    url: https://rider.yuxiyibaisui.top/jeecgboot/wxpay/notify
