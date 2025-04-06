@@ -4,9 +4,10 @@
    <BasicTable @register="registerTable" :rowSelection="rowSelection">
      <!--插槽:table标题-->
       <template #tableTitle>
-          <a-button type="primary" v-auth="'interview:rider_interview:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
+<!--          <a-button type="primary" v-auth="'interview:rider_interview:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>-->
+          <a-button type="primary" v-auth="'interview:rider_interview:passBatch'" @click="handlePassStatus" preIcon="ant-design:plus-outlined">确认入职</a-button>
           <a-button  type="primary" v-auth="'interview:rider_interview:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-          <j-upload-button type="primary" v-auth="'interview:rider_interview:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+<!--          <j-upload-button type="primary" v-auth="'interview:rider_interview:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -47,7 +48,14 @@
   import { useListPage } from '/@/hooks/system/useListPage'
   import RiderInterviewModal from './components/RiderInterviewModal.vue'
   import {columns, searchFormSchema, superQuerySchema} from './RiderInterview.data';
-  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './RiderInterview.api';
+  import {
+    interviewList,
+    deleteOne,
+    batchDelete,
+    getImportUrl,
+    getExportUrl,
+    batchPass
+  } from './RiderInterview.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   import { getAreaTextByCode } from '/@/components/Form/src/utils/Area';
@@ -60,7 +68,7 @@
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
            title: '面试管理',
-           api: list,
+           api: interviewList,
            columns,
            canResize:false,
            formConfig: {
@@ -147,6 +155,10 @@
   async function batchHandleDelete() {
      await batchDelete({ids: selectedRowKeys.value}, handleSuccess);
    }
+
+  async function handlePassStatus() {
+    await batchPass({ids: selectedRowKeys.value}, handleSuccess);
+  }
    /**
     * 成功回调
     */
@@ -158,11 +170,11 @@
       */
   function getTableAction(record){
        return [
-         {
+         /*{
            label: '编辑',
            onClick: handleEdit.bind(null, record),
            auth: 'interview:rider_interview:edit'
-         }
+         }*/
        ]
    }
      /**

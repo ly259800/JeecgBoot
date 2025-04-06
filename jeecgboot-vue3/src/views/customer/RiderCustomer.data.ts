@@ -27,6 +27,17 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'identity_dictText'
    },
+  {
+    title: '二维码',
+    align:"center",
+    dataIndex: 'qrcode',
+    customRender: ({ text }) => {
+      if(!text){
+        return text;
+      }
+      return render.renderImage({text});
+    },
+  },
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [

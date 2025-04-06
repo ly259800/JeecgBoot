@@ -4,13 +4,17 @@ import { useMessage } from "/@/hooks/web/useMessage";
 const { createConfirm } = useMessage();
 
 enum Api {
-  list = '/interview/riderInterview/list',
+  signList = '/interview/riderInterview/list?entrance=1',
+  interviewList = '/interview/riderInterview/list?entrance=2',
   save='/interview/riderInterview/add',
   edit='/interview/riderInterview/edit',
   deleteOne = '/interview/riderInterview/delete',
   deleteBatch = '/interview/riderInterview/deleteBatch',
+  passBatch = '/interview/riderInterview/passBatch',
+  handleStatus = '/interview/riderInterview/handleStatus',
   importExcel = '/interview/riderInterview/importExcel',
   exportXls = '/interview/riderInterview/exportXls',
+  allSiteList = '/site/riderSite/queryList',
 }
 /**
  * 导出api
@@ -22,11 +26,18 @@ export const getExportUrl = Api.exportXls;
  */
 export const getImportUrl = Api.importExcel;
 /**
- * 列表接口
+ * 报名列表接口
  * @param params
  */
-export const list = (params) =>
-  defHttp.get({url: Api.list, params});
+export const signList = (params) =>
+  defHttp.get({url: Api.signList, params});
+
+/**
+ * 面试列表接口
+ * @param params
+ */
+export const interviewList = (params) =>
+  defHttp.get({url: Api.interviewList, params});
 
 /**
  * 删除单个
@@ -54,6 +65,26 @@ export const batchDelete = (params, handleSuccess) => {
     }
   });
 }
+
+/**
+ * 批量入职
+ * @param params
+ */
+export const batchPass = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认入职',
+    content: '是否确认选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.passBatch, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
+
 /**
  * 保存或者更新
  * @param params
@@ -62,3 +93,9 @@ export const saveOrUpdate = (params, isUpdate) => {
   let url = isUpdate ? Api.edit : Api.save;
   return defHttp.post({url: url, params});
 }
+
+
+/**
+ * 获取全部站点
+ */
+export const getAllSiteList = (params) => defHttp.get({ url: Api.allSiteList, params });
