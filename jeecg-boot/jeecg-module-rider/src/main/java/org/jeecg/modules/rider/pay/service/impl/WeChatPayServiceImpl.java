@@ -42,7 +42,6 @@ public class WeChatPayServiceImpl implements WeChatPayService {
     private IRiderCustomerService riderCustomerService;
     @Resource
     private IRiderUserOrderService tenantOrderService;
-
     /**
      * 预下单处理
      * @param payDto

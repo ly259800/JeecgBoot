@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 
+import static org.jeecg.common.constant.CommonConstant.SC_OK_200;
+
 /**
  * 响应数据
  */
@@ -15,7 +17,7 @@ public class Result<T> implements Serializable {
      * 编码：0表示成功，其他值表示失败
      */
     @ApiModelProperty(value = "编码：0表示成功，其他值表示失败")
-    private int code = 0;
+    private int code = SC_OK_200;
     /**
      * 消息内容
      */

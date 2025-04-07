@@ -50,11 +50,7 @@ public class RiderUserOrderServiceImpl extends ServiceImpl<RiderUserOrderMapper,
         QueryWrapper<RiderUserOrder> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("max(out_trade_no) out_trade_no");
         queryWrapper.lambda().between(RiderUserOrder::getCreateTime, DateUtils.getStartOfDay(new Date()),DateUtils.getEndOfDay(new Date()));
-        if(wxpayServiceConfig.isProdEnvironment()){
-            queryWrapper.lambda().likeRight(RiderUserOrder::getOutTradeNo,"VIP");
-        } else {
-            queryWrapper.lambda().likeRight(RiderUserOrder::getOutTradeNo,"DEV");
-        }
+        queryWrapper.lambda().likeRight(RiderUserOrder::getOutTradeNo,"VIP");
         RiderUserOrder maxInstoreNo = baseMapper.selectOne(queryWrapper);
         if(Objects.isNull(maxInstoreNo) || StringUtils.isEmpty(maxInstoreNo.getOutTradeNo())){
             return 1L;
@@ -77,21 +73,10 @@ public class RiderUserOrderServiceImpl extends ServiceImpl<RiderUserOrderMapper,
         tenantOrderDTO.setOrderState(OrderStateEnum.NOTPAY.getCode());
         //获取当前用户
         LoginUser user = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        //查询该用户下未支付和支付失败的订单
-        QueryWrapper<RiderUserOrder> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(RiderUserOrder::getCustomerId,user.getId())
-                .in(RiderUserOrder::getOrderState,OrderStateEnum.NOTPAY.getCode(),OrderStateEnum.PAYERROR.getCode());
-        Long orderCount = baseMapper.selectCount(queryWrapper);
-        if (orderCount > 0) {
-            throw new JeecgBootException("已存在未支付成功的订单，请先支付或取消!");
-        }
         //生成租户订单号
         Long maxOutTradeNo = this.getMaxOutTradeNo();
         String outTradeNo = UUIDUtils.getOutTradeNo(maxOutTradeNo);
-        //若不是生产环境,则订单号加上TEST
-        if(!wxpayServiceConfig.isProdEnvironment()){
-            outTradeNo = outTradeNo.replace("VIP", "DEV");
-        }
+        tenantOrderDTO.setPayId(user.getId());
         tenantOrderDTO.setOutTradeNo(outTradeNo);
         this.save(tenantOrderDTO);
         ObjectNode rootNode = WechatPayContants.OBJECT_MAPPER.createObjectNode();

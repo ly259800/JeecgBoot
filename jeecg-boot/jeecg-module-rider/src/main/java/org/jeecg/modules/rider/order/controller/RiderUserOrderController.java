@@ -75,9 +75,8 @@ public class RiderUserOrderController extends JeecgController<RiderUserOrder, IR
 	@ApiOperation(value="用户个人订单-添加", notes="用户个人订单-添加")
 	@RequiresPermissions("order:rider_user_order:add")
 	@PostMapping(value = "/add")
-	public Result<String> add(@RequestBody RiderUserOrder riderUserOrder) {
-		riderUserOrderService.saveUserOrder(riderUserOrder);
-		return Result.OK("添加成功！");
+	public org.jeecg.modules.rider.pay.util.Result add(@RequestBody RiderUserOrder riderUserOrder) {
+		return riderUserOrderService.saveUserOrder(riderUserOrder);
 	}
 
 	 @PostMapping("cannel")

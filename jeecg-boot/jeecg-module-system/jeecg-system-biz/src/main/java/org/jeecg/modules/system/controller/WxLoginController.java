@@ -150,7 +150,7 @@ public class WxLoginController {
         Result result = new Result();
         //token 信息
         obj.put("token", token);
-        obj.put("userInfo", userByPhone);
+        obj.put("userInfo", userDTO);
         result.setData(obj);
         result.setCode(200);
         baseCommonService.addLog("用户名: " + userByPhone.getUsername() + ",登录成功[移动端]！", CommonConstant.LOG_TYPE_1, null);
