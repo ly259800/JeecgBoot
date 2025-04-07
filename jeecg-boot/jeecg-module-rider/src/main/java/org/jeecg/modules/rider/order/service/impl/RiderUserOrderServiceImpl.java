@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @Description: 用户个人订单
@@ -55,7 +56,7 @@ public class RiderUserOrderServiceImpl extends ServiceImpl<RiderUserOrderMapper,
             queryWrapper.lambda().likeRight(RiderUserOrder::getOutTradeNo,"DEV");
         }
         RiderUserOrder maxInstoreNo = baseMapper.selectOne(queryWrapper);
-        if(StringUtils.isEmpty(maxInstoreNo.getOutTradeNo())){
+        if(Objects.isNull(maxInstoreNo) || StringUtils.isEmpty(maxInstoreNo.getOutTradeNo())){
             return 1L;
         } else {
             String instoreNo = maxInstoreNo.getOutTradeNo().substring(11);
