@@ -119,6 +119,7 @@ public class WeChatPayNotifyInvoke {
         if(Objects.nonNull(user)){
             tenantOrder.setPayId(user.getId());
             tenantOrder.setPayer(user.getName());
+            tenantOrder.setCustomerId(user.getId());
         }
         // 6.更新支付订单、租户订单及租户信息
         payOrderinfoService.updateOrderinfo(tenantOrder,payOrderinfo,consumeData);
