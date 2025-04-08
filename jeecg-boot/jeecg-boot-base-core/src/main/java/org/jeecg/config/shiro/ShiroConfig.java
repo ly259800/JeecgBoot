@@ -92,6 +92,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/wx/**", "anon"); //微信登录接口排除
         filterChainDefinitionMap.put("/city/riderCity/list", "anon"); //城市列表接口排除
         filterChainDefinitionMap.put("/qrcode/riderQrcode/queryByScene", "anon"); //获取二维码信息接口排除
+        filterChainDefinitionMap.put("/params/riderParams/queryByCode", "anon"); //获取系统参数接口排除
         filterChainDefinitionMap.put("/sys/logout", "anon"); //登出接口排除
         filterChainDefinitionMap.put("/sys/thirdLogin/**", "anon"); //第三方登录
         filterChainDefinitionMap.put("/sys/getEncryptedString", "anon"); //获取加密串
