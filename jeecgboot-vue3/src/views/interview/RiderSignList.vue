@@ -59,6 +59,7 @@
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   import { getAreaTextByCode } from '/@/components/Form/src/utils/Area';
+  import {useMessage} from "@/hooks/web/useMessage";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -104,6 +105,8 @@
 
   // 高级查询配置
   const superQueryConfig = reactive(superQuerySchema);
+
+  const { createMessage } = useMessage();
 
   /**
    * 高级查询事件
@@ -158,6 +161,10 @@
    }
 
   async function handlePassStatus() {
+    if (selectedRowKeys.value.length === 0) {
+      createMessage.warning('请至少选择一条记录');
+      return;
+    }
     await batchPass({ids: selectedRowKeys.value}, handleSuccess);
   }
 
@@ -195,7 +202,7 @@
   function getTableAction(record){
        return [
          {
-           label: '编辑',
+           label: '跟踪维护',
            onClick: handleEdit.bind(null, record),
            auth: 'interview:rider_interview:edit'
          }
