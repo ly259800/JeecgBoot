@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
@@ -146,6 +147,24 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		this.riderCustomerService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.OK("批量删除成功!");
 	}
+
+	 /**
+	  *  升级为合伙人
+	  *
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "客户管理-升级为合伙人")
+	 @ApiOperation(value="客户管理-升级为合伙人", notes="客户管理-升级为合伙人")
+	 @RequiresPermissions("customer:rider_customer:upgradePartner")
+	 @PostMapping(value = "/upgradePartner")
+	 public Result<String> upgradePartner(@RequestParam(name="ids",required=true) String ids) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 this.riderCustomerService.upgradePartner(ids);
+		 return Result.OK("批量更新成功!");
+	 }
 	
 	/**
 	 * 通过id查询

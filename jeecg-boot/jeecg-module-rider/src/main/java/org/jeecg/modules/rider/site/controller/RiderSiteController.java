@@ -165,7 +165,7 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 		 if(StringUtils.isEmpty(ids)){
 			 return Result.error("请选择行数据!");
 		 }
-		 if(Objects.nonNull(profit)){
+		 if(Objects.isNull(profit)){
 			 return Result.error("利润不能为空!");
 		 }
 		 this.riderSiteService.updateProfit(ids,profit);
@@ -182,7 +182,7 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 	 @RequiresPermissions("site:rider_site:updateProfitAll")
 	 @PostMapping(value = "/updateProfitAll")
 	 public Result<String> updateProfitAll(@RequestParam(name="profit",required=true) Integer profit) {
-		 if(Objects.nonNull(profit)){
+		 if(Objects.isNull(profit)){
 			 return Result.error("利润不能为空!");
 		 }
 		 this.riderSiteService.updateProfit(null,profit);

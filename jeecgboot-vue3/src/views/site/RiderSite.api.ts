@@ -84,7 +84,7 @@ export const updateAllProfit = (params, handleSuccess) => {
   createConfirm({
     iconType: 'warning',
     title: '确认更新',
-    content: '是否更新选中数据',
+    content: '是否更新全部数据的利润',
     okText: '确认',
     cancelText: '取消',
     onOk: () => {

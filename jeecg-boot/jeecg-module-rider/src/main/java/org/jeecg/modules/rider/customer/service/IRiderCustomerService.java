@@ -17,4 +17,6 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
 
     RiderCustomer getByPhone(String phone);
 
+    void upgradePartner(String ids);
+
 }

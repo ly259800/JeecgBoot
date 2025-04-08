@@ -5,8 +5,9 @@
      <!--插槽:table标题-->
       <template #tableTitle>
           <a-button type="primary" v-auth="'customer:rider_customer:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button  type="primary" v-auth="'customer:rider_customer:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-          <j-upload-button type="primary" v-auth="'customer:rider_customer:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+        <a-button type="primary" v-auth="'customer:rider_customer:upgradePartner'" @click="upgradePartner" preIcon="ant-design:plus-outlined">升级为合伙人</a-button>
+        <a-button  type="primary" v-auth="'customer:rider_customer:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+<!--          <j-upload-button type="primary" v-auth="'customer:rider_customer:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -43,9 +44,18 @@
   import { useListPage } from '/@/hooks/system/useListPage'
   import RiderCustomerModal from './components/RiderCustomerModal.vue'
   import {columns, searchFormSchema, superQuerySchema} from './RiderCustomer.data';
-  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './RiderCustomer.api';
+  import {
+    list,
+    deleteOne,
+    batchDelete,
+    getImportUrl,
+    getExportUrl,
+    upgradeIdentity
+  } from './RiderCustomer.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
+  import {batchPass} from "@/views/interview/RiderInterview.api";
+  import {useMessage} from "@/hooks/web/useMessage";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -92,6 +102,7 @@
   // 高级查询配置
   const superQueryConfig = reactive(superQuerySchema);
 
+  const { createMessage } = useMessage();
   /**
    * 高级查询事件
    */
@@ -142,6 +153,15 @@
   async function batchHandleDelete() {
      await batchDelete({ids: selectedRowKeys.value}, handleSuccess);
    }
+
+  async function upgradePartner() {
+    if (selectedRowKeys.value.length === 0) {
+      createMessage.warning('请至少选择一条记录');
+      return;
+    }
+    await upgradeIdentity({ids: selectedRowKeys.value}, handleSuccess);
+  }
+
    /**
     * 成功回调
     */

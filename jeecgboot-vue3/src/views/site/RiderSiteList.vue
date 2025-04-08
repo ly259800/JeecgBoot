@@ -5,8 +5,8 @@
      <!--插槽:table标题-->
       <template #tableTitle>
           <a-button type="primary" v-auth="'site:rider_site:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button type="primary" v-auth="'site:rider_site:updateProfitBatch'" @click="updateProfitBatch" preIcon="ant-design:plus-outlined">设置利润</a-button>
-        <a-button type="primary" v-auth="'site:rider_site:updateProfitAll'" @click="updateProfitAll()" preIcon="ant-design:plus-outlined">设置全部利润</a-button>
+          <a-button type="primary" v-auth="'site:rider_site:updateProfitBatch'" @click="openProfitBatchModal" preIcon="ant-design:plus-outlined">设置利润</a-button>
+        <a-button type="primary" v-auth="'site:rider_site:updateProfitAll'" @click="openProfitAllModal" preIcon="ant-design:plus-outlined">设置全部利润</a-button>
         <a-button  type="primary" v-auth="'site:rider_site:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
           <j-upload-button type="primary" v-auth="'site:rider_site:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
           <a-dropdown v-if="selectedRowKeys.length > 0">
@@ -33,9 +33,49 @@
       <template v-slot:bodyCell="{ column, record, index, text }">
       </template>
     </BasicTable>
+
+    <!-- 批量设置利润弹框 -->
+    <a-modal
+      v-model:visible="showBatchProfitModal"
+      title="批量设置利润"
+      @ok="handleBatchProfitSubmit"
+      @cancel="showBatchProfitModal = false"
+    >
+      <a-form layout="vertical">
+        <a-form-item label="利润金额">
+          <a-input-number
+            v-model:value="batchProfitValue"
+            :min="0"
+            :precision="0"
+            style="width: 100%"
+            placeholder="请输入利润金额"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <!-- 设置全部利润弹框 -->
+    <a-modal
+      v-model:visible="showAllProfitModal"
+      title="设置全部利润"
+      @ok="handleAllProfitSubmit"
+      @cancel="showAllProfitModal = false"
+    >
+      <a-form layout="vertical">
+        <a-form-item label="利润金额">
+          <a-input-number
+            v-model:value="allProfitValue"
+            :min="0"
+            :precision="0"
+            style="width: 100%"
+            placeholder="请输入利润金额"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
     <!-- 表单区域 -->
     <RiderSiteModal @register="registerModal" @success="handleSuccess"></RiderSiteModal>
-    <RiderSiteSetProfitModal @register="register4"  @success="handleSuccess" />
   </div>
 </template>
 
@@ -45,7 +85,6 @@ import {ref, reactive, computed, unref, nextTick} from 'vue';
   import {useModal} from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage'
   import RiderSiteModal from './components/RiderSiteModal.vue'
-  import RiderSiteSetProfitModal from './components/RiderSiteSetProfitModal.vue'
   import {columns, searchFormSchema, superQuerySchema} from './RiderSite.data';
   import {
     list,
@@ -58,13 +97,13 @@ import {ref, reactive, computed, unref, nextTick} from 'vue';
   } from './RiderSite.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
+import {useMessage} from "@/hooks/web/useMessage";
 
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
   //注册model
   const [registerModal, {openModal}] = useModal();
-  const [register4, { openModal: openModal4 }] = useModal();
   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
@@ -105,6 +144,13 @@ import {ref, reactive, computed, unref, nextTick} from 'vue';
 
   // 高级查询配置
   const superQueryConfig = reactive(superQuerySchema);
+ const { createMessage } = useMessage();
+
+  // 添加以下状态和函数
+  const showBatchProfitModal = ref(false);
+  const showAllProfitModal = ref(false);
+  const batchProfitValue = ref<number>(0);
+  const allProfitValue = ref<number>(0);
 
   /**
    * 高级查询事件
@@ -157,17 +203,6 @@ import {ref, reactive, computed, unref, nextTick} from 'vue';
      await batchDelete({ids: selectedRowKeys.value}, handleSuccess);
    }
 
-  /**
-   * 批量更新利润事件
-   */
-  async function updateProfitBatch() {
-    await updateProfit({ids: selectedRowKeys.value,profit: 100}, handleSuccess);
-  }
-
-  async function updateProfitAll() {
-    await updateAllProfit({profit: 100}, handleSuccess);
-  }
-
    /**
     * 成功回调
     */
@@ -206,6 +241,49 @@ import {ref, reactive, computed, unref, nextTick} from 'vue';
        ]
    }
 
+
+// 打开批量设置利润弹框
+function openProfitBatchModal() {
+  if (selectedRowKeys.value.length === 0) {
+    createMessage.warning('请至少选择一条记录');
+    return;
+  }
+  batchProfitValue.value = 0;
+  showBatchProfitModal.value = true;
+}
+
+// 打开设置全部利润弹框
+function openProfitAllModal() {
+  allProfitValue.value = 0;
+  showAllProfitModal.value = true;
+}
+
+// 批量设置利润提交
+async function handleBatchProfitSubmit() {
+  try {
+    await updateProfit({
+      ids: selectedRowKeys.value,
+      profit: batchProfitValue.value
+    }, handleSuccess);
+    showBatchProfitModal.value = false;
+  } catch (error) {
+    console.error('批量设置利润失败', error);
+    createMessage.error('批量设置利润失败');
+  }
+}
+
+// 设置全部利润提交
+async function handleAllProfitSubmit() {
+  try {
+    await updateAllProfit({
+      profit: allProfitValue.value
+    }, handleSuccess);
+    showAllProfitModal.value = false;
+  } catch (error) {
+    console.error('设置全部利润失败', error);
+    createMessage.error('设置全部利润失败');
+  }
+}
 
 </script>
 

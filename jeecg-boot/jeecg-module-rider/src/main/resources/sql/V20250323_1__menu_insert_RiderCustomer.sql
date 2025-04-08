@@ -24,3 +24,9 @@ VALUES ('2025032305267340215', '2025032305267340210', '导出excel_客户管理'
 -- 导入excel
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
 VALUES ('2025032305267340216', '2025032305267340210', '导入excel_客户管理', NULL, NULL, 0, NULL, NULL, 2, 'customer:rider_customer:importExcel', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-03-23 17:26:21', NULL, NULL, 0, 0, '1', 0);
+
+-- 升级为合伙人
+INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
+VALUES ('2025032305267340217', '2025032305267340210', '升级为合伙人', NULL, NULL, 0, NULL, NULL, 2, 'customer:rider_customer:upgradePartner', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-03-23 17:26:31', NULL, NULL, 0, 0, '1', 0);
+
+
