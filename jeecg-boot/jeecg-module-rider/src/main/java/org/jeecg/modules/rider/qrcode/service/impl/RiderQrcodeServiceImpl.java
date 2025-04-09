@@ -45,14 +45,15 @@ public class RiderQrcodeServiceImpl extends ServiceImpl<RiderQrcodeMapper, Rider
     @SneakyThrows
     public void saveRiderQrcode(RiderQrcode riderQrcode) {
         //生成一个二维码传参
-        String scence = UUIDGenerator.generate();
+        this.save(riderQrcode);
+        String scence = riderQrcode.getId();
         riderQrcode.setScene(scence);
         WxSacnLoginResDTO accessToken = weChatPayApiInvoke.getAccessToken();
         if(StringUtils.isNotEmpty(accessToken.getAccess_token())){
             byte[] qrCodeBytes = weChatPayApiInvoke.createQrCode(riderQrcode, accessToken.getAccess_token());
             String qrcodeUrl = CommonUtils.uploadOnlineImage(qrCodeBytes, upLoadPath, "qrcode", uploadType);
             riderQrcode.setUrl(qrcodeUrl);
-            this.save(riderQrcode);
+            this.updateById(riderQrcode);
         } else {
             throw new JeecgBootException("获取access_token失败,请退出页面重试!");
         }

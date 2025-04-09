@@ -11,7 +11,6 @@ enum Api {
   deleteOne = '/interview/riderInterview/delete',
   deleteBatch = '/interview/riderInterview/deleteBatch',
   passBatch = '/interview/riderInterview/passBatch',
-  handleStatus = '/interview/riderInterview/handleStatus',
   importExcel = '/interview/riderInterview/importExcel',
   exportXls = '/interview/riderInterview/exportXls',
   allSiteList = '/site/riderSite/queryList',

@@ -168,28 +168,6 @@
     await batchPass({ids: selectedRowKeys.value}, handleSuccess);
   }
 
-  /**
-   * 跟踪维护
-   */
-  function handleStatus(record: Recordable) {
-    openModal(true, {
-      record,
-      isUpdate: true,
-      showFooter: true,
-    });
-  }
-
-  /**
-   * 跟踪维护
-   */
-  function handleSite(record: Recordable) {
-    openModal(true, {
-      record,
-      isUpdate: true,
-      showFooter: true,
-    });
-  }
-
    /**
     * 成功回调
     */
