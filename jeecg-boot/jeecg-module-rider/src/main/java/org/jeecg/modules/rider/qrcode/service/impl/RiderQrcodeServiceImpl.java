@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -43,6 +44,7 @@ public class RiderQrcodeServiceImpl extends ServiceImpl<RiderQrcodeMapper, Rider
 
     @Override
     @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
     public void saveRiderQrcode(RiderQrcode riderQrcode) {
         //生成一个二维码传参
         this.save(riderQrcode);
