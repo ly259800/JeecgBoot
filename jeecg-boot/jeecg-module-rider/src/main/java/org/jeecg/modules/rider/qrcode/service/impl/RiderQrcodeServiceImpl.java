@@ -46,10 +46,12 @@ public class RiderQrcodeServiceImpl extends ServiceImpl<RiderQrcodeMapper, Rider
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     public void saveRiderQrcode(RiderQrcode riderQrcode) {
+        if(StringUtils.isEmpty(riderQrcode.getScene())){
+            this.save(riderQrcode);
+            String scence = riderQrcode.getId();
+            riderQrcode.setScene(scence);
+        }
         //生成一个二维码传参
-        this.save(riderQrcode);
-        String scence = riderQrcode.getId();
-        riderQrcode.setScene(scence);
         WxSacnLoginResDTO accessToken = weChatPayApiInvoke.getAccessToken();
         if(StringUtils.isNotEmpty(accessToken.getAccess_token())){
             byte[] qrCodeBytes = weChatPayApiInvoke.createQrCode(riderQrcode, accessToken.getAccess_token());

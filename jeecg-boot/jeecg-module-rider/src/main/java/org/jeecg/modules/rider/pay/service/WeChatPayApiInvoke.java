@@ -249,11 +249,6 @@ public class WeChatPayApiInvoke {
      */
     @SneakyThrows
     public WxSacnLoginResDTO getAccessToken(){
-        Object accessToken = redisUtil.get(WeChatConstants.AccessToken);
-        if(Objects.nonNull(accessToken)){
-            WxSacnLoginResDTO wxSacnLoginResDTO = JSONObject.parseObject(accessToken.toString(), WxSacnLoginResDTO.class);
-            return wxSacnLoginResDTO;
-        }
         URI uri = UriComponentsBuilder.fromHttpUrl("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={secret}")
                 .build()
                 .expand(wxpayServiceConfig.getAppid(),wxpayServiceConfig.getSecret())
@@ -266,10 +261,6 @@ public class WeChatPayApiInvoke {
                 String bodyAsString = EntityUtils.toString(response.getEntity());
                 log.info("获取手机号-- 获取access_token，返回结果result：{}",bodyAsString);
                 WxSacnLoginResDTO wxSacnLoginResDTO = JSONObject.parseObject(bodyAsString, WxSacnLoginResDTO.class);
-                if(StringUtils.isNotEmpty(wxSacnLoginResDTO.getAccess_token())){
-                    //有2小时的有效时间，放缓存
-                    redisUtil.set(WeChatConstants.AccessToken,bodyAsString,WeChatConstants.expiresTime);
-                }
                 return wxSacnLoginResDTO;
             }
         }
