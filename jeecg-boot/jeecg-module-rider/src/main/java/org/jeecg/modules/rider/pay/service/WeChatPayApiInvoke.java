@@ -286,6 +286,8 @@ public class WeChatPayApiInvoke {
         rootNode.put("scene",riderQrcode.getScene());
         if(StringUtils.isNotEmpty(riderQrcode.getPage())){
             rootNode.put("page",riderQrcode.getPage());
+        } else {
+            rootNode.put("page","pages/index/index");
         }
         if(StringUtils.isNotEmpty(riderQrcode.getEnvVersion())){
             rootNode.put("env_version",riderQrcode.getEnvVersion());
