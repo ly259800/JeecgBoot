@@ -290,6 +290,7 @@ public class WeChatPayApiInvoke {
         if(StringUtils.isNotEmpty(riderQrcode.getEnvVersion())){
             rootNode.put("env_version",riderQrcode.getEnvVersion());
         }
+        rootNode.put("check_path", false);
         objectMapper.writeValue(bos, rootNode);
         log.info("微信-- 生成小程序二维码,请求url：{},请求参数：{}", uri.toString(),objectMapper.writeValueAsString(rootNode));
         httpPost.setEntity(new StringEntity(bos.toString("UTF-8"), "UTF-8"));
