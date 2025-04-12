@@ -122,7 +122,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
             riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
             //3.更新用户为合伙人
             RiderCustomer riderCustomer = new RiderCustomer();
-            riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
+            riderCustomer.setIdentity(CustomerIdentityEnum.PARTNER.getCode());
             riderCustomer.setId(riderUserOrder.getCustomerId());
             riderCustomerService.updateById(riderCustomer);
         }

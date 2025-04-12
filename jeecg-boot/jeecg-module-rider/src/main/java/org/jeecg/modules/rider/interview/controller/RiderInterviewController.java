@@ -102,9 +102,11 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		riderInterview.setEntrance(InterviewEntranceEnum.RIDER.getCode());
 		riderInterview.setSource("骑手报名");
 		riderInterviewService.save(riderInterview);
-		//更新用户身份为骑手
-		riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
-		riderCustomerService.updateById(riderCustomer);
+		//若用户身份为游客，则更新为骑手
+		if(Objects.nonNull(riderCustomer.getIdentity()) && Objects.equals(riderCustomer.getIdentity(),CustomerIdentityEnum.TOURIST.getCode())){
+			riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
+			riderCustomerService.updateById(riderCustomer);
+		}
 		return Result.OK("报名成功！");
 	}
 
@@ -141,9 +143,6 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 riderInterview.setSource("站点申请");
 		 riderInterview.setReference(riderCustomer.getId());
 		 riderInterviewService.save(riderInterview);
-		 //更新用户身份为合伙人
-		 riderCustomer.setIdentity(CustomerIdentityEnum.PARTNER.getCode());
-		 riderCustomerService.updateById(riderCustomer);
 		 return Result.OK("登记成功！");
 	 }
 	
