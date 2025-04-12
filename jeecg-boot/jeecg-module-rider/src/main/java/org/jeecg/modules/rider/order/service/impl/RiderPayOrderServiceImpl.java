@@ -78,7 +78,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateOrderinfo(RiderUserOrder tenantOrder, RiderPayOrder payOrderinfo, CallbackDecryptData consumeData) {
+    public void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo, CallbackDecryptData consumeData) {
         // 1.更新支付订单
         Date payOrderUpdateTime = payOrderinfo.getUpdateTime();
         TradeStateEnum tradeStateEnum = TradeStateEnum.getEnum(consumeData.getTradeState());
@@ -99,28 +99,28 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         payOrderWrapper.lambda().eq(RiderPayOrder::getId, payOrderinfo.getId())
                 .eq(RiderPayOrder::getUpdateTime, payOrderUpdateTime);
         this.baseMapper.update(payOrderinfo,payOrderWrapper);
-        // 2.更新租户订单
-        Date tenantOrderUpdateTime = tenantOrder.getUpdateTime();
-        tenantOrder.setActualAmount(payAmount);//实际支付金额
-        tenantOrder.setSuccessTime(consumeData.getSuccessTime());//支付完成日期
-        tenantOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
+        // 2.更新用户订单
+        Date userOrderUpdateTime = riderUserOrder.getUpdateTime();
+        riderUserOrder.setActualAmount(payAmount);//实际支付金额
+        riderUserOrder.setSuccessTime(consumeData.getSuccessTime());//支付完成日期
+        riderUserOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
         if(Objects.equals(tradeStateEnum,TradeStateEnum.SUCCESS)){
-            tenantOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
+            riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
         } else if(Objects.equals(tradeStateEnum,TradeStateEnum.NOTPAY)){
-            tenantOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//未支付
+            riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//未支付
         } else {
-            tenantOrder.setOrderState(OrderStateEnum.PAYERROR.getCode());//支付失败
+            riderUserOrder.setOrderState(OrderStateEnum.PAYERROR.getCode());//支付失败
         }
-        tenantOrder.setUpdateTime(new Date());
-        QueryWrapper<RiderUserOrder> tenantOrderWrapper = new QueryWrapper<>();
-        tenantOrderWrapper.lambda().eq(RiderUserOrder::getId, tenantOrder.getId())
-                .eq(RiderUserOrder::getUpdateTime, tenantOrderUpdateTime);
-        int flag = riderUserOrderService.getBaseMapper().update(tenantOrder, tenantOrderWrapper);
+        riderUserOrder.setUpdateTime(new Date());
+        QueryWrapper<RiderUserOrder> userOrderWrapper = new QueryWrapper<>();
+        userOrderWrapper.lambda().eq(RiderUserOrder::getId, riderUserOrder.getId())
+                .eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
+        int flag = riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
         // 3.订单更新时间未修改，则更新客户信息为合伙人
         if(flag>0){
             RiderCustomer riderCustomer = new RiderCustomer();
             riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
-            riderCustomer.setId(tenantOrder.getCustomerId());
+            riderCustomer.setId(riderUserOrder.getCustomerId());
             riderCustomerService.updateById(riderCustomer);
         }
 

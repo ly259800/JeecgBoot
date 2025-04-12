@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.pay.service;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import lombok.SneakyThrows;
@@ -95,14 +96,15 @@ public class WeChatPayNotifyInvoke {
                         .getBytes(StandardCharsets.UTF_8),
                 resource.getCiphertext().replace("\"", ""));
         CallbackDecryptData consumeData = objectMapper.readValue(data, CallbackDecryptData.class);
+        log.info("微信支付异步回调解密信息：{}", JSON.toJSONString(consumeData));
         // 2.获取交易状态
         TradeStateEnum tradeStateEnum = TradeStateEnum.getEnum(consumeData.getTradeState());
         if(Objects.isNull(tradeStateEnum)){
             throw new WechatPayException(BaseErrorCodeEnum.TRADE_STATE_NOT_EXSIT, consumeData.getTradeState());
         }
         // 3.根据租户订单号校验订单真实性
-        RiderUserOrder tenantOrder = tenantOrderService.getByOutTradeNo(consumeData.getOutTradeNo());
-        if(Objects.isNull(tenantOrder)){
+        RiderUserOrder riderUserOrder = tenantOrderService.getByOutTradeNo(consumeData.getOutTradeNo());
+        if(Objects.isNull(riderUserOrder)){
             throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("用户订单【%s】不存在", consumeData.getOutTradeNo()));
         }
         RiderPayOrder payOrderinfo = payOrderinfoService.getByOutTradeNo(consumeData.getOutTradeNo());
@@ -117,12 +119,12 @@ public class WeChatPayNotifyInvoke {
         // 5.根据openid获取支付人信息
         RiderCustomer user = sysUserService.getByOpenId(consumeData.getPayer().getOpenid());
         if(Objects.nonNull(user)){
-            tenantOrder.setPayId(user.getId());
-            tenantOrder.setPayer(user.getName());
-            tenantOrder.setCustomerId(user.getId());
+            riderUserOrder.setPayId(user.getId());
+            riderUserOrder.setPayer(user.getName());
+            riderUserOrder.setCustomerId(user.getId());
         }
         // 6.更新支付订单、租户订单及租户信息
-        payOrderinfoService.updateOrderinfo(tenantOrder,payOrderinfo,consumeData);
+        payOrderinfoService.updateOrderinfo(riderUserOrder,payOrderinfo,consumeData);
     }
 
 }

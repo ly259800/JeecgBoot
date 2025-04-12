@@ -67,18 +67,16 @@ public class RiderUserOrderServiceImpl extends ServiceImpl<RiderUserOrderMapper,
         if (!PriceUtils.checkZero(dto.getTotalAmount())) {
             throw new JeecgBootException("订单金额必须大于0！");
         }
-        RiderUserOrder tenantOrderDTO = new RiderUserOrder();
-        BeanUtils.copyProperties(dto,tenantOrderDTO);
         //订单状态
-        tenantOrderDTO.setOrderState(OrderStateEnum.NOTPAY.getCode());
+        dto.setOrderState(OrderStateEnum.NOTPAY.getCode());
         //获取当前用户
         LoginUser user = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         //生成租户订单号
         Long maxOutTradeNo = this.getMaxOutTradeNo();
         String outTradeNo = UUIDUtils.getOutTradeNo(maxOutTradeNo);
-        tenantOrderDTO.setPayId(user.getId());
-        tenantOrderDTO.setOutTradeNo(outTradeNo);
-        this.save(tenantOrderDTO);
+        dto.setPayId(user.getId());
+        dto.setOutTradeNo(outTradeNo);
+        this.save(dto);
         ObjectNode rootNode = WechatPayContants.OBJECT_MAPPER.createObjectNode();
         rootNode.put("outTradeNo",outTradeNo);
         return new Result().ok(rootNode);
