@@ -98,31 +98,33 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         QueryWrapper<RiderPayOrder> payOrderWrapper = new QueryWrapper<>();
         payOrderWrapper.lambda().eq(RiderPayOrder::getId, payOrderinfo.getId())
                 .eq(RiderPayOrder::getUpdateTime, payOrderUpdateTime);
-        this.baseMapper.update(payOrderinfo,payOrderWrapper);
-        // 2.更新用户订单
-        Date userOrderUpdateTime = riderUserOrder.getUpdateTime();
-        riderUserOrder.setActualAmount(payAmount);//实际支付金额
-        riderUserOrder.setSuccessTime(consumeData.getSuccessTime());//支付完成日期
-        riderUserOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
-        if(Objects.equals(tradeStateEnum,TradeStateEnum.SUCCESS)){
-            riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
-        } else if(Objects.equals(tradeStateEnum,TradeStateEnum.NOTPAY)){
-            riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//未支付
-        } else {
-            riderUserOrder.setOrderState(OrderStateEnum.PAYERROR.getCode());//支付失败
-        }
-        riderUserOrder.setUpdateTime(new Date());
-        QueryWrapper<RiderUserOrder> userOrderWrapper = new QueryWrapper<>();
-        userOrderWrapper.lambda().eq(RiderUserOrder::getId, riderUserOrder.getId())
-                .eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
-        int flag = riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
-        // 3.订单更新时间未修改，则更新客户信息为合伙人
-        if(flag>0){
+        int update = this.baseMapper.update(payOrderinfo, payOrderWrapper);
+        //支付订单更新成功
+        if(update > 0){
+            // 2.更新用户订单
+            Date userOrderUpdateTime = riderUserOrder.getUpdateTime();
+            riderUserOrder.setActualAmount(payAmount);//实际支付金额
+            riderUserOrder.setSuccessTime(consumeData.getSuccessTime());//支付完成日期
+            riderUserOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
+            if(Objects.equals(tradeStateEnum,TradeStateEnum.SUCCESS)){
+                riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
+            } else if(Objects.equals(tradeStateEnum,TradeStateEnum.NOTPAY)){
+                riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//未支付
+            } else {
+                riderUserOrder.setOrderState(OrderStateEnum.PAYERROR.getCode());//支付失败
+            }
+            riderUserOrder.setUpdateTime(new Date());
+            QueryWrapper<RiderUserOrder> userOrderWrapper = new QueryWrapper<>();
+            userOrderWrapper.lambda().eq(RiderUserOrder::getId, riderUserOrder.getId());
+            if(userOrderUpdateTime != null){
+                userOrderWrapper.lambda().eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
+            }
+            riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
+            //3.更新用户为合伙人
             RiderCustomer riderCustomer = new RiderCustomer();
             riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
             riderCustomer.setId(riderUserOrder.getCustomerId());
             riderCustomerService.updateById(riderCustomer);
         }
-
     }
 }
