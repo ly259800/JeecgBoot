@@ -146,7 +146,8 @@ public class WxLoginController {
         String token = JwtUtil.sign(userByPhone.getUsername(), userByPhone.getPassword());
         // 设置超时时间
         redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
-        redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME*2 / 1000);
+        //有效期设置为14天
+        redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME * 2);
         Result result = new Result();
         //token 信息
         obj.put("token", token);
