@@ -62,6 +62,7 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 													 HttpServletRequest req) {
         QueryWrapper<RiderSite> queryWrapper = QueryGenerator.initQueryWrapper(riderSite, req.getParameterMap());
 		Page<RiderSite> page = new Page<RiderSite>(pageNo, pageSize);
+		queryWrapper.lambda().orderByDesc(RiderSite::getGap);
 		IPage<RiderSite> pageList = riderSiteService.page(page, queryWrapper);
 		IPage<RiderSiteDTO> siteDTOIPage = pageList.convert(x -> {
 			RiderSiteDTO siteDTO = new RiderSiteDTO();
