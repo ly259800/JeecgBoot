@@ -70,6 +70,11 @@ export const columns: BasicColumn[] = [
       return render.renderDict(text, 'yn');
     },
   },
+  {
+    title: '面试时间',
+    align:"center",
+    dataIndex: 'interviewDate'
+  },
    {
     title: '报道站点',
     align:"center",
