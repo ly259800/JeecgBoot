@@ -78,6 +78,12 @@ public class RiderInterview implements Serializable {
 	@Excel(name = "报道城市", width = 15)
     @ApiModelProperty(value = "报道城市")
     private java.lang.String city;
+
+    @Excel(name = "工作地点", width = 15)
+    @ApiModelProperty(value = "工作地点")
+    @Dict(dicCode = "job_position")
+    private java.lang.Integer jobPosition;
+
 	/**是否全职*/
 	@Excel(name = "是否全职", width = 15)
     @ApiModelProperty(value = "是否全职")
