@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
@@ -117,6 +118,27 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		riderCustomerService.updateById(riderCustomer);
 		return Result.OK("编辑成功!");
 	}
+
+	 /**
+	  *  更新站点城市
+	  *
+	  * @param riderCustomer
+	  * @return
+	  */
+	 @AutoLog(value = "客户管理-更新站点城市")
+	 @ApiOperation(value="客户管理-更新站点城市", notes="客户管理-更新站点城市")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/updateCity", method = {RequestMethod.POST})
+	 public Result<String> updateCity(@RequestBody RiderCustomer riderCustomer) {
+		 if(StringUtils.isEmpty(riderCustomer.getId())){
+			 throw new JeecgBootException("用户ID不能为空");
+		 }
+		 if(StringUtils.isEmpty(riderCustomer.getSiteCity())){
+			 throw new JeecgBootException("站点城市不能为空");
+		 }
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("更新成功!");
+	 }
 	
 	/**
 	 *   通过id删除

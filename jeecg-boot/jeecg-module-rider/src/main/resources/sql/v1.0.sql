@@ -11,6 +11,7 @@ CREATE TABLE `rider_customer` (
                                   `identity` int DEFAULT '1' COMMENT '身份',
                                   `wx_open_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '微信openid',
                                   `qrcode` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '二维码链接',
+                                  `site_city` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '站点城市',
                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -39,6 +40,7 @@ CREATE TABLE `rider_interview` (
                                    `site_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '站点id',
                                    `entrance` int DEFAULT NULL COMMENT '小程序入口',
                                    `memo` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
+                                   `job_position` int DEFAULT NULL COMMENT '工作地点',
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
