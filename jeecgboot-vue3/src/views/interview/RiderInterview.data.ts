@@ -34,6 +34,11 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'city'
    },
+  {
+    title: '工作地点',
+    align:"center",
+    dataIndex: 'jobPosition_dictText',
+  },
    {
     title: '是否全职',
     align:"center",
