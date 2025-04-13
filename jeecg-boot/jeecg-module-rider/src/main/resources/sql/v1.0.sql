@@ -41,6 +41,7 @@ CREATE TABLE `rider_interview` (
                                    `entrance` int DEFAULT NULL COMMENT '小程序入口',
                                    `memo` varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
                                    `job_position` int DEFAULT NULL COMMENT '工作地点',
+                                   `interview_date` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '面试日期',
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
