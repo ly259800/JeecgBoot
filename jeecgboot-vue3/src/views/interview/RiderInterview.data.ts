@@ -163,6 +163,11 @@ export const formSchema: FormSchema[] = [
       labelField: 'name',
       valueField: 'id',
       immediate: false,
+      showSearch: true, // 启用搜索功能
+      filterOption: (input: string, option: any) => {
+        // 本地筛选逻辑：匹配 name 字段
+        return option.label.toLowerCase().includes(input.toLowerCase());
+      },
     },
   },{
     label: '备注',

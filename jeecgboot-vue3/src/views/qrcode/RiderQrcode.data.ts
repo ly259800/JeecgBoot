@@ -64,6 +64,11 @@ export const formSchema: FormSchema[] = [
       labelField: 'phone',
       valueField: 'id',
       immediate: false,
+      showSearch: true, // 启用搜索功能
+      filterOption: (input: string, option: any) => {
+        // 本地筛选逻辑：匹配 phone 字段
+        return option.label.toLowerCase().includes(input.toLowerCase());
+      },
     },
   },
 	// TODO 主键隐藏字段，目前写死为ID
