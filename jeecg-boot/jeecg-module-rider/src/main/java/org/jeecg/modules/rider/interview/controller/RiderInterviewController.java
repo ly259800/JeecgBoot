@@ -1,6 +1,8 @@
 package org.jeecg.modules.rider.interview.controller;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,8 +13,10 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
+import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.interview.enums.InterviewEntranceEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
@@ -24,7 +28,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.modules.rider.site.entity.RiderSite;
+import org.jeecg.modules.rider.site.service.IRiderSiteService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import io.swagger.annotations.Api;
@@ -48,6 +56,9 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 
 	 @Autowired
 	 private IRiderCustomerService riderCustomerService;
+
+	 @Autowired
+	 private IRiderSiteService riderSiteService;
 	
 	/**
 	 * 分页列表查询
@@ -75,6 +86,66 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		IPage<RiderInterview> pageList = riderInterviewService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
+
+	 /**
+	  * 面试管理-我的招聘
+	  *
+	  * @param riderInterview
+	  * @param pageNo
+	  * @param pageSize
+	  * @param req
+	  * @return
+	  */
+	 //@AutoLog(value = "面试管理-分页列表查询")
+	 @ApiOperation(value="面试管理-我的招聘", notes="面试管理-我的招聘")
+	 @GetMapping(value = "/listForSelf")
+	 public Result<List<RiderInterviewDTO>> listForSelf(RiderInterview riderInterview,
+														@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+														@RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+														HttpServletRequest req) {
+		 // 直接获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if (oConvertUtils.isEmpty(loginUser)) {
+			 return Result.error("请登录系统！");
+		 }
+		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+		 if (oConvertUtils.isEmpty(riderCustomer)) {
+			 return Result.error("请注册用户！");
+		 }
+		 // 自定义查询规则
+		 QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.lambda().eq(RiderInterview::getReference,riderCustomer.getId());
+		 if(Objects.nonNull(riderInterview.getPassStatus())){
+			 queryWrapper.lambda().eq(RiderInterview::getPassStatus,riderInterview.getPassStatus());
+		 }
+		 List<RiderInterview> pageList = riderInterviewService.list(queryWrapper);
+		 if(CollectionUtils.isEmpty(pageList)){
+			 return Result.OK(new ArrayList<>());
+		 }
+		 List<String> siteIdList = pageList.stream().filter(s -> Objects.nonNull(s.getSiteId())).map(x -> x.getSiteId()).collect(Collectors.toList());
+		 if(CollectionUtils.isEmpty(siteIdList)){
+			 //若站点不存在，则佣金设置为null
+			 List<RiderInterviewDTO> dtoList = pageList.stream().map(x -> {
+				 RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
+				 BeanUtils.copyProperties(x, interviewDTO);
+				 return interviewDTO;
+			 }).collect(Collectors.toList());
+			 return Result.OK(dtoList);
+		 }
+		 List<RiderSite> riderSiteList = riderSiteService.listByIds(siteIdList);
+		 Map<String,  RiderSite> riderSiteMap = riderSiteList.stream().collect(Collectors.toMap(RiderSite::getId, Function.identity(), (a, b) -> b));
+		 List<RiderInterviewDTO> dtoList = pageList.stream().map(x -> {
+			 RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
+			 BeanUtils.copyProperties(x, interviewDTO);
+			 if(Objects.nonNull(x.getSiteId()) && riderSiteMap.containsKey(x.getSiteId())){
+				 RiderSite riderSite = riderSiteMap.get(x.getSiteId());
+				 interviewDTO.setSiteCommission(riderSite.getCommission() - riderSite.getProfit());
+			 }
+			 return interviewDTO;
+		 }).collect(Collectors.toList());
+		 return Result.OK(dtoList);
+	 }
+
 	
 	/**
 	 *   骑手报名
