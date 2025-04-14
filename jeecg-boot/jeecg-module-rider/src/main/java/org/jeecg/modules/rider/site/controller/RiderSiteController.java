@@ -1,8 +1,6 @@
 package org.jeecg.modules.rider.site.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
+import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.site.dto.RiderSiteDTO;
 import org.jeecg.modules.rider.site.entity.RiderSite;
@@ -60,7 +59,12 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 													 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 													 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 													 HttpServletRequest req) {
-        QueryWrapper<RiderSite> queryWrapper = QueryGenerator.initQueryWrapper(riderSite, req.getParameterMap());
+
+		// 自定义查询规则
+		Map<String, QueryRuleEnum> siteRuleMap = new HashMap<>();
+		// 自定义多选的查询规则为：LIKE_WITH_OR
+		siteRuleMap.put("name", QueryRuleEnum.LIKE_WITH_OR);
+        QueryWrapper<RiderSite> queryWrapper = QueryGenerator.initQueryWrapper(riderSite, req.getParameterMap(),siteRuleMap);
 		Page<RiderSite> page = new Page<RiderSite>(pageNo, pageSize);
 		queryWrapper.lambda().orderByDesc(RiderSite::getGap);
 		IPage<RiderSite> pageList = riderSiteService.page(page, queryWrapper);
