@@ -90,6 +90,11 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'reference'
    },
+  {
+    title: '推广人手机号',
+    align:"center",
+    dataIndex: 'referencePhone'
+  },
    {
     title: '数据来源',
     align:"center",
@@ -136,6 +141,12 @@ export const searchFormSchema: FormSchema[] = [
       component: 'Input',
       //colProps: {span: 6},
  	},
+  {
+    label: "推广人手机号",
+    field: 'referencePhone',
+    component: 'Input',
+    //colProps: {span: 6},
+  },
 	{
       label: "处理状态",
       field: 'status',
@@ -204,6 +215,7 @@ export const superQuerySchema = {
   source: {title: '数据来源',order: 11,view: 'text', type: 'string',},
   status: {title: '处理状态',order: 12,view: 'number', type: 'number',dictCode: 'yn',},
   passStatus: {title: '入职状态',order: 13,view: 'number', type: 'number',dictCode: 'yn',},
+  referencePhone: {title: '推广人手机号',order: 14,view: 'text', type: 'string',},
 };
 
 /**
