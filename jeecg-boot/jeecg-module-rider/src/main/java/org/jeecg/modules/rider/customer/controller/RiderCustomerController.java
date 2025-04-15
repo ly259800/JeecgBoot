@@ -9,10 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
@@ -131,7 +133,16 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 @RequestMapping(value = "/updateCity", method = {RequestMethod.POST})
 	 public Result<String> updateCity(@RequestBody RiderCustomer riderCustomer) {
 		 if(StringUtils.isEmpty(riderCustomer.getId())){
-			 throw new JeecgBootException("用户ID不能为空");
+			 //	获取当前用户
+			 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			 if (oConvertUtils.isEmpty(loginUser)) {
+				 return Result.error("请登录系统！");
+			 }
+			 RiderCustomer r = riderCustomerService.getByPhone(loginUser.getPhone());
+			 if (oConvertUtils.isEmpty(r)) {
+				 return Result.error("请注册用户！");
+			 }
+			 riderCustomer.setId(r.getId());
 		 }
 		 if(StringUtils.isEmpty(riderCustomer.getSiteCity())){
 			 throw new JeecgBootException("站点城市不能为空");
