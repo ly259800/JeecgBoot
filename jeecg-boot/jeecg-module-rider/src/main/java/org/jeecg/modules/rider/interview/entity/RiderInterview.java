@@ -126,6 +126,10 @@ public class RiderInterview implements Serializable {
 	@Excel(name = "推广人", width = 15)
     @ApiModelProperty(value = "推广人")
     private java.lang.String reference;
+
+    @Excel(name = "推广人手机号", width = 15)
+    @ApiModelProperty(value = "推广人手机号")
+    private java.lang.String referencePhone;
 	/**数据来源*/
 	@Excel(name = "数据来源", width = 15)
     @ApiModelProperty(value = "数据来源")

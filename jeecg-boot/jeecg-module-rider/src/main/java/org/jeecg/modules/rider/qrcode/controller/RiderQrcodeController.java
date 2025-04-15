@@ -107,7 +107,7 @@ public class RiderQrcodeController extends JeecgController<RiderQrcode, IRiderQr
 		if(StringUtils.isNotEmpty(riderQrcode.getCustomerId())){
 			riderCustomer = riderCustomerService.getById(riderQrcode.getCustomerId());
 			if(Objects.isNull(riderCustomer)){
-				throw new JeecgBootException("用户不存在!");
+				throw new JeecgBootException("该用户不存在!");
 			}
 			riderQrcode.setPhone(riderCustomer.getPhone());
 		}
@@ -115,10 +115,14 @@ public class RiderQrcodeController extends JeecgController<RiderQrcode, IRiderQr
 		if (Objects.isNull(qrcode)){
 			throw new JeecgBootException("二维码不存在!");
 		}
+		//原来的推广码
+		String customerId = qrcode.getCustomerId();
 		riderQrcodeService.updateById(riderQrcode);
-		if(Objects.nonNull(riderCustomer)){
+		if(Objects.nonNull(riderCustomer) && !Objects.equals(customerId,riderCustomer.getId())){
 			riderCustomer.setQrcode(qrcode.getUrl());
 			riderCustomerService.updateById(riderCustomer);
+			//原来的用户推广码置空
+			riderCustomerService.updateQrcode(customerId);
 		}
 		return Result.OK("编辑成功!");
 	}

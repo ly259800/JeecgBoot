@@ -168,10 +168,15 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		if(one != null){
 			return Result.error("该手机号已报名");
 		}
-
 		//小程序入口，1-骑手
 		riderInterview.setEntrance(InterviewEntranceEnum.RIDER.getCode());
 		riderInterview.setSource("骑手报名");
+		if(StringUtils.isNotEmpty(riderInterview.getReference())){
+			RiderCustomer byId = riderCustomerService.getById(riderInterview.getReference());
+			if(Objects.nonNull(byId)){
+				riderInterview.setReferencePhone(byId.getPhone());
+			}
+		}
 		riderInterviewService.save(riderInterview);
 		//若用户身份为游客，则更新为骑手
 		if(Objects.nonNull(riderCustomer.getIdentity()) && Objects.equals(riderCustomer.getIdentity(),CustomerIdentityEnum.TOURIST.getCode())){
@@ -213,6 +218,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 riderInterview.setEntrance(InterviewEntranceEnum.PARTNER.getCode());
 		 riderInterview.setSource("站点申请");
 		 riderInterview.setReference(riderCustomer.getId());
+		 riderInterview.setReferencePhone(riderCustomer.getPhone());
 		 riderInterviewService.save(riderInterview);
 		 return Result.OK("登记成功！");
 	 }

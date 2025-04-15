@@ -51,4 +51,13 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
                 .set(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
         this.update(updateWrapper);
     }
+
+    @Override
+    public void updateQrcode(String id) {
+        LambdaUpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper<RiderCustomer>()
+                .lambda()
+                .eq(RiderCustomer::getId, id)
+                .set(RiderCustomer::getQrcode, "");
+        this.update(updateWrapper);
+    }
 }

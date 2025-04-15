@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.exception.JeecgBootException;
+import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.order.entity.RiderPayOrder;
@@ -70,16 +73,33 @@ public class WeChatPayServiceImpl implements WeChatPayService {
         if(Objects.equals(tenantOrder.getOrderState(), OrderStateEnum.CANNEL.getCode())){
             throw new WechatPayException(BaseErrorCodeEnum.REQ_FAIL.getStatus(), "订单已取消支付!");
         }
-        //根据用户id获取用户openid
-        RiderCustomer userEntity = riderCustomerService.getById(payDto.getUserId());
-        if(Objects.isNull(userEntity)){
-            throw new JeecgBootException("用户不存在!");
+        //若没传用户id,则取当前用户
+        if(Objects.isNull(payDto.getUserId())){
+            LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+            if (oConvertUtils.isEmpty(loginUser)) {
+                throw new JeecgBootException("请登录系统!");
+            }
+            RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+            if (oConvertUtils.isEmpty(riderCustomer)) {
+                throw new JeecgBootException("请注册用户!");
+            }
+            if(StringUtils.isEmpty(riderCustomer.getWxOpenId())){
+                throw new JeecgBootException("用户未绑定微信,请先绑定微信!");
+            }
+            payDto.setOpenid(riderCustomer.getWxOpenId());
+            payDto.setMobile(riderCustomer.getPhone());
+        } else {
+            //根据用户id获取用户openid
+            RiderCustomer userEntity = riderCustomerService.getById(payDto.getUserId());
+            if(Objects.isNull(userEntity)){
+                throw new JeecgBootException("用户不存在!");
+            }
+            if(StringUtils.isEmpty(userEntity.getWxOpenId())){
+                throw new JeecgBootException("用户未绑定微信,请先绑定微信!");
+            }
+            payDto.setOpenid(userEntity.getWxOpenId());
+            payDto.setMobile(userEntity.getPhone());
         }
-        if(StringUtils.isEmpty(userEntity.getWxOpenId())){
-            throw new JeecgBootException("用户未绑定微信,请先绑定微信!");
-        }
-        payDto.setOpenid(userEntity.getWxOpenId());
-        payDto.setMobile(userEntity.getPhone());
         // 金额保留2位小数
         payDto.setTotalAmount(payDto.getTotalAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
         //1. 给该订单加锁,不允许订单号相同的多个线程同时进入
