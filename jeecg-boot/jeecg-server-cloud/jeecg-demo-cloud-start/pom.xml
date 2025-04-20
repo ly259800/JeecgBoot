@@ -29,10 +29,10 @@
             <artifactId>jeecg-boot-starter-job</artifactId>
         </dependency>
 
-        <!-- 引入demo模块 -->
+        <!-- 引入AI模块 -->
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
-            <artifactId>jeecg-module-rider</artifactId>
+            <artifactId>jeecg-module-video</artifactId>
             <version>${jeecgboot.version}</version>
         </dependency>
     </dependencies>

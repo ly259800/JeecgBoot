@@ -5,6 +5,7 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import org.jeecg.common.aspect.annotation.Dict;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -211,4 +212,10 @@ public class SysUser implements Serializable {
      */
     @TableField(exist = false)
     private boolean izBindThird;
+
+    /**微信openid*/
+    private String wxOpenId;
+    /**微信unionid*/
+    private String unionid;
+
 }

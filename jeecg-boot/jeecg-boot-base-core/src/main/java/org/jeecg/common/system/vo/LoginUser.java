@@ -138,4 +138,9 @@ public class LoginUser {
 	/**设备id uniapp推送用*/
 	private String clientId;
 
+	/**微信openid*/
+	private String wxOpenId;
+	/**微信unionid*/
+	private String unionid;
+
 }

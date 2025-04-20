@@ -1,6 +1,5 @@
 package org.jeecg.modules.system.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,17 +12,14 @@ import org.jeecg.common.util.PasswordUtil;
 import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.base.service.BaseCommonService;
-import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
-import org.jeecg.modules.rider.customer.entity.RiderCustomer;
-import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
-import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
-import org.jeecg.modules.rider.pay.service.WeChatPayApiInvoke;
-import org.jeecg.modules.rider.pay.util.Result;
-import org.jeecg.modules.rider.security.dto.*;
-import org.jeecg.modules.system.entity.SysDepart;
+import org.jeecg.modules.pay.dto.WxLoginDTO;
+import org.jeecg.modules.pay.dto.WxRegisterDTO;
+import org.jeecg.modules.pay.dto.WxResultDTO;
+import org.jeecg.modules.pay.dto.WxSacnLoginResDTO;
+import org.jeecg.modules.pay.util.service.WeChatPayApiInvoke;
+import org.jeecg.modules.pay.util.Result;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.service.ISysUserService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +31,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -53,9 +48,6 @@ public class WxLoginController {
 
     @Autowired
     private RedisUtil redisUtil;
-
-    @Autowired
-    private IRiderCustomerService riderCustomerService;
 
     @Autowired
     private ISysUserService sysUserService;
@@ -131,19 +123,15 @@ public class WxLoginController {
         }
         JSONObject obj = new JSONObject();
         //根据openid查找用户
-        RiderCustomer userDTO = riderCustomerService.getByOpenId(openId);
+        SysUser userDTO = sysUserService.getUserByOpenId(openId);
         if (Objects.isNull(userDTO)) {
             Result result = new Result();
             result.setCode(10070);
             result.setMsg("用户未注册,请先注册!");
             return result;
         }
-        SysUser userByPhone = sysUserService.getUserByPhone(userDTO.getPhone());
-        if(Objects.isNull(userByPhone)){
-            throw new JeecgBootException("该手机号用户不存在!");
-        }
         //6. 生成token
-        String token = JwtUtil.sign(userByPhone.getUsername(), userByPhone.getPassword());
+        String token = JwtUtil.sign(userDTO.getUsername(), userDTO.getPassword());
         // 设置超时时间
         redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
         //有效期设置为14天
@@ -154,7 +142,7 @@ public class WxLoginController {
         obj.put("userInfo", userDTO);
         result.setData(obj);
         result.setCode(200);
-        baseCommonService.addLog("用户名: " + userByPhone.getUsername() + ",登录成功[移动端]！", CommonConstant.LOG_TYPE_1, null);
+        baseCommonService.addLog("用户名: " + userDTO.getUsername() + ",登录成功[移动端]！", CommonConstant.LOG_TYPE_1, null);
         return result;
 
     }
@@ -162,7 +150,7 @@ public class WxLoginController {
     @PostMapping("user/register")
     @ApiOperation(value = "用户注册")
     @Transactional(rollbackFor = Exception.class)
-    public Result registerUser(@RequestBody @Valid RiderCustomerDTO dto) {
+    public Result registerUser(@RequestBody @Valid WxRegisterDTO dto) {
         if (StringUtils.isEmpty(dto.getSessionKey())) {
             throw new JeecgBootException("sessionKey已失效,请重新授权!");
         }
@@ -170,17 +158,10 @@ public class WxLoginController {
             throw new JeecgBootException("手机号不能为空！");
         }
         WxResultDTO resultDTO = (WxResultDTO) redisUtil.get(dto.getSessionKey());
-        dto.setWxOpenId(resultDTO.getOpenid());
-        dto.setUnionid(resultDTO.getUnionid());
-        dto.setIdentity(CustomerIdentityEnum.TOURIST.getCode());
         transactionTemplate.execute(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
-                    //新增客户信息
-                    RiderCustomer riderCustomer = new RiderCustomer();
-                    BeanUtils.copyProperties(dto,riderCustomer);
-                    riderCustomerService.save(riderCustomer);
                     //新增用户信息
                     SysUser user = new SysUser();
                     //手机号作为用户名
@@ -189,8 +170,10 @@ public class WxLoginController {
                     user.setPassword(dto.getPhone().substring(3));
                     user.setAvatar(dto.getAvatar());
                     user.setPhone(dto.getPhone());
-                    user.setRealname(dto.getName());
+                    user.setRealname(dto.getRealname());
                     user.setSex(dto.getSex());
+                    user.setWxOpenId(resultDTO.getOpenid());
+                    user.setUnionid(resultDTO.getUnionid());
                     user.setCreateTime(new Date());//设置创建时间
                     String salt = oConvertUtils.randomGen(8);
                     user.setSalt(salt);

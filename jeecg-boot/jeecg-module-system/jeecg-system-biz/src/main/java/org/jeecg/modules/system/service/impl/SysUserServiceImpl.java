@@ -577,6 +577,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	}
 
 	@Override
+	public SysUser getUserByOpenId(String openId) {
+		return userMapper.getUserByOpenId(openId);
+	}
+
+	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void addUserWithDepart(SysUser user, String selectedParts) {
 //		this.save(user);  //保存角色的时候已经添加过一次了

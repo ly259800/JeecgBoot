@@ -225,6 +225,13 @@ public interface ISysUserService extends IService<SysUser> {
      */
 	public SysUser getUserByEmail(String email);
 
+	/**
+	 * 根据openID获取用户信息
+	 * @param OpenId 微信openId
+	 * @return SysUser
+	 */
+	public SysUser getUserByOpenId(String OpenId);
+
 
 	/**
 	 * 添加用户和用户部门关系

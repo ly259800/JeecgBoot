@@ -44,10 +44,16 @@
 			<artifactId>jimubi-spring-boot-starter</artifactId>
 		</dependency>
 
-		<!-- 骑手模块 -->
+		<dependency>
+			<groupId>com.github.wechatpay-apiv3</groupId>
+			<artifactId>wechatpay-apache-httpclient</artifactId>
+			<version>0.4.1</version>
+		</dependency>
+
+		<!-- AI模块 -->
 		<dependency>
 			<groupId>org.jeecgframework.boot</groupId>
-			<artifactId>jeecg-module-rider</artifactId>
+			<artifactId>jeecg-module-video</artifactId>
 			<version>${jeecgboot.version}</version>
 		</dependency>
 	</dependencies>

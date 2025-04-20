@@ -79,10 +79,20 @@
 	<select id="getUserByPhone"  resultType="org.jeecg.modules.system.entity.SysUser">
 		select * from  sys_user  where phone = #{phone} and del_flag = 0
 	</select>
+
+	<!-- 根据手机号查询 -->
+	<select id="getUserByOpenId"  resultType="org.jeecg.modules.system.entity.SysUser">
+		select * from  sys_user  where phone = #{phone} and del_flag = 0
+	</select>
 	
 	<!-- 根据邮箱查询用户信息 -->
 	<select id="getUserByEmail" resultType="org.jeecg.modules.system.entity.SysUser">
 	select * from  sys_user  where email = #{email} and del_flag = 0
+	</select>
+
+	<!-- 根据openId查询用户信息 -->
+	<select id="getUserByOpenId" resultType="org.jeecg.modules.system.entity.SysUser">
+		select * from sys_user where wx_open_id = #{openId} and del_flag = 0
 	</select>
 
 	<!-- SQL片段：getUserByOrgCode 的 FROM 和 WHERE 部分 -->
