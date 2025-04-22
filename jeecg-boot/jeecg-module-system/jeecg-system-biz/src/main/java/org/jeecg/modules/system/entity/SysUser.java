@@ -99,6 +99,12 @@ public class SysUser implements Serializable {
     private String phone;
 
     /**
+     * 会员等级
+     */
+    @Excel(name="会员等级",width = 15)
+    private Integer userLevel;
+
+    /**
      * 登录选择部门编码
      */
     private String orgCode;
