@@ -1,4 +1,4 @@
-package org.jeecg.modules.rider.customer.entity;
+package org.jeecg.modules.rider.commission.entity;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -21,17 +21,17 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * @Description: 客户管理
+ * @Description: 佣金管理
  * @Author: jeecg-boot
- * @Date:   2025-03-22
+ * @Date:   2025-04-25
  * @Version: V1.0
  */
 @Data
-@TableName("rider_customer")
+@TableName("rider_commission")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="rider_customer对象", description="客户管理")
-public class RiderCustomer implements Serializable {
+@ApiModel(value="rider_commission对象", description="佣金管理")
+public class RiderCommission implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**主键*/
@@ -57,47 +57,32 @@ public class RiderCustomer implements Serializable {
 	/**所属部门*/
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
-	/**名称*/
-	@Excel(name = "名称", width = 15)
-    @ApiModelProperty(value = "名称")
-    private java.lang.String name;
-	/**手机号*/
-	@Excel(name = "手机号", width = 15)
-    @ApiModelProperty(value = "手机号")
-    private java.lang.String phone;
-	/**头像*/
-	@Excel(name = "头像", width = 15)
-    @ApiModelProperty(value = "头像")
-    private java.lang.String avatar;
-	/**身份*/
-	@Excel(name = "身份", width = 15, dicCode = "customer_identity")
-	@Dict(dicCode = "customer_identity")
-    @ApiModelProperty(value = "身份")
-    private java.lang.Integer identity;
-    /**微信openid*/
-    @ApiModelProperty(value = "微信openid")
-    private java.lang.String wxOpenId;
-
-    @ApiModelProperty(value = "微信unionid")
-    private java.lang.String unionid;
-
-    /**二维码链接*/
-    @Excel(name = "二维码", width = 15)
-    @ApiModelProperty(value = "二维码")
-    private java.lang.String qrcode;
-
-    /**站点城市*/
-    @Excel(name = "站点城市", width = 15)
-    @ApiModelProperty(value = "站点城市")
-    private java.lang.String siteCity;
-
-    @Excel(name = "我的佣金", width = 15)
-    @ApiModelProperty(value = "我的佣金")
+	/**推广人ID*/
+	@Excel(name = "推广人ID", width = 15)
+    @ApiModelProperty(value = "推广人ID")
+    private java.lang.String customerId;
+	/**推广人手机*/
+	@Excel(name = "推广人手机", width = 15)
+    @ApiModelProperty(value = "推广人手机")
+    private java.lang.String customerPhone;
+	/**面试人ID*/
+	@Excel(name = "面试人ID", width = 15)
+    @ApiModelProperty(value = "面试人ID")
+    private java.lang.String interviewId;
+	/**面试人手机号*/
+	@Excel(name = "面试人手机号", width = 15)
+    @ApiModelProperty(value = "面试人手机号")
+    private java.lang.String interviewPhone;
+	/**面试人名称*/
+	@Excel(name = "面试人名称", width = 15)
+    @ApiModelProperty(value = "面试人名称")
+    private java.lang.String interviewName;
+	/**佣金*/
+	@Excel(name = "佣金", width = 15)
+    @ApiModelProperty(value = "佣金")
     private java.lang.Integer commission;
-
-    @Excel(name = "已提现佣金", width = 15)
-    @ApiModelProperty(value = "已提现佣金")
-    private java.lang.Integer settleCommission;
-
-
+	/**审核状态*/
+	@Excel(name = "审核状态", width = 15)
+    @ApiModelProperty(value = "审核状态")
+    private java.lang.Integer auditStatus;
 }

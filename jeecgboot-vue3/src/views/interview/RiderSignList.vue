@@ -6,6 +6,7 @@
       <template #tableTitle>
 <!--          <a-button type="primary" v-auth="'interview:rider_interview:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>-->
           <a-button type="primary" v-auth="'interview:rider_interview:passBatch'" @click="handlePassStatus" preIcon="ant-design:plus-outlined">确认入职</a-button>
+          <a-button type="primary" v-auth="'interview:rider_interview:settleBatch'" @click="handleSettleStatus" preIcon="ant-design:plus-outlined">确认结算</a-button>
           <a-button  type="primary" v-auth="'interview:rider_interview:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
 <!--          <j-upload-button type="primary" v-auth="'interview:rider_interview:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
           <a-dropdown v-if="selectedRowKeys.length > 0">
@@ -54,7 +55,7 @@
     batchDelete,
     getImportUrl,
     getExportUrl,
-    batchPass
+    batchPass, batchSettle
   } from './RiderInterview.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
@@ -166,6 +167,14 @@
       return;
     }
     await batchPass({ids: selectedRowKeys.value}, handleSuccess);
+  }
+
+  async function handleSettleStatus() {
+    if (selectedRowKeys.value.length === 0) {
+      createMessage.warning('请至少选择一条记录');
+      return;
+    }
+    await batchSettle({ids: selectedRowKeys.value}, handleSuccess);
   }
 
    /**

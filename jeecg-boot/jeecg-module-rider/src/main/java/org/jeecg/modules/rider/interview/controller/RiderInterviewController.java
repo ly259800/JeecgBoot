@@ -318,6 +318,23 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 this.riderInterviewService.passBatch(ids);
 		 return Result.OK("批量入职成功!");
 	 }
+
+	 /**
+	  *  批量结算
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "面试管理-批量结算")
+	 @ApiOperation(value="面试管理-批量结算", notes="面试管理-批量结算")
+	 @RequiresPermissions("interview:rider_interview:settleBatch")
+	 @PostMapping(value = "/settleBatch")
+	 public Result<String> settleBatch(@RequestParam(name="ids",required=true) String ids) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 this.riderInterviewService.settleBatch(ids);
+		 return Result.OK("批量结算成功!");
+	 }
 	
 	/**
 	 * 通过id查询

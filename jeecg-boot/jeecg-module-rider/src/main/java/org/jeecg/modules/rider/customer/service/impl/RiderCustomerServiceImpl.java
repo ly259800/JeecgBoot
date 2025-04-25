@@ -60,4 +60,10 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
                 .set(RiderCustomer::getQrcode, "");
         this.update(updateWrapper);
     }
+
+    @Override
+    public void updateCommission(String id, Integer commission) {
+
+        baseMapper.updateCommission(id,commission);
+    }
 }

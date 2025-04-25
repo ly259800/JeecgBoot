@@ -4,11 +4,10 @@
    <BasicTable @register="registerTable" :rowSelection="rowSelection">
      <!--插槽:table标题-->
       <template #tableTitle>
-<!--          <a-button type="primary" v-auth="'interview:rider_interview:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>-->
-          <a-button type="primary" v-auth="'interview:rider_interview:passBatch'" @click="handlePassStatus" preIcon="ant-design:plus-outlined">确认入职</a-button>
-          <a-button type="primary" v-auth="'interview:rider_interview:settleBatch'" @click="handleSettleStatus" preIcon="ant-design:plus-outlined">确认结算</a-button>
-          <a-button  type="primary" v-auth="'interview:rider_interview:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-<!--          <j-upload-button type="primary" v-auth="'interview:rider_interview:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
+<!--          <a-button type="primary" v-auth="'commission:rider_commission:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>-->
+        <a-button type="primary" v-auth="'commission:rider_commission:auditBatch'" @click="handleAuditStatus" preIcon="ant-design:plus-outlined">审核通过</a-button>
+          <a-button  type="primary" v-auth="'commission:rider_commission:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+<!--          <j-upload-button type="primary" v-auth="'commission:rider_commission:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -18,7 +17,7 @@
                   </a-menu-item>
                 </a-menu>
               </template>
-              <a-button v-auth="'interview:rider_interview:deleteBatch'">批量操作
+              <a-button v-auth="'commission:rider_commission:deleteBatch'">批量操作
                 <Icon icon="mdi:chevron-down"></Icon>
               </a-button>
         </a-dropdown>
@@ -31,35 +30,31 @@
       </template>
       <!--字段回显插槽-->
       <template v-slot:bodyCell="{ column, record, index, text }">
-        <template v-if="column.dataIndex==='expectRegion'">
-          <!--省市区字段回显插槽-->
-          {{ getAreaTextByCode(text) }}
-        </template>
       </template>
     </BasicTable>
     <!-- 表单区域 -->
-    <RiderInterviewModal @register="registerModal" @success="handleSuccess"></RiderInterviewModal>
+    <RiderCommissionModal @register="registerModal" @success="handleSuccess"></RiderCommissionModal>
   </div>
 </template>
 
-<script lang="ts" name="interview-riderInterview" setup>
+<script lang="ts" name="commission-riderCommission" setup>
   import {ref, reactive, computed, unref} from 'vue';
   import {BasicTable, useTable, TableAction} from '/@/components/Table';
   import {useModal} from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage'
-  import RiderInterviewModal from './components/RiderInterviewModal.vue'
-  import {columns, searchFormSchema, superQuerySchema} from './RiderInterview.data';
+  import RiderCommissionModal from './components/RiderCommissionModal.vue'
+  import {columns, searchFormSchema, superQuerySchema} from './RiderCommission.data';
   import {
-    interviewList,
+    list,
     deleteOne,
     batchDelete,
     getImportUrl,
     getExportUrl,
-    batchPass, batchSettle
-  } from './RiderInterview.api';
+    batchAudit
+  } from './RiderCommission.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
-  import { getAreaTextByCode } from '/@/components/Form/src/utils/Area';
+  import {batchPass} from "@/views/interview/RiderInterview.api";
   import {useMessage} from "@/hooks/web/useMessage";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
@@ -69,8 +64,8 @@
   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
-           title: '面试管理',
-           api: interviewList,
+           title: '佣金管理',
+           api: list,
            columns,
            canResize:false,
            formConfig: {
@@ -92,7 +87,7 @@
             },
       },
        exportConfig: {
-            name:"面试管理",
+            name:"佣金管理",
             url: getExportUrl,
             params: queryParam,
           },
@@ -160,20 +155,13 @@
      await batchDelete({ids: selectedRowKeys.value}, handleSuccess);
    }
 
-  async function handlePassStatus() {
-    if (selectedRowKeys.value.length === 0) {
-      createMessage.warning('请至少选择一条记录');
-      return;
-    }
-    await batchPass({ids: selectedRowKeys.value}, handleSuccess);
-  }
 
-  async function handleSettleStatus() {
+  async function handleAuditStatus() {
     if (selectedRowKeys.value.length === 0) {
       createMessage.warning('请至少选择一条记录');
       return;
     }
-    await batchSettle({ids: selectedRowKeys.value}, handleSuccess);
+    await batchAudit({ids: selectedRowKeys.value}, handleSuccess);
   }
 
    /**
@@ -187,11 +175,11 @@
       */
   function getTableAction(record){
        return [
-         /*{
-           label: '编辑',
-           onClick: handleEdit.bind(null, record),
-           auth: 'interview:rider_interview:edit'
-         }*/
+         // {
+         //   label: '编辑',
+         //   onClick: handleEdit.bind(null, record),
+         //   auth: 'commission:rider_commission:edit'
+         // }
        ]
    }
      /**
@@ -199,14 +187,17 @@
         */
   function getDropDownAction(record){
        return [
-          {
+         {
+           label: '详情',
+           onClick: handleDetail.bind(null, record),
+         }, {
            label: '删除',
            popConfirm: {
              title: '是否确认删除',
              confirm: handleDelete.bind(null, record),
              placement: 'topLeft',
            },
-           auth: 'interview:rider_interview:delete'
+           auth: 'commission:rider_commission:delete'
          }
        ]
    }

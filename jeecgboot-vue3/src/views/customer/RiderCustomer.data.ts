@@ -38,6 +38,16 @@ export const columns: BasicColumn[] = [
       return render.renderImage({text});
     },
   },
+  {
+    title: '我的佣金',
+    align:"center",
+    dataIndex: 'commission'
+  },
+  {
+    title: '已提现佣金',
+    align:"center",
+    dataIndex: 'settleCommission'
+  },
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [

@@ -11,6 +11,7 @@ enum Api {
   deleteOne = '/interview/riderInterview/delete',
   deleteBatch = '/interview/riderInterview/deleteBatch',
   passBatch = '/interview/riderInterview/passBatch',
+  settleBatch = '/interview/riderInterview/settleBatch',
   importExcel = '/interview/riderInterview/importExcel',
   exportXls = '/interview/riderInterview/exportXls',
   allSiteList = '/site/riderSite/queryList',
@@ -78,6 +79,25 @@ export const batchPass = (params, handleSuccess) => {
     cancelText: '取消',
     onOk: () => {
       return defHttp.post({url: Api.passBatch, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
+
+/**
+ * 批量结算
+ * @param params
+ */
+export const batchSettle = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认结算',
+    content: '是否确认选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.settleBatch, data: params}, {joinParamsToUrl: true}).then(() => {
         handleSuccess();
       });
     }

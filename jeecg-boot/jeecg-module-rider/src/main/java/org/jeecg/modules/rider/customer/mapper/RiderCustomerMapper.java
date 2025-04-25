@@ -14,4 +14,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface RiderCustomerMapper extends BaseMapper<RiderCustomer> {
 
+    void updateCommission(@Param("id") String id, @Param("commission") Integer commission);
+
 }

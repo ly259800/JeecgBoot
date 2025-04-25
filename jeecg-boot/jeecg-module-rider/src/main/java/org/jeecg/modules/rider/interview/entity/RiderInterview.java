@@ -155,4 +155,8 @@ public class RiderInterview implements Serializable {
     @Excel(name = "面试时间", width = 15)
     @ApiModelProperty(value = "面试时间")
     private java.lang.String interviewDate;
+
+    @Excel(name = "结算状态", width = 15)
+    @ApiModelProperty(value = "结算状态")
+    private java.lang.Integer settleStatus;
 }

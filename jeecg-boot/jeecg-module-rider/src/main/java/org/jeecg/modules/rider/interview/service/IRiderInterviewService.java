@@ -13,6 +13,8 @@ public interface IRiderInterviewService extends IService<RiderInterview> {
 
     void passBatch(String ids);
 
+    void settleBatch(String ids);
+
     void handle(RiderInterview riderInterview);
 
     void updateSite(RiderInterview riderInterview);

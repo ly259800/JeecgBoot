@@ -115,7 +115,16 @@ export const columns: BasicColumn[] = [
      customRender: ({ text }) => {
        return render.renderDict(text, 'yn');
      },
-   },{
+   },
+  {
+    title: '结算状态',
+    align:"center",
+    dataIndex: 'settleStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
     title: '备注',
     align:"center",
     dataIndex: 'memo'
@@ -150,7 +159,7 @@ export const searchFormSchema: FormSchema[] = [
 	{
       label: "处理状态",
       field: 'status',
-      component: 'JSelectMultiple',
+      component: 'JDictSelectTag',
       componentProps:{
         dictCode:"yn"
       },
@@ -159,12 +168,21 @@ export const searchFormSchema: FormSchema[] = [
 	{
       label: "入职状态",
       field: 'passStatus',
-      component: 'JSelectMultiple',
+      component: 'JDictSelectTag',
       componentProps:{
         dictCode:"yn"
       },
       //colProps: {span: 6},
  	},
+  {
+    label: "结算状态",
+    field: 'settleStatus',
+    component: 'JDictSelectTag',
+    componentProps:{
+      dictCode:"yn"
+    },
+    //colProps: {span: 6},
+  },
 ];
 //表单数据
 export const formSchema: FormSchema[] = [

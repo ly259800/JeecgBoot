@@ -1,9 +1,6 @@
 package org.jeecg.modules.rider.customer.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,6 +14,7 @@ import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -25,6 +23,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.modules.rider.params.entity.RiderParams;
+import org.jeecg.modules.rider.params.service.IRiderParamsService;
+import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
+import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -46,6 +48,12 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class RiderCustomerController extends JeecgController<RiderCustomer, IRiderCustomerService> {
 	@Autowired
 	private IRiderCustomerService riderCustomerService;
+
+	@Autowired
+	private IRiderQrcodeService riderQrcodeService;
+
+	@Autowired
+	private IRiderParamsService riderParamsService;
 	
 	/**
 	 * 分页列表查询
@@ -215,6 +223,39 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		}
 		return Result.OK(riderCustomer);
 	}
+
+
+	 @ApiOperation(value="客户管理-获取二维码", notes="客户管理-获取二维码")
+	 @GetMapping(value = "/getQrcode")
+	 public Result<String> getQrcode(@RequestParam(name="id",required=true) String id) {
+		 RiderCustomer riderCustomer = riderCustomerService.getById(id);
+		 if(riderCustomer==null) {
+			 return Result.error("未找到对应数据");
+		 }
+		 //若不是合伙人，则不能获取
+		 if(riderCustomer.getIdentity() != CustomerIdentityEnum.PARTNER.getCode()) {
+			 return Result.error("您当前不是合伙人，请先升级为合伙人！");
+		 }
+		 //如果二维码为空，则新增二维码
+		 if(StringUtils.isEmpty(riderCustomer.getQrcode())){
+			 //生成二维码
+			 RiderQrcode riderQrcode = new RiderQrcode();
+			 riderQrcode.setCustomerId(riderCustomer.getId());
+			 riderQrcode.setPhone(riderCustomer.getPhone());
+			 riderQrcodeService.saveRiderQrcode(riderQrcode);
+			 //更新客户的二维码
+			 riderCustomer.setQrcode(riderQrcode.getUrl());
+			 riderCustomerService.updateById(riderCustomer);
+		 }
+		 String qrcode = riderCustomer.getQrcode();
+		 //获取图片路径前缀
+		 RiderParams file_path_prefix = riderParamsService.getByCode("file_path_prefix");
+		 if(Objects.nonNull(file_path_prefix)){
+			 qrcode = file_path_prefix.getParamValue() + qrcode;
+		 }
+		 return Result.OK(qrcode);
+	 }
+
 
     /**
     * 导出excel
