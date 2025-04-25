@@ -20,7 +20,7 @@ CREATE TABLE `rider_commission` (
         `interview_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '面试人ID',
         `interview_phone` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '面试人手机号',
         `interview_name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '面试人名称',
-        `commission` int DEFAULT NULL COMMENT '佣金',
+        `commission` int DEFAULT 0 COMMENT '佣金',
         `audit_status` int DEFAULT 0 COMMENT '审核状态',
         PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
