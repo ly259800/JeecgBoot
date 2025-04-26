@@ -17,7 +17,11 @@
             <artifactId>jeecg-boot-base-core</artifactId>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.volcengine</groupId>
+            <artifactId>volcengine-java-sdk-ark-runtime</artifactId>
+            <version>0.2.4</version>
+        </dependency>
     </dependencies>
 
 </project>
