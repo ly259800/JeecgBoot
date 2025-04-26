@@ -7,6 +7,7 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.modules.rider.pay.dto.OrderCloseDTO;
 import org.jeecg.modules.rider.pay.dto.OrderQueryDTO;
 import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
+import org.jeecg.modules.rider.pay.dto.WechatTransferDTO;
 import org.jeecg.modules.rider.pay.service.WeChatPayService;
 import org.jeecg.modules.rider.pay.util.Result;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,5 +47,14 @@ public class WeChatPayController {
     public Result closepay(@RequestBody @Valid OrderCloseDTO closeDto) {
         return weChatPayServise.closeOrder(closeDto);
     }
+
+
+    @PostMapping("transfer")
+    @ApiOperation("商户转账")
+    @AutoLog("商户转账")
+    public Result transfer(@RequestBody @Valid WechatTransferDTO transferDTO) throws Exception {
+        return weChatPayServise.transfer(transferDTO);
+    }
+
 
 }

@@ -32,6 +32,13 @@ public enum WechatPayV3APIEnum {
      *
      */
     MWEB(HttpMethod.POST, "%s/v3/pay/transactions/h5"),
+
+    /**
+     * 微信商户转账
+     *
+     */
+    TRANSFER(HttpMethod.POST, "%s/v3/fund-app/mch-transfer/transfer-bills"),
+
     /**
      * 关闭订单.
      *

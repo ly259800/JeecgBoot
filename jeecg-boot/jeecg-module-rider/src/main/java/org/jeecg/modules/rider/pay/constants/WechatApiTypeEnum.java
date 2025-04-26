@@ -23,7 +23,11 @@ public enum WechatApiTypeEnum {
     /**
      * 关闭订单
      */
-    COLSE(4, "COLSE", "关闭订单");
+    COLSE(4, "COLSE", "关闭订单"),
+    /**
+     * 商户转账
+     */
+    TRANSFER(5, "TRANSFER", "商户转账");
 
     private final Integer status;
     private final String code;

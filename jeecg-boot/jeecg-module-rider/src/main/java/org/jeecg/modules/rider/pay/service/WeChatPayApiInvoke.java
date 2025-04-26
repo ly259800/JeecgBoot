@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wechat.pay.contrib.apache.httpclient.util.RsaCryptoUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +22,7 @@ import org.jeecg.modules.rider.pay.constants.BaseErrorCodeEnum;
 import org.jeecg.modules.rider.pay.constants.WeChatServerEnum;
 import org.jeecg.modules.rider.pay.constants.WechatApiTypeEnum;
 import org.jeecg.modules.rider.pay.constants.WechatPayV3APIEnum;
-import org.jeecg.modules.rider.pay.dto.OrderCloseDTO;
-import org.jeecg.modules.rider.pay.dto.OrderQueryDTO;
-import org.jeecg.modules.rider.pay.dto.WechatPayApiOutDTO;
-import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
+import org.jeecg.modules.rider.pay.dto.*;
 import org.jeecg.modules.rider.pay.exception.WechatPayException;
 import org.jeecg.modules.rider.pay.util.PriceUtils;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
@@ -40,6 +38,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,6 +93,47 @@ public class WeChatPayApiInvoke {
         try (CloseableHttpClient httpClient = wxpayServiceConfig.getWechatpayClient()) {
             try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
                 return buildOutDTO(response, WechatApiTypeEnum.JSAPI);
+            }
+        }
+    }
+
+    /**
+     * 发起转账
+     * @return 转账结果
+     */
+    @SneakyThrows
+    public WechatPayApiOutDTO transfer(WechatTransferDTO transferDto) {
+        HttpPost httpPost = new HttpPost(WechatPayV3APIEnum.TRANSFER.uri(WeChatServerEnum.CHINA));
+        httpPost.addHeader("Accept", "application/json");
+        httpPost.addHeader("Content-type", "application/json; charset=utf-8");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode rootNode = objectMapper.createObjectNode();
+        // 加密用户姓名
+        String encryptedName = RsaCryptoUtil.encryptOAEP(transferDto.getUserName(),wxpayServiceConfig.getCertificate());
+        // 构建基本参数
+        rootNode.put("appid", wxpayServiceConfig.getAppid())
+                .put("out_bill_no", transferDto.getOutBillNo())
+                .put("transfer_scene_id", wxpayServiceConfig.getSceneId())
+                .put("openid", transferDto.getOpenid())
+                .put("user_name", encryptedName) // 已加密的姓名
+                .put("transfer_amount", transferDto.getAmount())
+                .put("transfer_remark", transferDto.getRemark())
+                .put("notify_url", wxpayServiceConfig.getTransferNotifyUrl())
+                .put("user_recv_perception", wxpayServiceConfig.getUserRecvPerception());
+        // 转账场景报告信息（可选）
+        ObjectNode sceneInfo = objectMapper.createObjectNode();
+        sceneInfo.put("info_type", wxpayServiceConfig.getInfotype())
+                .put("info_content", wxpayServiceConfig.getInfoContent());
+
+        rootNode.putArray("transfer_scene_report_infos")
+                .add(sceneInfo);
+        objectMapper.writeValue(bos, rootNode);
+        log.info("微信商户转账请求参数：{}", objectMapper.writeValueAsString(rootNode));
+        httpPost.setEntity(new StringEntity(bos.toString(StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
+        try (CloseableHttpClient httpClient = wxpayServiceConfig.getWechatpayClient()) {
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                return buildOutDTO(response, WechatApiTypeEnum.TRANSFER);
             }
         }
     }
@@ -438,12 +478,14 @@ public class WeChatPayApiInvoke {
                 break;
             case PAYORDER:
             case OUTTRADENO:
+            case TRANSFER:
                 outVO.setData(jsonObject);
                 break;
             default:
         }
         return outVO;
     }
+
 
     public ObjectNode createSignature(String prePayId){
         ObjectNode signature = wxpayServiceConfig.createSignature(prePayId);

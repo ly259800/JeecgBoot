@@ -18,10 +18,7 @@ import org.jeecg.modules.rider.pay.constants.BaseErrorCodeEnum;
 import org.jeecg.modules.rider.pay.constants.TradeStateEnum;
 import org.jeecg.modules.rider.pay.constants.TradeTypeEnum;
 import org.jeecg.modules.rider.pay.constants.WechatPayContants;
-import org.jeecg.modules.rider.pay.dto.OrderCloseDTO;
-import org.jeecg.modules.rider.pay.dto.OrderQueryDTO;
-import org.jeecg.modules.rider.pay.dto.WechatPayApiOutDTO;
-import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
+import org.jeecg.modules.rider.pay.dto.*;
 import org.jeecg.modules.rider.pay.enums.OrderStateEnum;
 import org.jeecg.modules.rider.pay.exception.WechatPayException;
 import org.jeecg.modules.rider.pay.service.WeChatPayApiInvoke;
@@ -188,5 +185,20 @@ public class WeChatPayServiceImpl implements WeChatPayService {
             return result;
         }
         return result.error(outVO.getStatus(),outVO.getMessage());
+    }
+
+    @Override
+    public Result transfer(WechatTransferDTO transferDto) throws Exception {
+        Result result = new Result<>();
+        // 生成商户单号（如果未提供）
+        if (StringUtils.isEmpty(transferDto.getOutBillNo())) {
+            transferDto.setOutBillNo("T" + System.currentTimeMillis() + (int)(Math.random() * 1000));
+        }
+        WechatPayApiOutDTO transfer = weChatPayApiInvoke.transfer(transferDto);
+        if(Objects.equals(transfer.getStatus(),BaseErrorCodeEnum.REQ_SUCCESS.getStatus())){
+            //返回响应
+            result.ok(transfer.getData());
+        }
+        return result.error(transfer.getStatus(),transfer.getMessage());
     }
 }

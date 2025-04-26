@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.ArrayList;
@@ -90,6 +93,36 @@ public class WxpayServiceConfig {
     private String mobile;
 
     /**
+     * 微信商户转账回调地址
+     */
+    @Value("${wechatpay.transfer.notifyurl}")
+    private String transferNotifyUrl;
+
+    /**
+     * 微信商户转账信息类型
+     */
+    @Value("${wechatpay.transfer.info_type}")
+    private String infotype;
+
+    /**
+     * 微信商户转账信息内容
+     */
+    @Value("${wechatpay.transfer.info_content}")
+    private String infoContent;
+
+    /**
+     * 转账场景ID
+     */
+    @Value("${wechatpay.transfer.scene_id}")
+    private String sceneId;
+
+    /**
+     * 微信商户转账信息内容
+     */
+    @Value("${wechatpay.transfer.user_recv_perception}")
+    private String userRecvPerception;
+
+    /**
      * 获取微信支付client
      * @return
      */
@@ -125,11 +158,24 @@ public class WxpayServiceConfig {
         // 生成凭证
         WechatPay2Credentials wechatPay2Credentials = new WechatPay2Credentials(mchid,
                 new PrivateKeySigner(serialNO, merchantPrivateKey));
+
         // 向证书管理器增加需要自动更新平台证书的商户信息
         certificatesManager.putMerchant(mchid, wechatPay2Credentials, apiV3Key.getBytes(StandardCharsets.UTF_8));
         // 从证书管理器中获取verifier
         Verifier verifier = certificatesManager.getVerifier(mchid);
         return verifier;
+    }
+
+    /**
+     * 获取微信支付Validator
+     * @return
+     */
+    @SneakyThrows
+    public X509Certificate getCertificate(){
+        //获取商户API证书私钥文件内容
+        ClassPathResource cpr = new ClassPathResource("/static/privatekey/apiclient_cert.pem");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        return (X509Certificate) cf.generateCertificate(cpr.getInputStream());
     }
 
     /**
@@ -244,5 +290,25 @@ public class WxpayServiceConfig {
 
     public String getWebSecret() {
         return webSecret;
+    }
+
+    public String getTransferNotifyUrl() {
+        return transferNotifyUrl;
+    }
+
+    public String getInfotype() {
+        return infotype;
+    }
+
+    public String getInfoContent() {
+        return infoContent;
+    }
+
+    public String getSceneId() {
+        return sceneId;
+    }
+
+    public String getUserRecvPerception() {
+        return userRecvPerception;
     }
 }
