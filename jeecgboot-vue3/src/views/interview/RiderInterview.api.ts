@@ -5,7 +5,7 @@ const { createConfirm } = useMessage();
 
 enum Api {
   signList = '/interview/riderInterview/list?entrance=1',
-  interviewList = '/interview/riderInterview/list?entrance=2',
+  interviewList = '/interview/riderInterview/list',
   save='/interview/riderInterview/add',
   edit='/interview/riderInterview/edit',
   deleteOne = '/interview/riderInterview/delete',

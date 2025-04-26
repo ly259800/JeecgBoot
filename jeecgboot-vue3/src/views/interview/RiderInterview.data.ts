@@ -6,6 +6,45 @@ import { getWeekMonthQuarterYear } from '/@/utils';
 import {getAllSiteList} from "@/views/interview/RiderInterview.api";
 //列表数据
 export const columns: BasicColumn[] = [
+  {
+    title: '数据来源',
+    align:"center",
+    dataIndex: 'source'
+  },
+  {
+    title: '处理状态',
+    align:"center",
+    dataIndex: 'status',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
+    title: '入职状态',
+    align:"center",
+    dataIndex: 'passStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
+    title: '结算状态',
+    align:"center",
+    dataIndex: 'settleStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
+    title: '推广人',
+    align:"center",
+    dataIndex: 'reference'
+  },
+  {
+    title: '推广人手机号',
+    align:"center",
+    dataIndex: 'referencePhone'
+  },
    {
     title: '姓名',
     align:"center",
@@ -34,35 +73,50 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'city'
    },
+   {
+    title: '报道站点',
+    align:"center",
+    dataIndex: 'siteName'
+   },
+   {
+    title: '期望区域地址',
+    align:"center",
+    dataIndex: 'expectRegion',
+   },
+  {
+    title: '备注',
+    align:"center",
+    dataIndex: 'memo'
+  },
   {
     title: '工作地点',
     align:"center",
     dataIndex: 'jobPosition_dictText',
   },
-   {
+  {
     title: '是否全职',
     align:"center",
     dataIndex: 'jobType',
-     customRender: ({ text }) => {
-       return render.renderDict(text, 'yn');
-     },
-   },
-   {
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
     title: '是否需要住宿',
     align:"center",
     dataIndex: 'accommodation',
-     customRender: ({ text }) => {
-       return render.renderDict(text, 'yn');
-     },
-   },
-   {
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
     title: '是否需要购买社保',
     align:"center",
     dataIndex: 'socialSecurity',
-     customRender: ({ text }) => {
-       return render.renderDict(text, 'yn');
-     },
-   },{
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },{
     title: '是否需要电动车',
     align:"center",
     dataIndex: 'electricVehicle',
@@ -74,60 +128,6 @@ export const columns: BasicColumn[] = [
     title: '面试时间',
     align:"center",
     dataIndex: 'interviewDate'
-  },
-   {
-    title: '报道站点',
-    align:"center",
-    dataIndex: 'siteName'
-   },
-   {
-    title: '期望区域地址',
-    align:"center",
-    dataIndex: 'expectRegion',
-   },
-   {
-    title: '推广人',
-    align:"center",
-    dataIndex: 'reference'
-   },
-  {
-    title: '推广人手机号',
-    align:"center",
-    dataIndex: 'referencePhone'
-  },
-   {
-    title: '数据来源',
-    align:"center",
-    dataIndex: 'source'
-   },
-   {
-    title: '处理状态',
-    align:"center",
-    dataIndex: 'status',
-     customRender: ({ text }) => {
-       return render.renderDict(text, 'yn');
-     },
-   },
-   {
-    title: '入职状态',
-    align:"center",
-    dataIndex: 'passStatus',
-     customRender: ({ text }) => {
-       return render.renderDict(text, 'yn');
-     },
-   },
-  {
-    title: '结算状态',
-    align:"center",
-    dataIndex: 'settleStatus',
-    customRender: ({ text }) => {
-      return render.renderDict(text, 'yn');
-    },
-  },
-  {
-    title: '备注',
-    align:"center",
-    dataIndex: 'memo'
   }
 ];
 //查询数据

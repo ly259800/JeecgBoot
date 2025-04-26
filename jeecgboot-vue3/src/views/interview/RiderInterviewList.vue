@@ -69,7 +69,7 @@
   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
-           title: '面试管理',
+           title: '骑手管理',
            api: interviewList,
            columns,
            canResize:false,
@@ -92,7 +92,7 @@
             },
       },
        exportConfig: {
-            name:"面试管理",
+            name:"骑手管理",
             url: getExportUrl,
             params: queryParam,
           },
@@ -187,11 +187,11 @@
       */
   function getTableAction(record){
        return [
-         /*{
-           label: '编辑',
+         {
+           label: '跟踪维护',
            onClick: handleEdit.bind(null, record),
            auth: 'interview:rider_interview:edit'
-         }*/
+         }
        ]
    }
      /**
