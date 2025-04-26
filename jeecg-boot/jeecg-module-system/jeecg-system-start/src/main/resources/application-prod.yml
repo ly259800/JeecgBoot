@@ -371,3 +371,10 @@ wechatpay:
   #支付回调地址
   notify:
     url: https://rider.yuxiyibaisui.top/jeecgboot/wxpay/notify
+  #商户转账参数
+  transfer:
+    notifyurl:
+    info_type:
+    info_content:
+    scene_id: 1000
+    user_recv_perception: 现金奖励
