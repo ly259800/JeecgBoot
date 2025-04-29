@@ -224,7 +224,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		return Result.OK(riderCustomer);
 	}
 
-
+	 @AutoLog(value = "客户管理-获取二维码")
 	 @ApiOperation(value="客户管理-获取二维码", notes="客户管理-获取二维码")
 	 @GetMapping(value = "/getQrcode")
 	 public Result<String> getQrcode(@RequestParam(name="id",required=true) String id) {

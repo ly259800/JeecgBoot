@@ -179,7 +179,7 @@ public class RiderQrcodeController extends JeecgController<RiderQrcode, IRiderQr
 	  * @param scene
 	  * @return
 	  */
-	 //@AutoLog(value = "小程序二维码-通过id查询")
+	 @AutoLog(value = "小程序二维码-通过scene查询")
 	 @ApiOperation(value="小程序二维码-通过scene查询", notes="小程序二维码-通过scene查询")
 	 @GetMapping(value = "/queryByScene")
 	 public Result<RiderQrcode> queryByScene(@RequestParam(name="scene",required=true) String scene) {
