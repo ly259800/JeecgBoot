@@ -171,7 +171,7 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 			 return Result.error("请选择行数据!");
 		 }
 		 if(Objects.isNull(profit)){
-			 return Result.error("利润不能为空!");
+			 return Result.error("利润百分比不能为空!");
 		 }
 		 this.riderSiteService.updateProfit(ids,profit);
 		 return Result.OK("批量更新成功!");
@@ -188,7 +188,7 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 	 @PostMapping(value = "/updateProfitAll")
 	 public Result<String> updateProfitAll(@RequestParam(name="profit",required=true) Integer profit) {
 		 if(Objects.isNull(profit)){
-			 return Result.error("利润不能为空!");
+			 return Result.error("利润百分比不能为空!");
 		 }
 		 this.riderSiteService.updateProfit(null,profit);
 		 return Result.OK("批量更新成功!");

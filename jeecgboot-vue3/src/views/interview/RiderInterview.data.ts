@@ -36,11 +36,6 @@ export const columns: BasicColumn[] = [
     },
   },
   {
-    title: '推广人',
-    align:"center",
-    dataIndex: 'reference'
-  },
-  {
     title: '推广人手机号',
     align:"center",
     dataIndex: 'referencePhone'
@@ -59,15 +54,20 @@ export const columns: BasicColumn[] = [
      },
    },
    {
-    title: '年龄',
-    align:"center",
-    dataIndex: 'age'
-   },
-   {
     title: '手机号码',
     align:"center",
     dataIndex: 'phone'
    },
+  {
+    title: '跟踪维护',
+    align:"center",
+    dataIndex: 'memo'
+  },
+  {
+    title: '面试时间',
+    align:"center",
+    dataIndex: 'interviewDate'
+  },
    {
     title: '报道城市',
     align:"center",
@@ -83,11 +83,6 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'expectRegion',
    },
-  {
-    title: '备注',
-    align:"center",
-    dataIndex: 'memo'
-  },
   {
     title: '工作地点',
     align:"center",
@@ -123,11 +118,6 @@ export const columns: BasicColumn[] = [
     customRender: ({ text }) => {
       return render.renderDict(text, 'yn');
     },
-  },
-  {
-    title: '面试时间',
-    align:"center",
-    dataIndex: 'interviewDate'
   }
 ];
 //查询数据

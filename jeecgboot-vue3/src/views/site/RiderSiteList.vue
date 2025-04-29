@@ -42,13 +42,14 @@
       @cancel="showBatchProfitModal = false"
     >
       <a-form layout="vertical">
-        <a-form-item label="利润金额">
+        <a-form-item label="利润百分比">
           <a-input-number
             v-model:value="batchProfitValue"
             :min="0"
+            :max="100"
             :precision="0"
             style="width: 100%"
-            placeholder="请输入利润金额"
+            placeholder="请输入利润百分比"
           />
         </a-form-item>
       </a-form>
@@ -62,13 +63,14 @@
       @cancel="showAllProfitModal = false"
     >
       <a-form layout="vertical">
-        <a-form-item label="利润金额">
+        <a-form-item label="利润百分比">
           <a-input-number
             v-model:value="allProfitValue"
             :min="0"
+            :max="100"
             :precision="0"
             style="width: 100%"
-            placeholder="请输入利润金额"
+            placeholder="请输入利润百分比"
           />
         </a-form-item>
       </a-form>

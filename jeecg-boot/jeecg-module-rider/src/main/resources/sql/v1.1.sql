@@ -25,3 +25,4 @@ CREATE TABLE `rider_commission` (
         PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+alter table rider_site add column `platform` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '平台';

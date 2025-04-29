@@ -5,6 +5,11 @@ import { render } from '/@/utils/common/renderUtils';
 import { getWeekMonthQuarterYear } from '/@/utils';
 //列表数据
 export const columns: BasicColumn[] = [
+  {
+    title: '平台',
+    align:"center",
+    dataIndex: 'platform'
+  },
    {
     title: '城市',
     align:"center",
@@ -51,6 +56,11 @@ export const searchFormSchema: FormSchema[] = [
 ];
 //表单数据
 export const formSchema: FormSchema[] = [
+  {
+    label: '平台',
+    field: 'platform',
+    component: 'Input',
+  },
   {
     label: '城市',
     field: 'city',
