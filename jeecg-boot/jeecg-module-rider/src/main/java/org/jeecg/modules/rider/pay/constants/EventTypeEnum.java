@@ -26,7 +26,16 @@ public enum EventTypeEnum {
     /**
      * 退款关闭事件.
      */
-    REFUND_CLOSED("REFUND.CLOSED");
+    REFUND_CLOSED("REFUND.CLOSED"),
+
+    /**
+     * 商家转账单据终态通知.
+     */
+    MCHTRANSFER_FINISHED("MCHTRANSFER.BILL.FINISHED"),
+
+
+
+    ;
 
     /**
      * The Event.

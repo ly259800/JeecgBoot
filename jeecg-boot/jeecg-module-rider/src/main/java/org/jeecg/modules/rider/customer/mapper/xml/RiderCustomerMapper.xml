@@ -2,10 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.rider.customer.mapper.RiderCustomerMapper">
 
-    <update id="updateCommission">
+    <update id="addCommission">
         update rider_customer set commission = ifnull(commission,0) + #{commission}
         WHERE id = #{id}
     </update>
 
+
+    <update id="subtractCommission">
+        update rider_customer set commission = commission - #{commission},settle_commission = ifnull(settle_commission,0) + #{settleCommission}
+        WHERE id = #{id}
+    </update>
 
 </mapper>

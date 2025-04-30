@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.jeecg.modules.rider.pay.constants.TradeTypeEnum;
 import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
+import org.jeecg.modules.rider.pay.dto.WechatTransferDTO;
 import org.jeecg.modules.rider.pay.entity.CallbackDecryptData;
+import org.jeecg.modules.rider.pay.entity.TransferCallbackDecryptData;
 
 /**
  * @Description: 支付订单
@@ -18,8 +20,12 @@ public interface IRiderPayOrderService extends IService<RiderPayOrder> {
 
     RiderPayOrder saveOrderinfo(WechatPayDTO paydto, TradeTypeEnum tradeTypeEnum);
 
+    RiderPayOrder saveOrderinfo(WechatTransferDTO transferDTO);
+
     RiderPayOrder getByOutTradeNo(String outTradeNo);
 
-    void updateOrderinfo(RiderUserOrder tenantOrder, RiderPayOrder payOrderinfo , CallbackDecryptData consumeData);
+    void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , CallbackDecryptData consumeData);
+
+    void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , TransferCallbackDecryptData consumeData);
 
 }

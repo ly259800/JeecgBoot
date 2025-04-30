@@ -13,10 +13,7 @@ import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.jeecg.modules.rider.order.service.IRiderPayOrderService;
 import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
 import org.jeecg.modules.rider.pay.config.WxpayServiceConfig;
-import org.jeecg.modules.rider.pay.constants.BaseErrorCodeEnum;
-import org.jeecg.modules.rider.pay.constants.EventTypeEnum;
-import org.jeecg.modules.rider.pay.constants.TradeStateEnum;
-import org.jeecg.modules.rider.pay.constants.WechatPayContants;
+import org.jeecg.modules.rider.pay.constants.*;
 import org.jeecg.modules.rider.pay.entity.*;
 import org.jeecg.modules.rider.pay.exception.WechatPayException;
 import org.springframework.stereotype.Service;
@@ -123,6 +120,60 @@ public class WeChatPayNotifyInvoke {
             riderUserOrder.setPayer(user.getName());
             riderUserOrder.setCustomerId(user.getId());
         }
+        // 6.更新支付订单、租户订单及租户信息
+        payOrderinfoService.updateOrderinfo(riderUserOrder,payOrderinfo,consumeData);
+    }
+
+    @SneakyThrows
+    public void execTransferNotify(ResponseSignVerifyParams params) {
+        log.info("商家转账异步回调信息：{}",params.getBody());
+        ObjectMapper objectMapper = WechatPayContants.OBJECT_MAPPER;
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        CallbackParams callbackParams = objectMapper.readValue(params.getBody(), CallbackParams.class);
+        if (!Objects.equals(callbackParams.getEventType(), EventTypeEnum.MCHTRANSFER_FINISHED.getEnvent())) {
+            log.info("商家转账异步回调通知类型不匹配, callbackParams {}", callbackParams);
+            throw new JeecgBootException("商家转账异步回调通知类型不匹配！");
+        }
+        // 1.解密响应数据
+        CallbackParams.Resource resource = callbackParams.getResource();
+        String data = wxpayServiceConfig.getAesUtil().decryptToString(
+                resource.getAssociatedData().replace("\"", "")
+                        .getBytes(StandardCharsets.UTF_8),
+                resource.getNonce().replace("\"", "")
+                        .getBytes(StandardCharsets.UTF_8),
+                resource.getCiphertext().replace("\"", ""));
+        TransferCallbackDecryptData consumeData = objectMapper.readValue(data, TransferCallbackDecryptData.class);
+        log.info("商家转账异步回调解密信息：{}", JSON.toJSONString(consumeData));
+        // 2.获取转账状态
+        TransferStateEnum transferStateEnum = TransferStateEnum.getEnum(consumeData.getState());
+        if(Objects.isNull(transferStateEnum)){
+            log.error(String.format("交易状态【%s】不存在", consumeData.getState()));
+            throw new WechatPayException(BaseErrorCodeEnum.TRADE_STATE_NOT_EXSIT, consumeData.getState());
+        }
+        // 3.根据租户订单号校验订单真实性
+        RiderUserOrder riderUserOrder = tenantOrderService.getByOutTradeNo(consumeData.getOutBillNo());
+        if(Objects.isNull(riderUserOrder)){
+            log.error(String.format("用户订单【%s】不存在", consumeData.getOutBillNo()));
+            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("用户订单【%s】不存在", consumeData.getOutBillNo()));
+        }
+        RiderPayOrder payOrderinfo = payOrderinfoService.getByOutTradeNo(consumeData.getOutBillNo());
+        if(Objects.isNull(payOrderinfo)){
+            log.error(String.format("微信转账订单【%s】不存在或已关闭", consumeData.getOutBillNo()));
+            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("微信转账订单【%s】不存在或已关闭", consumeData.getOutBillNo()));
+        }
+        // 4.查询订单是否已处理过（如果微信支付返回状态与本地数据库状态一致则视为已经处理过该订单）
+        if(Objects.equals(transferStateEnum.getStatus(),payOrderinfo.getTradeState())){
+            log.error("商家转账重复回调，该订单本地状态与回调状态一致，无需处理！！！");
+            throw new WechatPayException(BaseErrorCodeEnum.CALLBACK_HANDLED, consumeData.getOutBillNo());
+        }
+        // 5.根据openid获取转账人信息
+        RiderCustomer user = sysUserService.getByOpenId(consumeData.getOpenid());
+        if(Objects.isNull(user)){
+            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("微信用户【%s】不存在", consumeData.getOpenid()));
+        }
+        riderUserOrder.setPayId(user.getId());
+        riderUserOrder.setPayer(user.getName());
+        riderUserOrder.setCustomerId(user.getId());
         // 6.更新支付订单、租户订单及租户信息
         payOrderinfoService.updateOrderinfo(riderUserOrder,payOrderinfo,consumeData);
     }
