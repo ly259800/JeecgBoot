@@ -57,6 +57,11 @@ public class RiderSite implements Serializable {
 	/**所属部门*/
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
+
+    @Excel(name = "平台", width = 15)
+    @ApiModelProperty(value = "平台")
+    private java.lang.String platform;
+
 	/**城市*/
 	@Excel(name = "城市", width = 15)
     @ApiModelProperty(value = "城市")

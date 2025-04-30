@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.site.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.commons.lang3.StringUtils;
@@ -10,8 +11,11 @@ import org.jeecg.modules.rider.site.service.IRiderSiteService;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Description: 站点管理
@@ -23,12 +27,18 @@ import java.util.Arrays;
 public class RiderSiteServiceImpl extends ServiceImpl<RiderSiteMapper, RiderSite> implements IRiderSiteService {
     @Override
     public void updateProfit(String ids, Integer profit) {
-        LambdaUpdateWrapper<RiderSite> updateWrapper = new UpdateWrapper<RiderSite>()
-                .lambda()
-                .set(RiderSite::getProfit,profit);
+        List<RiderSite> riderSiteList = new ArrayList<>();
         if(StringUtils.isNotEmpty(ids)){
-            updateWrapper.in(RiderSite::getId, Arrays.asList(ids.split(",")));
+            riderSiteList = this.baseMapper.selectBatchIds(Arrays.asList(ids.split(",")));
+        } else {
+            QueryWrapper<RiderSite> queryWrapper = new QueryWrapper<>();
+            riderSiteList = this.baseMapper.selectList(queryWrapper);
         }
-        this.update(updateWrapper);
+        if(!CollectionUtils.isEmpty(riderSiteList)){
+            riderSiteList.forEach(x->{
+                x.setProfit(x.getCommission() * profit / 100);
+                this.baseMapper.updateById(x);
+            });
+        }
     }
 }
