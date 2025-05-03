@@ -13,6 +13,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
@@ -23,11 +24,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.modules.rider.interview.entity.RiderInterview;
+import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import io.swagger.annotations.Api;
@@ -54,7 +59,10 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 
 	@Autowired
 	private IRiderParamsService riderParamsService;
-	
+
+	 @Autowired
+	 private IRiderInterviewService riderInterviewService;
+
 	/**
 	 * 分页列表查询
 	 *
@@ -216,12 +224,34 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	//@AutoLog(value = "客户管理-通过id查询")
 	@ApiOperation(value="客户管理-通过id查询", notes="客户管理-通过id查询")
 	@GetMapping(value = "/queryById")
-	public Result<RiderCustomer> queryById(@RequestParam(name="id",required=true) String id) {
+	public Result<RiderCustomerDTO> queryById(@RequestParam(name="id",required=true) String id) {
 		RiderCustomer riderCustomer = riderCustomerService.getById(id);
 		if(riderCustomer==null) {
 			return Result.error("未找到对应数据");
 		}
-		return Result.OK(riderCustomer);
+		RiderCustomerDTO riderCustomerDTO = new RiderCustomerDTO();
+		BeanUtils.copyProperties(riderCustomer, riderCustomerDTO);
+		//统计未入职、已入职、已结算的数据
+		QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda().eq(RiderInterview::getReference,riderCustomer.getId());
+		List<RiderInterview> interviewList = riderInterviewService.list(queryWrapper);
+		Integer failCount = 0;
+		Integer passCount = 0;
+		Integer settleCount = 0;
+		for (RiderInterview riderInterview : interviewList) {
+			if(Objects.equals(riderInterview.getPassStatus() , 1)){
+				passCount++;
+			} else {
+				failCount++;
+			}
+			if(Objects.equals(riderInterview.getSettleStatus() , 1)){
+				settleCount++;
+			}
+		}
+		riderCustomerDTO.setFailCount(failCount);
+		riderCustomerDTO.setPassCount(passCount);
+		riderCustomerDTO.setSettleCount(settleCount);
+		return Result.OK(riderCustomerDTO);
 	}
 
 

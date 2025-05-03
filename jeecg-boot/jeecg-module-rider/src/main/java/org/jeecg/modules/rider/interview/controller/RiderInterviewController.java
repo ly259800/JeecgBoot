@@ -118,6 +118,9 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 if(Objects.nonNull(riderInterview.getPassStatus())){
 			 queryWrapper.lambda().eq(RiderInterview::getPassStatus,riderInterview.getPassStatus());
 		 }
+		 if(Objects.nonNull(riderInterview.getSettleStatus())){
+			 queryWrapper.lambda().eq(RiderInterview::getSettleStatus,riderInterview.getSettleStatus());
+		 }
 		 queryWrapper.lambda().orderByDesc(RiderInterview::getCreateTime);
 		 List<RiderInterview> pageList = riderInterviewService.list(queryWrapper);
 		 if(CollectionUtils.isEmpty(pageList)){
