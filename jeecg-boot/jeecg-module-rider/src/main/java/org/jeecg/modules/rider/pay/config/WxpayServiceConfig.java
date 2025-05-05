@@ -311,4 +311,8 @@ public class WxpayServiceConfig {
     public String getUserRecvPerception() {
         return userRecvPerception;
     }
+
+    public String getSerialNO() {
+        return serialNO;
+    }
 }
