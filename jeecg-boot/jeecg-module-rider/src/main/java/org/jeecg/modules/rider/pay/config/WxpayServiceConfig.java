@@ -75,6 +75,12 @@ public class WxpayServiceConfig {
     private String serialNO;
 
     /**
+     * 平台证书序列号
+     */
+    @Value("${wechatpay.merchant.signSerialNO}")
+    private String signSerialNO;
+
+    /**
      * 商户APIV3密钥
      */
     @Value("${wechatpay.api.V3Key}")
@@ -312,7 +318,7 @@ public class WxpayServiceConfig {
         return userRecvPerception;
     }
 
-    public String getSerialNO() {
-        return serialNO;
+    public String getSignSerialNO() {
+        return signSerialNO;
     }
 }

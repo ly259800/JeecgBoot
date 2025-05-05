@@ -106,7 +106,7 @@ public class WeChatPayApiInvoke {
         HttpPost httpPost = new HttpPost(WechatPayV3APIEnum.TRANSFER.uri(WeChatServerEnum.CHINA));
         httpPost.addHeader("Accept", "application/json");
         httpPost.addHeader("Content-type", "application/json; charset=utf-8");
-        httpPost.addHeader("Wechatpay-Serial", wxpayServiceConfig.getSerialNO());
+        httpPost.addHeader("Wechatpay-Serial", wxpayServiceConfig.getSignSerialNO());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode rootNode = objectMapper.createObjectNode();
