@@ -126,11 +126,15 @@ public class WeChatPayApiInvoke {
                 .put("user_recv_perception", wxpayServiceConfig.getUserRecvPerception());
         // 转账场景报告信息（可选）
         ObjectNode sceneInfo = objectMapper.createObjectNode();
-        sceneInfo.put("info_type", wxpayServiceConfig.getInfotype())
-                .put("info_content", wxpayServiceConfig.getInfoContent());
+        sceneInfo.put("info_type", "岗位类型")
+                .put("info_content", "外卖员");
+
+        ObjectNode sceneInfo2 = objectMapper.createObjectNode();
+        sceneInfo2.put("info_type", "报酬说明")
+                .put("info_content", "推广骑手佣金");
 
         rootNode.putArray("transfer_scene_report_infos")
-                .add(sceneInfo);
+                .addPOJO(sceneInfo).addPOJO(sceneInfo2);
         objectMapper.writeValue(bos, rootNode);
         log.info("微信商户转账请求参数：{}", objectMapper.writeValueAsString(rootNode));
         httpPost.setEntity(new StringEntity(bos.toString(StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
