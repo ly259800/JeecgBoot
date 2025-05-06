@@ -31,7 +31,11 @@ public enum TradeTypeEnum {
     /**
      * 刷脸支付
      */
-    FACEPAY(6, "FACEPAY", "刷脸支付");
+    FACEPAY(6, "FACEPAY", "刷脸支付"),
+    /**
+     * 用户提现
+     */
+    TRANSFER(7, "TRANSFER", "用户提现");
 
     private final Integer status;
     private final String code;

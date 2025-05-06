@@ -6,10 +6,7 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.rider.commission.entity.RiderCommission;
 import org.jeecg.modules.rider.commission.mapper.RiderCommissionMapper;
 import org.jeecg.modules.rider.commission.service.IRiderCommissionService;
-import org.jeecg.modules.rider.customer.entity.RiderCustomer;
-import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
-import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,8 +45,8 @@ public class RiderCommissionServiceImpl extends ServiceImpl<RiderCommissionMappe
                 .set(RiderCommission::getAuditStatus,1);
         this.update(updateWrapper);
         riderCommissions.forEach(riderCommission -> {
-            //更新用户佣金
-            riderCustomerService.updateCommission(riderCommission.getCustomerId(),riderCommission.getCommission());
+            //添加用户佣金
+            riderCustomerService.addCommission(riderCommission.getCustomerId(),riderCommission.getCommission());
         });
 
     }

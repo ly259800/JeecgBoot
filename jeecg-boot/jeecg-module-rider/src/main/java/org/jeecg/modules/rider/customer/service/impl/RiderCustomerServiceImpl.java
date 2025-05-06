@@ -62,8 +62,12 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
     }
 
     @Override
-    public void updateCommission(String id, Integer commission) {
+    public void addCommission(String id, Integer commission) {
+        baseMapper.addCommission(id,commission);
+    }
 
-        baseMapper.updateCommission(id,commission);
+    @Override
+    public void subtractCommission(String id, Integer commission , Integer settleCommission) {
+        baseMapper.subtractCommission(id,commission,settleCommission);
     }
 }

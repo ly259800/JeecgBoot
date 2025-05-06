@@ -12,9 +12,12 @@ import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
 import org.jeecg.modules.rider.pay.config.WxpayServiceConfig;
 import org.jeecg.modules.rider.pay.constants.TradeStateEnum;
 import org.jeecg.modules.rider.pay.constants.TradeTypeEnum;
+import org.jeecg.modules.rider.pay.constants.TransferStateEnum;
 import org.jeecg.modules.rider.pay.constants.WechatPayContants;
 import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
+import org.jeecg.modules.rider.pay.dto.WechatTransferDTO;
 import org.jeecg.modules.rider.pay.entity.CallbackDecryptData;
+import org.jeecg.modules.rider.pay.entity.TransferCallbackDecryptData;
 import org.jeecg.modules.rider.pay.enums.OrderStateEnum;
 import org.jeecg.modules.rider.pay.enums.PayMethodEnum;
 import org.jeecg.modules.rider.pay.util.PriceUtils;
@@ -61,6 +64,25 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         orderinfo.setTradeState(TradeStateEnum.NOTPAY.getStatus());//交易状态
         orderinfo.setOpenid(paydto.getOpenid());
         orderinfo.setTotalAmount(paydto.getTotalAmount());//订单总金额,单位为元
+        orderinfo.setCurrency("CNY");// 货币类型(CNY-人民币)
+        orderinfo.setCloseState(WechatPayContants.PayCloseStatus.OPEN);// 订单关闭状态默认为开启
+        this.save(orderinfo);
+        return orderinfo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public RiderPayOrder saveOrderinfo(WechatTransferDTO transferDTO) {
+        // 构建订单参数
+        RiderPayOrder orderinfo = new RiderPayOrder();
+        orderinfo.setAppid(wxpayServiceConfig.getAppid());
+        orderinfo.setMchid(wxpayServiceConfig.getMchid());
+        orderinfo.setOutTradeNo(transferDTO.getOutBillNo());//订单号
+        orderinfo.setDescription(transferDTO.getRemark());//商品描述
+        orderinfo.setTradeType(TradeTypeEnum.TRANSFER.getStatus());// 交易类型
+        orderinfo.setTradeState(TradeStateEnum.NOTPAY.getStatus());//交易状态
+        orderinfo.setOpenid(transferDTO.getOpenid());
+        orderinfo.setTotalAmount(BigDecimal.valueOf(transferDTO.getAmount()));//订单总金额,单位为分
         orderinfo.setCurrency("CNY");// 货币类型(CNY-人民币)
         orderinfo.setCloseState(WechatPayContants.PayCloseStatus.OPEN);// 订单关闭状态默认为开启
         this.save(orderinfo);
@@ -125,6 +147,51 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
             riderCustomer.setIdentity(CustomerIdentityEnum.PARTNER.getCode());
             riderCustomer.setId(riderUserOrder.getCustomerId());
             riderCustomerService.updateById(riderCustomer);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo, TransferCallbackDecryptData consumeData) {
+        // 1.更新转账订单
+        Date payOrderUpdateTime = payOrderinfo.getUpdateTime();
+        TransferStateEnum transferStateEnum = TransferStateEnum.getEnum(consumeData.getState());
+        //转账金额单位为分
+        payOrderinfo.setPayAmount(BigDecimal.valueOf(consumeData.getTransferAmount()));//用户提现金额
+        payOrderinfo.setTradeState(transferStateEnum.getStatus());
+        if(Objects.equals(transferStateEnum,TransferStateEnum.CANCELLED)){
+            //订单已关闭
+            payOrderinfo.setCloseState(WechatPayContants.PayCloseStatus.CLOSE);
+        }
+        if(Objects.equals(transferStateEnum,TransferStateEnum.SUCCESS)){
+            payOrderinfo.setSuccessTime(consumeData.getUpdateTime());//提现成功时间
+        }
+        payOrderinfo.setUpdateTime(new Date());
+        QueryWrapper<RiderPayOrder> payOrderWrapper = new QueryWrapper<>();
+        payOrderWrapper.lambda().eq(RiderPayOrder::getId, payOrderinfo.getId())
+                .eq(RiderPayOrder::getUpdateTime, payOrderUpdateTime);
+        int update = this.baseMapper.update(payOrderinfo, payOrderWrapper);
+        //转账订单更新成功
+        if(update > 0){
+            // 2.更新用户订单
+            Date userOrderUpdateTime = riderUserOrder.getUpdateTime();
+            riderUserOrder.setActualAmount(BigDecimal.valueOf(consumeData.getTransferAmount()));//实际支付金额
+            riderUserOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
+            if(Objects.equals(transferStateEnum,TransferStateEnum.SUCCESS)){
+                riderUserOrder.setSuccessTime(consumeData.getUpdateTime());//转账完成日期
+                riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
+            } else {
+                riderUserOrder.setOrderState(transferStateEnum.getStatus());//转账失败
+            }
+            riderUserOrder.setUpdateTime(new Date());
+            QueryWrapper<RiderUserOrder> userOrderWrapper = new QueryWrapper<>();
+            userOrderWrapper.lambda().eq(RiderUserOrder::getId, riderUserOrder.getId());
+            if(userOrderUpdateTime != null){
+                userOrderWrapper.lambda().eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
+            }
+            riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
+            // 3.扣减用户佣金,添加提现佣金
+            riderCustomerService.subtractCommission(riderUserOrder.getCustomerId(),consumeData.getTransferAmount(), consumeData.getTransferAmount());
         }
     }
 }

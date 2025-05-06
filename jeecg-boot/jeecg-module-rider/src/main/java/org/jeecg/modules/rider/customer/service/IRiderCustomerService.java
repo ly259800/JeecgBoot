@@ -21,6 +21,10 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
 
     void updateQrcode(String id);
 
-    void updateCommission(String id,Integer commission);
+    //添加用户佣金
+    void addCommission(String id,Integer commission);
+
+    //用户佣金提现
+    void subtractCommission(String id,Integer commission,Integer settleCommission);
 
 }

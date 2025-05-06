@@ -189,13 +189,53 @@ public class WeChatPayServiceImpl implements WeChatPayService {
 
     @Override
     public Result transfer(WechatTransferDTO transferDto) throws Exception {
-        Result result = new Result<>();
-        // 生成商户单号（如果未提供）
         if (StringUtils.isEmpty(transferDto.getOutBillNo())) {
-            transferDto.setOutBillNo("T" + System.currentTimeMillis() + (int)(Math.random() * 1000));
+            throw new JeecgBootException("商户单号不能为空！");
         }
+        //1.参数校验
+        if (Objects.isNull(transferDto.getAmount()) || transferDto.getAmount() <= 0) {
+            throw new WechatPayException(BaseErrorCodeEnum.PARAM_ERROR.getStatus(), "提现金额必须大于0！");
+        }
+        //根据订单号获取订单信息
+        RiderUserOrder tenantOrder = tenantOrderService.getByOutTradeNo(transferDto.getOutBillNo());
+        if(Objects.isNull(tenantOrder)){
+            throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("用户订单【%s】不存在", transferDto.getOutBillNo()));
+        }
+        //判断订单是否提现成功
+        if(Objects.equals(tenantOrder.getOrderState(), OrderStateEnum.SUCCESS.getCode())){
+            throw new WechatPayException(BaseErrorCodeEnum.REQ_FAIL.getStatus(), "订单已提现成功!");
+        }
+        if(!Objects.equals(tenantOrder.getOrderState(), OrderStateEnum.NOTPAY.getCode())){
+            throw new WechatPayException(BaseErrorCodeEnum.REQ_FAIL.getStatus(), "订单状态【"+tenantOrder.getOrderState()+"】不正确!");
+        }
+        //判断微信用户是否存在
+        RiderCustomer byOpenId = riderCustomerService.getByOpenId(transferDto.getOpenid());
+        if(Objects.isNull(byOpenId)){
+            throw new WechatPayException(BaseErrorCodeEnum.REQ_FAIL.getStatus(), "用户不存在!");
+        }
+        //1. 给该订单加锁,不允许订单号相同的多个线程同时进入
+        Object intern = transferDto.getOutBillNo().intern();
+        synchronized (intern){
+            //2.订单重复提现申请校验
+            RiderPayOrder payOrderinfo = payOrderinfoService.getByOutTradeNo(transferDto.getOutBillNo());
+            if (Objects.nonNull(payOrderinfo)) {
+                throw new WechatPayException(BaseErrorCodeEnum.ORDER_NO_TEXIST.getStatus(), String.format("提现订单号【%s】已存在", transferDto.getOutBillNo()));
+            } else {
+                //3.生成提现订单
+                RiderPayOrder orderinfoEntity = payOrderinfoService.saveOrderinfo(transferDto);
+                transferDto.setPayOrderId(orderinfoEntity.getId());
+            }
+        }
+        Result result = new Result<>();
         WechatPayApiOutDTO transfer = weChatPayApiInvoke.transfer(transferDto);
         if(Objects.equals(transfer.getStatus(),BaseErrorCodeEnum.REQ_SUCCESS.getStatus())){
+            //提现成功，则更新提现订单的信息
+            JSONObject jsonObject = WechatPayContants.OBJECT_MAPPER.readValue(transfer.getData().toString(), JSONObject.class);
+            RiderPayOrder orderinfoEntity = new RiderPayOrder();
+            orderinfoEntity.setId(transferDto.getPayOrderId());
+            orderinfoEntity.setPrePayId(jsonObject.getString("transfer_bill_no"));
+            orderinfoEntity.setTransactionId(jsonObject.getString("package_info"));
+            payOrderinfoService.updateById(orderinfoEntity);
             //返回响应
             result.ok(transfer.getData());
         }

@@ -45,8 +45,8 @@ spring:
     clean-disabled: true
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 500MB
+      max-request-size: 500MB
   mail:
     # 定时任务发送邮件
     timeJobSend: false
@@ -178,7 +178,7 @@ spring:
     database: 0
     host: 192.168.136.137
     port: 6379
-    password:
+    password: EB26iRSnbNcSl6p
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/**/xml/*Mapper.xml
@@ -224,7 +224,7 @@ jeecg:
     app: http://localhost:8051
   path:
     #文件上传根目录 设置
-    upload: /opt/upFiles
+    upload: D:/opt/upFiles
     #webapp文件路径
     webapp: /opt/webapp
   shiro:
@@ -338,12 +338,12 @@ justauth:
 wechat:
   #微信小程序
   miniprogram:
-    appid: wx2c7a632342b357c8
-    secret: d63332e39de4a4ac0eac31d8f6537da6
+    appid: wx4d4f30d1320e4b41
+    secret: cc0412593f96303c34170121d94310b4
   #微信网站应用
   web:
-    appid: wx0b8ddbaa2b2cdce3
-    secret: d0c8dbf12722cbcb80b93f3e0a50d321
+    appid: wx4d4f30d1320e4b41
+    secret: cc0412593f96303c34170121d94310b4
   #  第三方平台appid 第三方平台appsecret
   tripartitePlatform:
     appid: wx5e499eea947f5778
@@ -355,12 +355,14 @@ wechat:
 # 微信支付配置
 wechatpay:
   #开启验签
-  openSignCheck: true
+  openSignCheck: false
   merchant:
     #商户号
-    id: 1712181250
+    id: 1715728561
     #商户序列号
-    serialNO: 25BED71679CEE2EC94066CB0DF57BF8B8BAC68C1
+    serialNO: 6E5E6A98C06A602CBB57F93877F8CD54EA5D0D04
+    #平台证书序列号
+    signSerialNO: 6E5E6A98C06A602CBB57F93877F8CD54EA5D0D04
   api:
     #商户APIV3密钥
     V3Key: RiderR2tY4vB8nL3cX6zW1eD5kH0jU7p
@@ -368,4 +370,11 @@ wechatpay:
     mobile: 15717964217
   #支付回调地址
   notify:
-    url: http://124.70.162.63:18080/jeecg-boot/wxpay/notify
+    url: https://rider.yuxiyibaisui.top/jeecgboot/wxpay/notify
+  #商户转账参数
+  transfer:
+    notifyurl: https://rider.yuxiyibaisui.top/jeecgboot/transfer/notify
+    info_type: 奖励说明
+    info_content: 招聘骑手
+    scene_id: 1005
+    user_recv_perception: 佣金报酬

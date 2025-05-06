@@ -1,7 +1,5 @@
 package org.jeecg.modules.rider.customer.mapper;
 
-import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -14,6 +12,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface RiderCustomerMapper extends BaseMapper<RiderCustomer> {
 
-    void updateCommission(@Param("id") String id, @Param("commission") Integer commission);
+    void addCommission(@Param("id") String id, @Param("commission") Integer commission);
+
+    void subtractCommission(@Param("id") String id, @Param("commission") Integer commission, @Param("settleCommission") Integer settleCommission);
 
 }

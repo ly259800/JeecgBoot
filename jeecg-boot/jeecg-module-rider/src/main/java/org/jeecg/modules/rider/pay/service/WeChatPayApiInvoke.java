@@ -106,11 +106,15 @@ public class WeChatPayApiInvoke {
         HttpPost httpPost = new HttpPost(WechatPayV3APIEnum.TRANSFER.uri(WeChatServerEnum.CHINA));
         httpPost.addHeader("Accept", "application/json");
         httpPost.addHeader("Content-type", "application/json; charset=utf-8");
+        httpPost.addHeader("Wechatpay-Serial", wxpayServiceConfig.getSignSerialNO());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode rootNode = objectMapper.createObjectNode();
         // 加密用户姓名
-        String encryptedName = RsaCryptoUtil.encryptOAEP(transferDto.getUserName(),wxpayServiceConfig.getCertificate());
+        String encryptedName = "";
+        if(StringUtils.isNotEmpty(transferDto.getUserName())){
+             encryptedName = RsaCryptoUtil.encryptOAEP(transferDto.getUserName(),wxpayServiceConfig.getCertificate());
+        }
         // 构建基本参数
         rootNode.put("appid", wxpayServiceConfig.getAppid())
                 .put("out_bill_no", transferDto.getOutBillNo())

@@ -31,17 +31,17 @@ export const columns: BasicColumn[] = [
     dataIndex: 'gap'
    },
   {
-    title: '美团佣金',
+    title: '平台佣金',
     align:"center",
     dataIndex: 'commission'
   },
   {
-    title: '利润',
+    title: '优骑利润',
     align:"center",
     dataIndex: 'profit'
   },
   {
-    title: '站长佣金',
+    title: '合伙人佣金',
     align:"center",
     dataIndex: 'siteCommission'
   },
@@ -82,12 +82,12 @@ export const formSchema: FormSchema[] = [
     component: 'InputNumber',
   },
   {
-    label: '佣金',
+    label: '平台佣金',
     field: 'commission',
     component: 'InputNumber',
   },
   {
-    label: '利润',
+    label: '优骑利润',
     field: 'profit',
     component: 'InputNumber',
   },
