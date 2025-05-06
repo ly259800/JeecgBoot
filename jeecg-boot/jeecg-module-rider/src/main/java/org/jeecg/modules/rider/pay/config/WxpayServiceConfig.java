@@ -15,9 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.ArrayList;
@@ -73,12 +70,6 @@ public class WxpayServiceConfig {
      */
     @Value("${wechatpay.merchant.serialNO}")
     private String serialNO;
-
-    /**
-     * 平台证书序列号
-     */
-    @Value("${wechatpay.merchant.signSerialNO}")
-    private String signSerialNO;
 
     /**
      * 商户APIV3密钥
@@ -170,18 +161,6 @@ public class WxpayServiceConfig {
         // 从证书管理器中获取verifier
         Verifier verifier = certificatesManager.getVerifier(mchid);
         return verifier;
-    }
-
-    /**
-     * 获取微信支付Validator
-     * @return
-     */
-    @SneakyThrows
-    public X509Certificate getCertificate(){
-        //获取商户API证书私钥文件内容
-        ClassPathResource cpr = new ClassPathResource("/static/privatekey/apiclient_cert.pem");
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        return (X509Certificate) cf.generateCertificate(cpr.getInputStream());
     }
 
     /**
@@ -316,9 +295,5 @@ public class WxpayServiceConfig {
 
     public String getUserRecvPerception() {
         return userRecvPerception;
-    }
-
-    public String getSignSerialNO() {
-        return signSerialNO;
     }
 }

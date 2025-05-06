@@ -106,21 +106,20 @@ public class WeChatPayApiInvoke {
         HttpPost httpPost = new HttpPost(WechatPayV3APIEnum.TRANSFER.uri(WeChatServerEnum.CHINA));
         httpPost.addHeader("Accept", "application/json");
         httpPost.addHeader("Content-type", "application/json; charset=utf-8");
-        httpPost.addHeader("Wechatpay-Serial", wxpayServiceConfig.getSignSerialNO());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode rootNode = objectMapper.createObjectNode();
         // 加密用户姓名
         String encryptedName = "";
         if(StringUtils.isNotEmpty(transferDto.getUserName())){
-             encryptedName = RsaCryptoUtil.encryptOAEP(transferDto.getUserName(),wxpayServiceConfig.getCertificate());
+             //encryptedName = RsaCryptoUtil.encryptOAEP(transferDto.getUserName(),wxpayServiceConfig.getEncryptor().encrypt());
         }
         // 构建基本参数
         rootNode.put("appid", wxpayServiceConfig.getAppid())
                 .put("out_bill_no", transferDto.getOutBillNo())
                 .put("transfer_scene_id", wxpayServiceConfig.getSceneId())
                 .put("openid", transferDto.getOpenid())
-                .put("user_name", encryptedName) // 已加密的姓名
+                //.put("user_name", encryptedName) // 已加密的姓名
                 .put("transfer_amount", transferDto.getAmount())
                 .put("transfer_remark", transferDto.getRemark())
                 .put("notify_url", wxpayServiceConfig.getTransferNotifyUrl())
