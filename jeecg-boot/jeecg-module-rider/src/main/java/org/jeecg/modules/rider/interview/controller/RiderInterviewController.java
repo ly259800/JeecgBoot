@@ -117,6 +117,8 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 queryWrapper.lambda().eq(RiderInterview::getReference,riderCustomer.getId());
 		 if(Objects.nonNull(riderInterview.getPassStatus())){
 			 queryWrapper.lambda().eq(RiderInterview::getPassStatus,riderInterview.getPassStatus());
+			 //查询未结算的数据
+			 queryWrapper.lambda().eq(RiderInterview::getSettleStatus,0);
 		 }
 		 if(Objects.nonNull(riderInterview.getSettleStatus())){
 			 queryWrapper.lambda().eq(RiderInterview::getSettleStatus,riderInterview.getSettleStatus());

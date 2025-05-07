@@ -59,6 +59,9 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
         if(riderInterviews.stream().anyMatch(s-> StringUtils.isEmpty(s.getSiteId()))){
             throw new JeecgBootException("站点为空，不能结算！");
         }
+        if(riderInterviews.stream().anyMatch(s-> Objects.equals(s.getPassStatus() , 0))){
+            throw new JeecgBootException("未入职，不能结算！");
+        }
         List<String> siteIdList = riderInterviews.stream().map(x -> x.getSiteId()).collect(Collectors.toList());
 
         List<RiderSite> riderSiteList = riderSiteService.listByIds(siteIdList);

@@ -3,7 +3,6 @@ package org.jeecg.modules.rider.pay.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.jeecg.modules.rider.pay.constants.TransferStateEnum;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -49,15 +48,13 @@ public class TransferCallbackDecryptData {
     /**
      * 单据创建时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "GMT+8")
     private Date createTime;
 
     /**
      * 最后一次状态变更时间
      */
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "GMT+8")
     private Date updateTime;
 
 

@@ -60,9 +60,6 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	@Autowired
 	private IRiderParamsService riderParamsService;
 
-	 @Autowired
-	 private IRiderInterviewService riderInterviewService;
-
 	/**
 	 * 分页列表查询
 	 *
@@ -229,28 +226,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		if(riderCustomer==null) {
 			return Result.error("未找到对应数据");
 		}
-		RiderCustomerDTO riderCustomerDTO = new RiderCustomerDTO();
-		BeanUtils.copyProperties(riderCustomer, riderCustomerDTO);
-		//统计未入职、已入职、已结算的数据
-		QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<>();
-		queryWrapper.lambda().eq(RiderInterview::getReference,riderCustomer.getId());
-		List<RiderInterview> interviewList = riderInterviewService.list(queryWrapper);
-		Integer failCount = 0;
-		Integer passCount = 0;
-		Integer settleCount = 0;
-		for (RiderInterview riderInterview : interviewList) {
-			if(Objects.equals(riderInterview.getPassStatus() , 1)){
-				passCount++;
-			} else {
-				failCount++;
-			}
-			if(Objects.equals(riderInterview.getSettleStatus() , 1)){
-				settleCount++;
-			}
-		}
-		riderCustomerDTO.setFailCount(failCount);
-		riderCustomerDTO.setPassCount(passCount);
-		riderCustomerDTO.setSettleCount(settleCount);
+		RiderCustomerDTO riderCustomerDTO = riderCustomerService.convertTotal(riderCustomer);
 		return Result.OK(riderCustomerDTO);
 	}
 

@@ -27,4 +27,6 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
     //用户佣金提现
     void subtractCommission(String id,Integer commission,Integer settleCommission);
 
+    RiderCustomerDTO convertTotal(RiderCustomer entity);
+
 }

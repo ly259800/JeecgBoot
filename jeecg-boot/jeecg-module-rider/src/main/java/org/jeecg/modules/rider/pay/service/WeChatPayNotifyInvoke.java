@@ -142,6 +142,7 @@ public class WeChatPayNotifyInvoke {
                 resource.getNonce().replace("\"", "")
                         .getBytes(StandardCharsets.UTF_8),
                 resource.getCiphertext().replace("\"", ""));
+        log.info("商家转账异步回调解密信息：{}", data);
         TransferCallbackDecryptData consumeData = objectMapper.readValue(data, TransferCallbackDecryptData.class);
         log.info("商家转账异步回调解密信息：{}", JSON.toJSONString(consumeData));
         // 2.获取转账状态

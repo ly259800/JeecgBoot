@@ -9,6 +9,7 @@ import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.mapper.RiderCustomerMapper;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
+import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @Description: 客户管理
@@ -27,6 +30,10 @@ import java.util.Arrays;
  */
 @Service
 public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, RiderCustomer> implements IRiderCustomerService {
+
+    @Autowired
+    private IRiderInterviewService riderInterviewService;
+
 
     @Override
     public RiderCustomer getByOpenId(String openid) {
@@ -69,5 +76,32 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
     @Override
     public void subtractCommission(String id, Integer commission , Integer settleCommission) {
         baseMapper.subtractCommission(id,commission,settleCommission);
+    }
+
+    @Override
+    public RiderCustomerDTO convertTotal(RiderCustomer riderCustomer) {
+        RiderCustomerDTO riderCustomerDTO = new RiderCustomerDTO();
+        BeanUtils.copyProperties(riderCustomer, riderCustomerDTO);
+        //统计未入职、已入职、已结算的数据
+        QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(RiderInterview::getReference,riderCustomer.getId());
+        List<RiderInterview> interviewList = riderInterviewService.list(queryWrapper);
+        Integer failCount = 0;
+        Integer passCount = 0;
+        Integer settleCount = 0;
+        for (RiderInterview riderInterview : interviewList) {
+            if(Objects.equals(riderInterview.getPassStatus() , 1)){
+                passCount++;
+            } else {
+                failCount++;
+            }
+            if(Objects.equals(riderInterview.getSettleStatus() , 1)){
+                settleCount++;
+            }
+        }
+        riderCustomerDTO.setFailCount(failCount);
+        riderCustomerDTO.setPassCount(passCount);
+        riderCustomerDTO.setSettleCount(settleCount);
+        return riderCustomerDTO;
     }
 }
