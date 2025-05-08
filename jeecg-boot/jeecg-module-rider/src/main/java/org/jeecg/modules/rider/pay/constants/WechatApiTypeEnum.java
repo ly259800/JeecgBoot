@@ -27,7 +27,11 @@ public enum WechatApiTypeEnum {
     /**
      * 商户转账
      */
-    TRANSFER(5, "TRANSFER", "商户转账");
+    TRANSFER(5, "TRANSFER", "商户转账"),
+    /**
+     * 取消转账
+     */
+    CANNELTRANSFER(6, "CANNELTRANSFER", "取消转账");
 
     private final Integer status;
     private final String code;

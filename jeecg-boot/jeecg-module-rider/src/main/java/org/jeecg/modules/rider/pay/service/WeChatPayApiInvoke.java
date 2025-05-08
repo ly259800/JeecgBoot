@@ -235,6 +235,47 @@ public class WeChatPayApiInvoke {
         }
     }
 
+
+    /**
+     * 取消转账API
+     * @param closeDto
+     * @return
+     */
+    @SneakyThrows
+    public WechatPayApiOutDTO cannelTransfer(TransferCannelDTO closeDto){
+        URI uri = UriComponentsBuilder.fromHttpUrl(WechatPayV3APIEnum.CANNELTRANSFER.uri(WeChatServerEnum.CHINA))
+                .build()
+                .expand(closeDto.getOutBillNo())
+                .toUri();
+        HttpPost httpPost = new HttpPost(uri);
+        httpPost.addHeader("Accept", "application/json");
+        httpPost.addHeader("Content-type","application/json; charset=utf-8");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        log.info("微信-- 取消转账订单,请求url：{}", uri.toString());
+        httpPost.setEntity(new StringEntity(bos.toString("UTF-8"), "UTF-8"));
+        try(CloseableHttpClient httpClient = wxpayServiceConfig.getWechatpayClient()){
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                WechatPayApiOutDTO outVO = new WechatPayApiOutDTO();
+                int statusCode = response.getStatusLine().getStatusCode();
+                //表示取消转账成功
+                if(statusCode == 200 ){
+                    log.info("微信-- {}，返回结果result：{}",WechatApiTypeEnum.CANNELTRANSFER.getMsg(), response.getStatusLine().getStatusCode());
+                    outVO.setStatus(statusCode);
+                    outVO.setMessage(BaseErrorCodeEnum.REQ_SUCCESS.getMsg());
+                } else {
+                    //取消转账失败
+                    String bodyAsString = Objects.isNull(response.getEntity())?"":EntityUtils.toString(response.getEntity());
+                    log.info("微信-- {}，返回结果result：{}",WechatApiTypeEnum.CANNELTRANSFER.getMsg(), response.getStatusLine().getStatusCode()+"【"+bodyAsString+"】");
+                    outVO.setStatus(statusCode);
+                    outVO.setMessage(BaseErrorCodeEnum.REQ_FAIL.getMsg());
+                }
+                return outVO;
+            }
+        }
+    }
+
+
+
     /**
      * 通过code获取小程序openid
      * @param loginDTO

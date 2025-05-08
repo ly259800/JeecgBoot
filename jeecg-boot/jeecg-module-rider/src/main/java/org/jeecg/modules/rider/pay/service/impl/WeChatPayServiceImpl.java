@@ -14,10 +14,7 @@ import org.jeecg.modules.rider.order.entity.RiderPayOrder;
 import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.jeecg.modules.rider.order.service.IRiderPayOrderService;
 import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
-import org.jeecg.modules.rider.pay.constants.BaseErrorCodeEnum;
-import org.jeecg.modules.rider.pay.constants.TradeStateEnum;
-import org.jeecg.modules.rider.pay.constants.TradeTypeEnum;
-import org.jeecg.modules.rider.pay.constants.WechatPayContants;
+import org.jeecg.modules.rider.pay.constants.*;
 import org.jeecg.modules.rider.pay.dto.*;
 import org.jeecg.modules.rider.pay.enums.OrderStateEnum;
 import org.jeecg.modules.rider.pay.exception.WechatPayException;
@@ -248,5 +245,26 @@ public class WeChatPayServiceImpl implements WeChatPayService {
             result.ok(transfer.getData());
         }
         return result.error(transfer.getStatus(),transfer.getMessage());
+    }
+
+    @Override
+    public Result cannelTransfer(TransferCannelDTO cannelDTO) {
+        Result result = new Result<>();
+        // 调用微信支付关闭订单api
+        WechatPayApiOutDTO outVO = weChatPayApiInvoke.cannelTransfer(cannelDTO);
+        if(Objects.equals(outVO.getStatus(),200)){
+            //订单关闭成功后更新支付订单状态
+            RiderPayOrder orderinfoEntity = payOrderinfoService.getByOutTradeNo(cannelDTO.getOutBillNo());
+            if(Objects.nonNull(orderinfoEntity)){
+                //更新提现订单状态
+                orderinfoEntity.setTradeState(TransferStateEnum.CANCELLED.getStatus());
+                orderinfoEntity.setCloseState(WechatPayContants.PayCloseStatus.CLOSE);
+                payOrderinfoService.updateById(orderinfoEntity);
+                RiderCustomer byOpenId = riderCustomerService.getByOpenId(orderinfoEntity.getOpenid());
+                //返回用户佣金
+                riderCustomerService.addCommission(byOpenId.getId(), orderinfoEntity.getTotalAmount());
+            }
+        }
+        return result.error(outVO.getStatus(),outVO.getMessage());
     }
 }

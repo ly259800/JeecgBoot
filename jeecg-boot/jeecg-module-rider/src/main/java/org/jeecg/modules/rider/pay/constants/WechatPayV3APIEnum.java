@@ -44,6 +44,12 @@ public enum WechatPayV3APIEnum {
      *
      */
     CLOSE(HttpMethod.POST, "%s/v3/pay/transactions/out-trade-no/{out_trade_no}/close"),
+
+    /**
+     * 取消转账
+     *
+     */
+    CANNELTRANSFER(HttpMethod.POST, "%s/v3/fund-app/mch-transfer/transfer-bills/out-bill-no/{out_bill_no}/cancel"),
     /**
      * 微信支付订单号查询API.
      *

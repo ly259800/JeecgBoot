@@ -4,10 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.modules.rider.pay.dto.OrderCloseDTO;
-import org.jeecg.modules.rider.pay.dto.OrderQueryDTO;
-import org.jeecg.modules.rider.pay.dto.WechatPayDTO;
-import org.jeecg.modules.rider.pay.dto.WechatTransferDTO;
+import org.jeecg.modules.rider.pay.dto.*;
 import org.jeecg.modules.rider.pay.service.WeChatPayService;
 import org.jeecg.modules.rider.pay.util.Result;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +51,13 @@ public class WeChatPayController {
     @AutoLog("商户转账")
     public Result transfer(@RequestBody @Valid WechatTransferDTO transferDTO) throws Exception {
         return weChatPayServise.transfer(transferDTO);
+    }
+
+    @PostMapping("cannelTransfer")
+    @ApiOperation("取消转账")
+    @AutoLog("取消转账")
+    public Result cannelTransfer(@RequestBody @Valid TransferCannelDTO transferDTO){
+        return weChatPayServise.cannelTransfer(transferDTO);
     }
 
 
