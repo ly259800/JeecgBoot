@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +47,7 @@ public class RiderCommissionServiceImpl extends ServiceImpl<RiderCommissionMappe
         this.update(updateWrapper);
         riderCommissions.forEach(riderCommission -> {
             //添加用户佣金
-            riderCustomerService.addCommission(riderCommission.getCustomerId(),riderCommission.getCommission());
+            riderCustomerService.addCommission(riderCommission.getCustomerId(), BigDecimal.valueOf(riderCommission.getCommission()));
         });
 
     }

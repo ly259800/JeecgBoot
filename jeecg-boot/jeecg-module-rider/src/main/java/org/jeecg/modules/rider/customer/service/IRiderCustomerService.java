@@ -4,6 +4,8 @@ import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.math.BigDecimal;
+
 /**
  * @Description: 客户管理
  * @Author: jeecg-boot
@@ -22,10 +24,10 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
     void updateQrcode(String id);
 
     //添加用户佣金
-    void addCommission(String id,Integer commission);
+    void addCommission(String id, BigDecimal commission);
 
     //用户佣金提现
-    void subtractCommission(String id,Integer commission,Integer settleCommission);
+    void subtractCommission(String id,BigDecimal commission,BigDecimal settleCommission);
 
     RiderCustomerDTO convertTotal(RiderCustomer entity);
 

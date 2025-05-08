@@ -4,6 +4,8 @@ import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.math.BigDecimal;
+
 /**
  * @Description: 客户管理
  * @Author: jeecg-boot
@@ -12,8 +14,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface RiderCustomerMapper extends BaseMapper<RiderCustomer> {
 
-    void addCommission(@Param("id") String id, @Param("commission") Integer commission);
+    void addCommission(@Param("id") String id, @Param("commission") BigDecimal commission);
 
-    void subtractCommission(@Param("id") String id, @Param("commission") Integer commission, @Param("settleCommission") Integer settleCommission);
+    void subtractCommission(@Param("id") String id, @Param("commission") BigDecimal commission, @Param("settleCommission") BigDecimal settleCommission);
 
 }

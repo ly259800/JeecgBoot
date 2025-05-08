@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -69,12 +70,12 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
     }
 
     @Override
-    public void addCommission(String id, Integer commission) {
+    public void addCommission(String id, BigDecimal commission) {
         baseMapper.addCommission(id,commission);
     }
 
     @Override
-    public void subtractCommission(String id, Integer commission , Integer settleCommission) {
+    public void subtractCommission(String id, BigDecimal commission , BigDecimal settleCommission) {
         baseMapper.subtractCommission(id,commission,settleCommission);
     }
 

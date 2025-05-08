@@ -82,7 +82,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         orderinfo.setTradeType(TradeTypeEnum.TRANSFER.getStatus());// 交易类型
         orderinfo.setTradeState(TradeStateEnum.NOTPAY.getStatus());//交易状态
         orderinfo.setOpenid(transferDTO.getOpenid());
-        orderinfo.setTotalAmount(BigDecimal.valueOf(transferDTO.getAmount()));//订单总金额,单位为分
+        orderinfo.setTotalAmount(BigDecimal.valueOf(transferDTO.getAmount()).subtract(BigDecimal.valueOf(100)));//订单总金额,单位为元
         orderinfo.setCurrency("CNY");// 货币类型(CNY-人民币)
         orderinfo.setCloseState(WechatPayContants.PayCloseStatus.OPEN);// 订单关闭状态默认为开启
         this.save(orderinfo);
@@ -190,8 +190,8 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
                 userOrderWrapper.lambda().eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
             }
             riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
-            // 3.扣减用户佣金,添加提现佣金
-            riderCustomerService.subtractCommission(riderUserOrder.getCustomerId(),consumeData.getTransferAmount(), consumeData.getTransferAmount());
+            // 3.添加提现佣金
+            riderCustomerService.subtractCommission(riderUserOrder.getCustomerId(),BigDecimal.ZERO, BigDecimal.valueOf(consumeData.getTransferAmount()).subtract(BigDecimal.valueOf(100)));
         }
     }
 }

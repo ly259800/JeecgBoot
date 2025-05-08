@@ -236,6 +236,10 @@ public class WeChatPayServiceImpl implements WeChatPayService {
             orderinfoEntity.setPrePayId(jsonObject.getString("transfer_bill_no"));
             orderinfoEntity.setTransactionId(jsonObject.getString("package_info"));
             payOrderinfoService.updateById(orderinfoEntity);
+            //扣减用户佣金
+            riderCustomerService.subtractCommission(byOpenId.getId(),BigDecimal.valueOf(transferDto.getAmount()).subtract(BigDecimal.valueOf(100)), BigDecimal.ZERO);
+
+
             //返回响应
             result.ok(transfer.getData());
         }
