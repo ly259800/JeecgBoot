@@ -1,5 +1,5 @@
-alter table rider_customer add column `settle_commission` int DEFAULT 0 COMMENT '已提现佣金';
-alter table rider_customer add column  `commission` int DEFAULT 0 COMMENT '我的佣金';
+alter table rider_customer add column `settle_commission` decimal(10,2) DEFAULT 0 COMMENT '已提现佣金';
+alter table rider_customer add column  `commission` decimal(10,2) DEFAULT 0 COMMENT '我的佣金';
 alter table rider_interview add column  `settle_status` int DEFAULT 0 COMMENT '结算状态';
 
 --确认结算

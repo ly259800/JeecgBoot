@@ -9,8 +9,7 @@ import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.mapper.RiderCustomerMapper;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
-import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
-import org.jeecg.modules.rider.order.entity.RiderUserOrder;
+import org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ import java.util.Objects;
 public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, RiderCustomer> implements IRiderCustomerService {
 
     @Autowired
-    private IRiderInterviewService riderInterviewService;
+    private RiderInterviewMapper riderInterviewMapper;
 
 
     @Override
@@ -86,7 +85,7 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
         //统计未入职、已入职、已结算的数据
         QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(RiderInterview::getReference,riderCustomer.getId());
-        List<RiderInterview> interviewList = riderInterviewService.list(queryWrapper);
+        List<RiderInterview> interviewList = riderInterviewMapper.selectList(queryWrapper);
         Integer failCount = 0;
         Integer passCount = 0;
         Integer settleCount = 0;

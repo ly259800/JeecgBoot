@@ -93,11 +93,11 @@ public class RiderCustomer implements Serializable {
 
     @Excel(name = "我的佣金", width = 15)
     @ApiModelProperty(value = "我的佣金")
-    private java.lang.Integer commission;
+    private BigDecimal commission;
 
     @Excel(name = "已提现佣金", width = 15)
     @ApiModelProperty(value = "已提现佣金")
-    private java.lang.Integer settleCommission;
+    private BigDecimal settleCommission;
 
 
 }

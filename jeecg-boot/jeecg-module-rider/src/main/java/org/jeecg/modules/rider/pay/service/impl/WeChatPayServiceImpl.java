@@ -213,6 +213,12 @@ public class WeChatPayServiceImpl implements WeChatPayService {
         if(Objects.isNull(byOpenId)){
             throw new WechatPayException(BaseErrorCodeEnum.REQ_FAIL.getStatus(), "用户不存在!");
         }
+
+        //判断佣金是否充足
+        if(byOpenId.getCommission().compareTo(PriceUtils.FenToYuan(transferDto.getAmount())) < 0){
+            throw new WechatPayException(BaseErrorCodeEnum.REQ_FAIL.getStatus(), "用户佣金不足!");
+        }
+
         //1. 给该订单加锁,不允许订单号相同的多个线程同时进入
         Object intern = transferDto.getOutBillNo().intern();
         synchronized (intern){
@@ -237,9 +243,7 @@ public class WeChatPayServiceImpl implements WeChatPayService {
             orderinfoEntity.setTransactionId(jsonObject.getString("package_info"));
             payOrderinfoService.updateById(orderinfoEntity);
             //扣减用户佣金
-            riderCustomerService.subtractCommission(byOpenId.getId(),BigDecimal.valueOf(transferDto.getAmount()).subtract(BigDecimal.valueOf(100)), BigDecimal.ZERO);
-
-
+            riderCustomerService.subtractCommission(byOpenId.getId(),PriceUtils.FenToYuan(transferDto.getAmount()), BigDecimal.ZERO);
             //返回响应
             result.ok(transfer.getData());
         }

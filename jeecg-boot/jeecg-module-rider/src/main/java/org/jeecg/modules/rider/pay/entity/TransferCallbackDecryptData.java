@@ -29,7 +29,12 @@ public class TransferCallbackDecryptData {
     /**
      * 商户号
      */
-    private String mchId;
+    private String mch_id;
+
+    /**
+     * 商户号
+     */
+    private String mchid;
 
     /**
      * 转账总金额，单位为分。

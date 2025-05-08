@@ -82,7 +82,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         orderinfo.setTradeType(TradeTypeEnum.TRANSFER.getStatus());// 交易类型
         orderinfo.setTradeState(TradeStateEnum.NOTPAY.getStatus());//交易状态
         orderinfo.setOpenid(transferDTO.getOpenid());
-        orderinfo.setTotalAmount(BigDecimal.valueOf(transferDTO.getAmount()).subtract(BigDecimal.valueOf(100)));//订单总金额,单位为元
+        orderinfo.setTotalAmount(PriceUtils.FenToYuan(transferDTO.getAmount()));//订单总金额,单位为元
         orderinfo.setCurrency("CNY");// 货币类型(CNY-人民币)
         orderinfo.setCloseState(WechatPayContants.PayCloseStatus.OPEN);// 订单关闭状态默认为开启
         this.save(orderinfo);
@@ -128,6 +128,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
             riderUserOrder.setActualAmount(payAmount);//实际支付金额
             riderUserOrder.setSuccessTime(consumeData.getSuccessTime());//支付完成日期
             riderUserOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
+            riderUserOrder.setDescription("支付订单");
             if(Objects.equals(tradeStateEnum,TradeStateEnum.SUCCESS)){
                 riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
             } else if(Objects.equals(tradeStateEnum,TradeStateEnum.NOTPAY)){
@@ -157,7 +158,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         Date payOrderUpdateTime = payOrderinfo.getUpdateTime();
         TransferStateEnum transferStateEnum = TransferStateEnum.getEnum(consumeData.getState());
         //转账金额单位为分
-        payOrderinfo.setPayAmount(BigDecimal.valueOf(consumeData.getTransferAmount()));//用户提现金额
+        payOrderinfo.setPayAmount(PriceUtils.FenToYuan(consumeData.getTransferAmount()));//用户提现金额
         payOrderinfo.setTradeState(transferStateEnum.getStatus());
         if(Objects.equals(transferStateEnum,TransferStateEnum.CANCELLED)){
             //订单已关闭
@@ -175,11 +176,14 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
         if(update > 0){
             // 2.更新用户订单
             Date userOrderUpdateTime = riderUserOrder.getUpdateTime();
-            riderUserOrder.setActualAmount(BigDecimal.valueOf(consumeData.getTransferAmount()));//实际支付金额
+            riderUserOrder.setActualAmount(PriceUtils.FenToYuan(consumeData.getTransferAmount()));//实际支付金额
             riderUserOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
+            riderUserOrder.setDescription("提现");
             if(Objects.equals(transferStateEnum,TransferStateEnum.SUCCESS)){
                 riderUserOrder.setSuccessTime(consumeData.getUpdateTime());//转账完成日期
                 riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
+                // 3.添加提现佣金
+                riderCustomerService.subtractCommission(riderUserOrder.getCustomerId(),BigDecimal.ZERO, PriceUtils.FenToYuan(consumeData.getTransferAmount()));
             } else {
                 riderUserOrder.setOrderState(transferStateEnum.getStatus());//转账失败
             }
@@ -190,8 +194,6 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
                 userOrderWrapper.lambda().eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
             }
             riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
-            // 3.添加提现佣金
-            riderCustomerService.subtractCommission(riderUserOrder.getCustomerId(),BigDecimal.ZERO, BigDecimal.valueOf(consumeData.getTransferAmount()).subtract(BigDecimal.valueOf(100)));
         }
     }
 }
