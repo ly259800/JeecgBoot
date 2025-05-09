@@ -1,6 +1,8 @@
 package org.jeecg.modules.rider.order.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
@@ -9,6 +11,8 @@ import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.jeecg.modules.rider.order.mapper.RiderPayOrderMapper;
 import org.jeecg.modules.rider.order.service.IRiderPayOrderService;
 import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
+import org.jeecg.modules.rider.params.entity.RiderParams;
+import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.pay.config.WxpayServiceConfig;
 import org.jeecg.modules.rider.pay.constants.TradeStateEnum;
 import org.jeecg.modules.rider.pay.constants.TradeTypeEnum;
@@ -50,6 +54,9 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
 
     @Autowired
     private IRiderCustomerService riderCustomerService;
+
+    @Autowired
+    private IRiderParamsService riderParamsService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -100,7 +107,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo, CallbackDecryptData consumeData) {
+    public void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo, CallbackDecryptData consumeData ,String reference) {
         // 1.更新支付订单
         Date payOrderUpdateTime = payOrderinfo.getUpdateTime();
         TradeStateEnum tradeStateEnum = TradeStateEnum.getEnum(consumeData.getTradeState());
@@ -148,6 +155,29 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
             riderCustomer.setIdentity(CustomerIdentityEnum.PARTNER.getCode());
             riderCustomer.setId(riderUserOrder.getCustomerId());
             riderCustomerService.updateById(riderCustomer);
+            //4.若存在推广人,则新增推广人用户佣金
+            if(StringUtils.isNotEmpty(reference)){
+                //获取佣金金额
+                RiderParams commission_rules = riderParamsService.getByCode("commission_rules");
+                if(Objects.nonNull(commission_rules) && Objects.nonNull(commission_rules.getParamValue())){
+                    //查看推广人已推广为合伙人的数量
+                    LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
+                    query.eq(RiderCustomer::getReference, reference)
+                            .eq(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
+                    Long count =riderCustomerService.getBaseMapper().selectCount(query);
+                    String[] rules = commission_rules.getParamValue().split(";");
+                    int commission = 0;
+                    for (String rule : rules) {
+                        String[] ruleArr = rule.split(",");
+                        int cnt = Integer.parseInt(ruleArr[0]);
+                        if(cnt > count){
+                            break;
+                        }
+                        commission = Integer.parseInt(ruleArr[1]);
+                    }
+                    riderCustomerService.addCommission(reference, BigDecimal.valueOf(commission));
+                }
+            }
         }
     }
 

@@ -115,13 +115,15 @@ public class WeChatPayNotifyInvoke {
         }
         // 5.根据openid获取支付人信息
         RiderCustomer user = sysUserService.getByOpenId(consumeData.getPayer().getOpenid());
+        String reference = "";
         if(Objects.nonNull(user)){
             riderUserOrder.setPayId(user.getId());
             riderUserOrder.setPayer(user.getName());
             riderUserOrder.setCustomerId(user.getId());
+            reference = user.getReference();
         }
         // 6.更新支付订单、租户订单及租户信息
-        payOrderinfoService.updateOrderinfo(riderUserOrder,payOrderinfo,consumeData);
+        payOrderinfoService.updateOrderinfo(riderUserOrder,payOrderinfo,consumeData,reference);
     }
 
     @SneakyThrows

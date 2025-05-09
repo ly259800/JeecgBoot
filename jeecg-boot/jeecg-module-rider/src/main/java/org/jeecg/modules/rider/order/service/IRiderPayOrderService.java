@@ -24,7 +24,7 @@ public interface IRiderPayOrderService extends IService<RiderPayOrder> {
 
     RiderPayOrder getByOutTradeNo(String outTradeNo);
 
-    void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , CallbackDecryptData consumeData);
+    void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , CallbackDecryptData consumeData ,String reference);
 
     void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , TransferCallbackDecryptData consumeData);
 
