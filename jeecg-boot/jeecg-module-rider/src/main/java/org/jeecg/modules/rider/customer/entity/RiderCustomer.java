@@ -99,5 +99,13 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "已提现佣金")
     private BigDecimal settleCommission;
 
+    @Excel(name = "推广人", width = 15)
+    @ApiModelProperty(value = "推广人")
+    private java.lang.String reference;
+
+    @Excel(name = "推广人手机号", width = 15)
+    @ApiModelProperty(value = "推广人手机号")
+    private java.lang.String referencePhone;
+
 
 }

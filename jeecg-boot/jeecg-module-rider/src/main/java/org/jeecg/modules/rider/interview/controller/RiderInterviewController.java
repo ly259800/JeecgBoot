@@ -177,11 +177,16 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		//小程序入口，1-骑手
 		riderInterview.setEntrance(InterviewEntranceEnum.RIDER.getCode());
 		riderInterview.setSource("骑手报名");
+		//若未传推广码
 		if(StringUtils.isNotEmpty(riderInterview.getReference())){
 			RiderCustomer byId = riderCustomerService.getById(riderInterview.getReference());
 			if(Objects.nonNull(byId)){
 				riderInterview.setReferencePhone(byId.getPhone());
 			}
+		} else {
+			//则取当前用户的推广码
+			riderInterview.setReference(riderCustomer.getReference());
+			riderInterview.setReferencePhone(riderCustomer.getReferencePhone());
 		}
 		riderInterviewService.save(riderInterview);
 		//若用户身份为游客，则更新为骑手

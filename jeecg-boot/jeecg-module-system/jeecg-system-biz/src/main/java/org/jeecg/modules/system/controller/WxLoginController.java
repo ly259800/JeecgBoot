@@ -174,6 +174,12 @@ public class WxLoginController {
         dto.setWxOpenId(resultDTO.getOpenid());
         dto.setUnionid(resultDTO.getUnionid());
         dto.setIdentity(CustomerIdentityEnum.TOURIST.getCode());
+        if(StringUtils.isNotEmpty(dto.getReference())){
+            RiderCustomer byId = riderCustomerService.getById(dto.getReference());
+            if(Objects.nonNull(byId)){
+                dto.setReferencePhone(byId.getPhone());
+            }
+        }
         transactionTemplate.execute(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(TransactionStatus status) {

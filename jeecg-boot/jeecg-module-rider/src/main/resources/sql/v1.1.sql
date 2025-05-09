@@ -29,3 +29,7 @@ alter table rider_site add column `platform` varchar(32) COLLATE utf8mb4_unicode
 
 
 alter table rider_customer add column `unionid` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'unionid';
+
+
+alter table rider_customer add column `reference` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '推广人';
+alter table rider_customer add column `reference_phone` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '推广人手机号';

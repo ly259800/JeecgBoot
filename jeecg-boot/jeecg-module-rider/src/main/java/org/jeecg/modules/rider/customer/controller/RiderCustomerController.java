@@ -103,6 +103,23 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 result.setResult(ls);
 		 return result;
 	 }
+
+	 /**
+	  * 通过推广人查询客户信息列表
+	  * @return
+	  */
+	 @RequestMapping(value = "/listByReference", method = RequestMethod.GET)
+	 public Result<List<RiderCustomer>> listByReference(@RequestParam(name="customerId",required=false) String customerId) {
+		 Result<List<RiderCustomer>> result = new Result<List<RiderCustomer>>();
+		 if(StringUtils.isEmpty(customerId)){
+			return result;
+		 }
+		 LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
+		 query.eq(RiderCustomer::getReference, customerId);
+		 //此处查询忽略时间条件
+		 List<RiderCustomer> ls = riderCustomerService.list(query);
+		 return Result.OK(ls);
+	 }
 	
 	/**
 	 *   添加
