@@ -5,7 +5,7 @@
             <div class="app-loading-dots">
                 <span class="dot dot-spin"><i></i><i></i><i></i><i></i></span>
             </div>
-            <div class="app-loading-title">优骑优选</div>
+            <div class="app-loading-title">美驹优骑</div>
         </div>
     </div>
 </template>
