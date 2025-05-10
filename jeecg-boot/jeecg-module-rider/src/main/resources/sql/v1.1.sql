@@ -33,3 +33,4 @@ alter table rider_customer add column `unionid` varchar(32) COLLATE utf8mb4_unic
 
 alter table rider_customer add column `reference` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '推广人';
 alter table rider_customer add column `reference_phone` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '推广人手机号';
+alter table rider_customer add column `reference_commission` decimal(10,2) DEFAULT 0 COMMENT '推广佣金';

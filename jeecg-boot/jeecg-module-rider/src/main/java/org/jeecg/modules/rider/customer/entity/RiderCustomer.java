@@ -107,5 +107,9 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "推广人手机号")
     private java.lang.String referencePhone;
 
+    @Excel(name = "推广佣金", width = 15)
+    @ApiModelProperty(value = "推广佣金")
+    private BigDecimal referenceCommission;
+
 
 }

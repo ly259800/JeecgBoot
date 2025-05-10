@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.customer.controller;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
+import org.jeecg.modules.rider.customer.dto.RiderReferenceDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
@@ -110,16 +112,22 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @ApiOperation(value="我的推广人查询列表", notes="我的推广人查询列表")
 	 @RequestMapping(value = "/listByReference", method = RequestMethod.GET)
-	 public Result<List<RiderCustomer>> listByReference(@RequestParam(name="customerId",required=false) String customerId) {
-		 Result<List<RiderCustomer>> result = new Result<List<RiderCustomer>>();
-		 if(StringUtils.isEmpty(customerId)){
-			return result;
+	 public Result<RiderReferenceDTO> listByReference(@RequestParam(name="customerId",required=false) String customerId) {
+		 RiderReferenceDTO referenceDTO = new RiderReferenceDTO();
+		 referenceDTO.setListCount(0);
+		 referenceDTO.setCommissionCount(BigDecimal.ZERO);
+		 List<RiderCustomer> ls = new ArrayList<>();
+		 if(StringUtils.isNotEmpty(customerId)){
+			 //获取推广人信息
+			 LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
+			 query.eq(RiderCustomer::getReference, customerId)
+					 .eq(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
+			 ls = riderCustomerService.list(query);
+			 referenceDTO.setListCount(ls.size());
+			 referenceDTO.setCommissionCount(ls.stream().map(RiderCustomer::getReferenceCommission).reduce(BigDecimal.ZERO, BigDecimal::add));
 		 }
-		 LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
-		 query.eq(RiderCustomer::getReference, customerId);
-		 //此处查询忽略时间条件
-		 List<RiderCustomer> ls = riderCustomerService.list(query);
-		 return Result.OK(ls);
+		 referenceDTO.setList(ls);
+		 return Result.OK(referenceDTO);
 	 }
 	
 	/**

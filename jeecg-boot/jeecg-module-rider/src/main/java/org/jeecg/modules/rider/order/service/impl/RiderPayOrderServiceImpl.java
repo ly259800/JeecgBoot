@@ -154,7 +154,6 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
             RiderCustomer riderCustomer = new RiderCustomer();
             riderCustomer.setIdentity(CustomerIdentityEnum.PARTNER.getCode());
             riderCustomer.setId(riderUserOrder.getCustomerId());
-            riderCustomerService.updateById(riderCustomer);
             //4.若存在推广人,则新增推广人用户佣金
             if(StringUtils.isNotEmpty(reference)){
                 //获取佣金金额
@@ -176,8 +175,11 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
                         commission = Integer.parseInt(ruleArr[1]);
                     }
                     riderCustomerService.addCommission(reference, BigDecimal.valueOf(commission));
+                    //更新当前用户的推广金额
+                    riderCustomer.setSettleCommission(BigDecimal.valueOf(commission));
                 }
             }
+            riderCustomerService.updateById(riderCustomer);
         }
     }
 
