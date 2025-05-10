@@ -23,6 +23,7 @@ import org.jeecg.modules.rider.pay.service.WeChatPayService;
 import org.jeecg.modules.rider.pay.util.PriceUtils;
 import org.jeecg.modules.rider.pay.util.Result;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -45,6 +46,7 @@ public class WeChatPayServiceImpl implements WeChatPayService {
      * @throws Exception
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result preOrder(WechatPayDTO payDto) throws Exception{
         //1.参数校验
         if (!PriceUtils.checkZero(payDto.getTotalAmount())) {
@@ -185,6 +187,7 @@ public class WeChatPayServiceImpl implements WeChatPayService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result transfer(WechatTransferDTO transferDto) throws Exception {
         if (StringUtils.isEmpty(transferDto.getOutBillNo())) {
             throw new JeecgBootException("商户单号不能为空！");
@@ -248,6 +251,7 @@ public class WeChatPayServiceImpl implements WeChatPayService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result cannelTransfer(TransferCannelDTO cannelDTO) {
         Result result = new Result<>();
         // 调用微信支付关闭订单api

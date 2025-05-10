@@ -108,6 +108,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  * 通过推广人查询客户信息列表
 	  * @return
 	  */
+	 @ApiOperation(value="我的推广人查询列表", notes="我的推广人查询列表")
 	 @RequestMapping(value = "/listByReference", method = RequestMethod.GET)
 	 public Result<List<RiderCustomer>> listByReference(@RequestParam(name="customerId",required=false) String customerId) {
 		 Result<List<RiderCustomer>> result = new Result<List<RiderCustomer>>();
