@@ -176,7 +176,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
                     }
                     riderCustomerService.addCommission(reference, BigDecimal.valueOf(commission));
                     //更新当前用户的推广金额
-                    riderCustomer.setSettleCommission(BigDecimal.valueOf(commission));
+                    riderCustomer.setReferenceCommission(BigDecimal.valueOf(commission));
                 }
             }
             riderCustomerService.updateById(riderCustomer);
