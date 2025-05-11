@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.RedisUtil;
 import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.jeecg.modules.rider.order.mapper.RiderUserOrderMapper;
 import org.jeecg.modules.rider.order.service.IRiderUserOrderService;
@@ -17,6 +18,7 @@ import org.jeecg.modules.rider.pay.util.PriceUtils;
 import org.jeecg.modules.rider.pay.util.Result;
 import org.jeecg.modules.rider.pay.util.UUIDUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -36,6 +38,9 @@ public class RiderUserOrderServiceImpl extends ServiceImpl<RiderUserOrderMapper,
 
     @Resource
     private WxpayServiceConfig wxpayServiceConfig;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     public RiderUserOrder getByOutTradeNo(String outTradeNo) {
@@ -67,10 +72,17 @@ public class RiderUserOrderServiceImpl extends ServiceImpl<RiderUserOrderMapper,
         if (!PriceUtils.checkZero(dto.getTotalAmount())) {
             throw new JeecgBootException("订单金额必须大于0！");
         }
-        //订单状态
-        dto.setOrderState(OrderStateEnum.NOTPAY.getCode());
         //获取当前用户
         LoginUser user = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        // 构建防重复提交的key（用户ID+订单关键信息）
+        String lockKey = "order:submit:" + user.getId() + ":" + dto.getTotalAmount();
+        if (redisUtil.hasKey(lockKey)) {
+            throw new JeecgBootException("操作太频繁，请勿重复提交");
+        }
+        //尝试获取锁，5秒内不允许重复提交
+        redisUtil.set(lockKey, "1", 5L);
+        //订单状态
+        dto.setOrderState(OrderStateEnum.NOTPAY.getCode());
         //生成租户订单号
         Long maxOutTradeNo = this.getMaxOutTradeNo();
         String outTradeNo = UUIDUtils.getOutTradeNo(maxOutTradeNo);
