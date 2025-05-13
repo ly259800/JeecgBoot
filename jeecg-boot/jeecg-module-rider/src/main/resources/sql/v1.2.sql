@@ -1,3 +1,76 @@
+CREATE TABLE `ai_option` (
+                             `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                             `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                             `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                             `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                             `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                             `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                             `ques_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '问题ID',
+                             `ques_option` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '问题选项',
+                             `answer` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '答复',
+                             PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `ai_question` (
+                               `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                               `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                               `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                               `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                               `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                               `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                               `description` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '描述',
+                               `type` int DEFAULT NULL COMMENT '类型',
+                               `sort` int DEFAULT NULL COMMENT '顺序',
+                               PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `ai_user_answer` (
+                                  `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                  `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                                  `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                                  `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                                  `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                                  `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                                  `ques_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '问题ID',
+                                  `answer` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户答复',
+                                  `customer_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '客户ID',
+                                  `option_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户选项',
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `video_course` (
+                                `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                                `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                                `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                                `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                                `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                                `classification` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '分类',
+                                `name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '名称',
+                                `pay_type` int DEFAULT NULL COMMENT '付费类型',
+                                `price` decimal(10,2) DEFAULT NULL COMMENT '付费价格',
+                                `url` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '视频链接',
+                                `sort` int DEFAULT NULL COMMENT '排序',
+                                PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `video_matrix` (
+                                `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                                `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                                `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                                `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                                `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                                `video_url` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '我的视频',
+                                `content` text COLLATE utf8mb4_unicode_ci COMMENT '视频描述',
+                                `release_tiktok` int DEFAULT NULL COMMENT '发布抖音',
+                                `release_kwai` int DEFAULT NULL COMMENT '发布快手',
+                                `release_wechat` int DEFAULT NULL COMMENT '发布视频号',
+                                `release_rednote` int DEFAULT NULL COMMENT '发布小红书',
+                                PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 -- 注意：该页面对应的前台目录为views/matrix文件夹下
 -- 如果你想更改到其他目录，请修改sql中component字段对应的值
 
