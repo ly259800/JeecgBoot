@@ -220,10 +220,8 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 return Result.error("您当前不是合伙人，不能申请");
 		 }
 		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("entrance", 2));
-		 if(one != null){
-			 riderInterview.setId(one.getId());
-			 riderInterviewService.updateById(riderInterview);
-			 return Result.OK("登记信息修改成功！");
+		 if(one != null) {
+			 return Result.error("该手机号已存在申请记录，请联系客服！");
 		 }
 		 //小程序入口，2-合伙人
 		 riderInterview.setEntrance(InterviewEntranceEnum.PARTNER.getCode());
