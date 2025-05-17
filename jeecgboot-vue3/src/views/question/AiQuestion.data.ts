@@ -13,7 +13,7 @@ export const columns: BasicColumn[] = [
    {
     title: '类型',
     align:"center",
-    dataIndex: 'type'
+    dataIndex: 'quesType_dictText'
    },
    {
     title: '顺序',
@@ -33,8 +33,17 @@ export const formSchema: FormSchema[] = [
   },
   {
     label: '类型',
-    field: 'type',
-    component: 'InputNumber',
+    field: 'quesType',
+    component: 'JDictSelectTag',
+    componentProps:{
+        dictCode:"ques_type",
+      // 添加以下配置确保编辑时能正确显示选中项
+      placeholder: '请选择类型',
+      allowClear: true,
+      // 确保字典值与表单值匹配
+      valueField: 'value', // 根据实际字典数据结构调整
+      labelField: 'label'  // 根据实际字典数据结构调整
+     },
   },
   {
     label: '顺序',
@@ -53,7 +62,7 @@ export const formSchema: FormSchema[] = [
 // 高级查询数据
 export const superQuerySchema = {
   description: {title: '描述',order: 0,view: 'text', type: 'string',},
-  type: {title: '类型',order: 1,view: 'number', type: 'number',},
+  quesType: {title: '类型',order: 1,view: 'number', type: 'number',dictCode: 'ques_type',},
   sort: {title: '顺序',order: 2,view: 'number', type: 'number',},
 };
 

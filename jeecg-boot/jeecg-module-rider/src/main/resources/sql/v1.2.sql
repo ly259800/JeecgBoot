@@ -19,7 +19,7 @@ CREATE TABLE `ai_question` (
                                `update_time` datetime DEFAULT NULL COMMENT '更新日期',
                                `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
                                `description` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '描述',
-                               `type` int DEFAULT NULL COMMENT '类型',
+                               `ques_type` int DEFAULT NULL COMMENT '类型',
                                `sort` int DEFAULT NULL COMMENT '顺序',
                                PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

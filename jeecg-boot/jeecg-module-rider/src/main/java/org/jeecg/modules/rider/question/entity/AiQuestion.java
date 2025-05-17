@@ -23,7 +23,7 @@ import lombok.experimental.Accessors;
 /**
  * @Description: 问题
  * @Author: jeecg-boot
- * @Date:   2025-05-13
+ * @Date:   2025-05-17
  * @Version: V1.0
  */
 @Data
@@ -62,9 +62,10 @@ public class AiQuestion implements Serializable {
     @ApiModelProperty(value = "描述")
     private java.lang.String description;
 	/**类型*/
-	@Excel(name = "类型", width = 15)
+	@Excel(name = "类型", width = 15, dicCode = "ques_type")
+	@Dict(dicCode = "ques_type")
     @ApiModelProperty(value = "类型")
-    private java.lang.Integer type;
+    private java.lang.Integer quesType;
 	/**顺序*/
 	@Excel(name = "顺序", width = 15)
     @ApiModelProperty(value = "顺序")
