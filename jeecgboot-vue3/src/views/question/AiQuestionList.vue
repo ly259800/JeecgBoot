@@ -4,9 +4,9 @@
    <BasicTable @register="registerTable" :rowSelection="rowSelection">
      <!--插槽:table标题-->
       <template #tableTitle>
-          <a-button type="primary" v-auth="'question:ai_question:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button  type="primary" v-auth="'question:ai_question:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-          <j-upload-button type="primary" v-auth="'question:ai_question:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+          <a-button type="primary" v-auth="'question:ai_question:add'"  @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
+          <a-button  type="primary" v-auth="'question:ai_question:exportXls'"  preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+          <j-upload-button  type="primary" v-auth="'question:ai_question:importExcel'"  preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -39,19 +39,19 @@
 <script lang="ts" name="question-aiQuestion" setup>
   import {ref, reactive, computed, unref} from 'vue';
   import {BasicTable, useTable, TableAction} from '/@/components/Table';
-  import {useModal} from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage'
+  import {useModal} from '/@/components/Modal';
   import AiQuestionModal from './components/AiQuestionModal.vue'
   import {columns, searchFormSchema, superQuerySchema} from './AiQuestion.data';
   import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './AiQuestion.api';
-  import { downloadFile } from '/@/utils/common/renderUtils';
+  import {downloadFile} from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
   //注册model
   const [registerModal, {openModal}] = useModal();
-  //注册table数据
+   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
            title: '问题',
@@ -59,33 +59,33 @@
            columns,
            canResize:false,
            formConfig: {
-              //labelWidth: 120,
-              schemas: searchFormSchema,
-              autoSubmitOnEnter:true,
-              showAdvancedButton:true,
-              fieldMapToNumber: [
-              ],
-              fieldMapToTime: [
-              ],
+                //labelWidth: 120,
+                schemas: searchFormSchema,
+                autoSubmitOnEnter:true,
+                showAdvancedButton:true,
+                fieldMapToNumber: [
+                ],
+                fieldMapToTime: [
+                ],
             },
            actionColumn: {
                width: 120,
                fixed:'right'
-            },
-            beforeFetch: (params) => {
-              return Object.assign(params, queryParam);
-            },
-      },
-       exportConfig: {
+           },
+           beforeFetch: (params) => {
+             return Object.assign(params, queryParam);
+           },
+        },
+        exportConfig: {
             name:"问题",
             url: getExportUrl,
             params: queryParam,
-          },
-          importConfig: {
+        },
+        importConfig: {
             url: getImportUrl,
             success: handleSuccess
-          },
-  })
+        },
+    })
 
   const [registerTable, {reload},{ rowSelection, selectedRowKeys }] = tableContext
 
@@ -101,6 +101,7 @@
     });
     reload();
   }
+
    /**
     * 新增事件
     */
@@ -140,7 +141,7 @@
     * 批量删除事件
     */
   async function batchHandleDelete() {
-     await batchDelete({ids: selectedRowKeys.value}, handleSuccess);
+     await batchDelete({ids: selectedRowKeys.value},handleSuccess);
    }
    /**
     * 成功回调
@@ -160,26 +161,27 @@
          }
        ]
    }
-     /**
-        * 下拉操作栏
-        */
-  function getDropDownAction(record){
-       return [
-         {
-           label: '详情',
-           onClick: handleDetail.bind(null, record),
-         }, {
-           label: '删除',
-           popConfirm: {
-             title: '是否确认删除',
-             confirm: handleDelete.bind(null, record),
-             placement: 'topLeft',
-           },
-           auth: 'question:ai_question:delete'
-         }
-       ]
-   }
 
+
+  /**
+   * 下拉操作栏
+   */
+  function getDropDownAction(record){
+    return [
+      {
+        label: '详情',
+        onClick: handleDetail.bind(null, record),
+      }, {
+        label: '删除',
+        popConfirm: {
+          title: '是否确认删除',
+          confirm: handleDelete.bind(null, record),
+          placement: 'topLeft'
+        },
+        auth: 'question:ai_question:delete'
+      }
+    ]
+  }
 
 </script>
 

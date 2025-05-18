@@ -1,9 +1,6 @@
-package org.jeecg.modules.rider.option.entity;
+package org.jeecg.modules.rider.question.entity;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -14,23 +11,20 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.jeecgframework.poi.excel.annotation.Excel;
-import org.jeecg.common.aspect.annotation.Dict;
+import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @Description: 选项
  * @Author: jeecg-boot
- * @Date:   2025-05-13
+ * @Date:   2025-05-18
  * @Version: V1.0
  */
+@ApiModel(value="ai_option对象", description="选项")
 @Data
 @TableName("ai_option")
-@Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
-@ApiModel(value="ai_option对象", description="选项")
 public class AiOption implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -58,7 +52,6 @@ public class AiOption implements Serializable {
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
 	/**问题ID*/
-	@Excel(name = "问题ID", width = 15)
     @ApiModelProperty(value = "问题ID")
     private java.lang.String quesId;
 	/**问题选项*/

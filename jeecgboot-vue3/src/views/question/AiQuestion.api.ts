@@ -11,16 +11,23 @@ enum Api {
   deleteBatch = '/question/aiQuestion/deleteBatch',
   importExcel = '/question/aiQuestion/importExcel',
   exportXls = '/question/aiQuestion/exportXls',
+  aiOptionList = '/question/aiQuestion/queryAiOptionByMainId',
 }
 /**
  * 导出api
  * @param params
  */
 export const getExportUrl = Api.exportXls;
+
 /**
  * 导入api
  */
 export const getImportUrl = Api.importExcel;
+/**
+ * 查询子表数据
+ * @param params
+ */
+export const aiOptionList = Api.aiOptionList;
 /**
  * 列表接口
  * @param params

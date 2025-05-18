@@ -153,33 +153,6 @@ VALUES ('2025051311197580385', '2025051311197580380', '导出excel_用户答复'
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
 VALUES ('2025051311197580386', '2025051311197580380', '导入excel_用户答复', NULL, NULL, 0, NULL, NULL, 2, 'answer:ai_user_answer:importExcel', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-13 23:19:38', NULL, NULL, 0, 0, '1', 0);
 
--- 注意：该页面对应的前台目录为views/option文件夹下
--- 如果你想更改到其他目录，请修改sql中component字段对应的值
-
-
-INSERT INTO sys_permission(id, parent_id, name, url, component, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_route, is_leaf, keep_alive, hidden, hide_tab, description, status, del_flag, rule_flag, create_by, create_time, update_by, update_time, internal_or_external)
-VALUES ('2025051311192100560', NULL, '选项', '/option/aiOptionList', 'option/AiOptionList', NULL, NULL, 0, NULL, '1', 0.00, 0, NULL, 1, 0, 0, 0, 0, NULL, '1', 0, 0, 'admin', '2025-05-13 23:19:56', NULL, NULL, 0);
-
--- 权限控制sql
--- 新增
-INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025051311192100561', '2025051311192100560', '添加选项', NULL, NULL, 0, NULL, NULL, 2, 'option:ai_option:add', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-13 23:19:56', NULL, NULL, 0, 0, '1', 0);
--- 编辑
-INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025051311192100562', '2025051311192100560', '编辑选项', NULL, NULL, 0, NULL, NULL, 2, 'option:ai_option:edit', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-13 23:19:56', NULL, NULL, 0, 0, '1', 0);
--- 删除
-INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025051311192100563', '2025051311192100560', '删除选项', NULL, NULL, 0, NULL, NULL, 2, 'option:ai_option:delete', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-13 23:19:56', NULL, NULL, 0, 0, '1', 0);
--- 批量删除
-INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025051311192100564', '2025051311192100560', '批量删除选项', NULL, NULL, 0, NULL, NULL, 2, 'option:ai_option:deleteBatch', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-13 23:19:56', NULL, NULL, 0, 0, '1', 0);
--- 导出excel
-INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025051311192100565', '2025051311192100560', '导出excel_选项', NULL, NULL, 0, NULL, NULL, 2, 'option:ai_option:exportXls', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-13 23:19:56', NULL, NULL, 0, 0, '1', 0);
--- 导入excel
-INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025051311192100566', '2025051311192100560', '导入excel_选项', NULL, NULL, 0, NULL, NULL, 2, 'option:ai_option:importExcel', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-13 23:19:56', NULL, NULL, 0, 0, '1', 0);
-
 -- 注意：该页面对应的前台目录为views/question文件夹下
 -- 如果你想更改到其他目录，请修改sql中component字段对应的值
 
