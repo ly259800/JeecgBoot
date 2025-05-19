@@ -34,43 +34,57 @@ import lombok.experimental.Accessors;
 public class AiUserAnswer implements Serializable {
     private static final long serialVersionUID = 1L;
 
-	/**主键*/
-	@TableId(type = IdType.ASSIGN_ID)
+    /**主键*/
+    @TableId(type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "主键")
     private java.lang.String id;
-	/**创建人*/
+    /**创建人*/
     @ApiModelProperty(value = "创建人")
     private java.lang.String createBy;
-	/**创建日期*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    /**创建日期*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建日期")
     private java.util.Date createTime;
-	/**更新人*/
+    /**更新人*/
     @ApiModelProperty(value = "更新人")
     private java.lang.String updateBy;
-	/**更新日期*/
-	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    /**更新日期*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新日期")
     private java.util.Date updateTime;
-	/**所属部门*/
+    /**所属部门*/
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
-	/**问题ID*/
-	@Excel(name = "问题ID", width = 15)
+    /**问题ID*/
+    @Excel(name = "问题ID", width = 15)
     @ApiModelProperty(value = "问题ID")
     private java.lang.String quesId;
-	/**用户答复*/
-	@Excel(name = "用户答复", width = 15)
+
+    @Excel(name = "问题描述", width = 15)
+    @ApiModelProperty(value = "问题描述")
+    private java.lang.String quesDesc;
+
+    /**用户答复*/
+    @Excel(name = "用户答复", width = 15)
     @ApiModelProperty(value = "用户答复")
     private java.lang.String answer;
-	/**客户ID*/
-	@Excel(name = "客户ID", width = 15)
+    /**客户ID*/
+    @Excel(name = "客户ID", width = 15)
     @ApiModelProperty(value = "客户ID")
     private java.lang.String customerId;
-	/**用户选项*/
-	@Excel(name = "用户选项", width = 15)
+
+    @Excel(name = "客户手机号", width = 15)
+    @ApiModelProperty(value = "客户手机号")
+    private java.lang.String customerPhone;
+
+    /**用户选项*/
+    @Excel(name = "用户选项", width = 15)
     @ApiModelProperty(value = "用户选项")
     private java.lang.String optionId;
+
+    @Excel(name = "问题选项", width = 15)
+    @ApiModelProperty(value = "问题选项")
+    private java.lang.String optionDesc;
 }

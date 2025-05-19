@@ -1,18 +1,18 @@
 package org.jeecg.modules.rider.answer.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.answer.entity.AiUserAnswer;
 import org.jeecg.modules.rider.answer.service.IAiUserAnswerService;
@@ -22,6 +22,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.question.entity.AiOption;
+import org.jeecg.modules.rider.question.entity.AiQuestion;
+import org.jeecg.modules.rider.question.service.IAiOptionService;
+import org.jeecg.modules.rider.question.service.IAiQuestionService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -52,6 +58,15 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class AiUserAnswerController extends JeecgController<AiUserAnswer, IAiUserAnswerService> {
 	@Autowired
 	private IAiUserAnswerService aiUserAnswerService;
+
+	 @Autowired
+	 private IRiderCustomerService  riderCustomerService;
+
+	 @Autowired
+	 private IAiQuestionService aiQuestionService;
+
+	 @Autowired
+	 private IAiOptionService aiOptionService;
 	
 	/**
 	 * 分页列表查询
@@ -86,6 +101,31 @@ public class AiUserAnswerController extends JeecgController<AiUserAnswer, IAiUse
 	@RequiresPermissions("answer:ai_user_answer:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody AiUserAnswer aiUserAnswer) {
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		if (oConvertUtils.isEmpty(loginUser)) {
+			return Result.error("请登录系统！");
+		}
+		RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+		if (oConvertUtils.isEmpty(riderCustomer)) {
+			return Result.error("请注册用户！");
+		}
+		aiUserAnswer.setCustomerId(riderCustomer.getId());
+		aiUserAnswer.setCustomerPhone(riderCustomer.getPhone());
+		//获取当前问题
+		if(Objects.nonNull(aiUserAnswer.getQuesId())){
+			AiQuestion question = aiQuestionService.getById(aiUserAnswer.getQuesId());
+			if(Objects.nonNull(question)){
+				aiUserAnswer.setQuesDesc(question.getDescription());
+			}
+		}
+		//获取当前选项
+		if(Objects.nonNull(aiUserAnswer.getOptionId())){
+			AiOption option = aiOptionService.getById(aiUserAnswer.getOptionId());
+			if(Objects.nonNull(option)){
+				aiUserAnswer.setOptionDesc(option.getQuesOption());
+			}
+		}
 		aiUserAnswerService.save(aiUserAnswer);
 		return Result.OK("添加成功！");
 	}
