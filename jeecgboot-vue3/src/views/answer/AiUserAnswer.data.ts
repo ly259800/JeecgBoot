@@ -6,9 +6,9 @@ import { getWeekMonthQuarterYear } from '/@/utils';
 //列表数据
 export const columns: BasicColumn[] = [
    {
-    title: '问题ID',
+    title: '问题描述',
     align:"center",
-    dataIndex: 'quesId'
+    dataIndex: 'quesDesc'
    },
    {
     title: '用户答复',
@@ -16,14 +16,14 @@ export const columns: BasicColumn[] = [
     dataIndex: 'answer'
    },
    {
-    title: '客户ID',
+    title: '用户手机号',
     align:"center",
-    dataIndex: 'customerId'
+    dataIndex: 'customerPhone'
    },
    {
     title: '用户选项',
     align:"center",
-    dataIndex: 'optionId'
+    dataIndex: 'optionDesc'
    },
 ];
 //查询数据
@@ -62,10 +62,10 @@ export const formSchema: FormSchema[] = [
 
 // 高级查询数据
 export const superQuerySchema = {
-  quesId: {title: '问题ID',order: 0,view: 'text', type: 'string',},
+  quesDesc: {title: '问题描述',order: 0,view: 'text', type: 'string',},
   answer: {title: '用户答复',order: 1,view: 'text', type: 'string',},
-  customerId: {title: '客户ID',order: 2,view: 'text', type: 'string',},
-  optionId: {title: '用户选项',order: 3,view: 'text', type: 'string',},
+  customerPhone: {title: '用户手机号',order: 2,view: 'text', type: 'string',},
+  optionDesc: {title: '用户选项',order: 3,view: 'text', type: 'string',},
 };
 
 /**
