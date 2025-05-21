@@ -167,6 +167,10 @@ public class TokenUtils {
         } else {
             // 查询用户信息
             loginUser = commonApi.getUserByName(username);
+            //如果用户是空，清除缓存
+            if(loginUser == null){
+                redisUtil.del(loginUserKey);
+            }
         }
         return loginUser;
     }
