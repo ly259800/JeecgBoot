@@ -7,10 +7,15 @@ import {UploadTypeEnum} from "@/components/Form/src/jeecg/components/JUpload";
 //列表数据
 export const columns: BasicColumn[] = [
    {
-    title: '名称',
+    title: '创建时间',
     align:"center",
-    dataIndex: 'name'
+    dataIndex: 'createTime'
    },
+  {
+    title: '推广人手机号',
+    align:"center",
+    dataIndex: 'referencePhone'
+  },
    {
     title: '手机号',
     align:"center",
@@ -63,6 +68,12 @@ export const searchFormSchema: FormSchema[] = [
       component: 'Input',
       //colProps: {span: 6},
  	},
+  {
+    label: "推广人手机号",
+    field: 'referencePhone',
+    component: 'Input',
+    //colProps: {span: 6},
+  },
 	{
       label: "身份",
       field: 'identity',
@@ -121,6 +132,7 @@ export const superQuerySchema = {
   phone: {title: '手机号',order: 1,view: 'text', type: 'string',},
   avatar: {title: '头像',order: 2,view: 'text', type: 'string',},
   identity: {title: '身份',order: 3,view: 'number', type: 'number',dictCode: 'customer_identity',},
+  referencePhone: {title: '推广人手机号',order: 4,view: 'text', type: 'string',},
 };
 
 /**
