@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.rider.commission.entity.RiderCommission;
 import org.jeecg.modules.rider.commission.service.IRiderCommissionService;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
@@ -37,6 +39,9 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
     private IRiderSiteService riderSiteService;
 
     @Autowired
+    private IRiderCustomerService riderCustomerService;
+
+    @Autowired
     private IRiderCommissionService riderCommissionService;
 
     @Override
@@ -65,10 +70,14 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
         if(riderInterviews.stream().anyMatch(s-> Objects.equals(s.getSettleStatus() , 1))){
             throw new JeecgBootException("不能选择已结算的记录！");
         }
+        //获取站点信息
         List<String> siteIdList = riderInterviews.stream().map(x -> x.getSiteId()).collect(Collectors.toList());
-
         List<RiderSite> riderSiteList = riderSiteService.listByIds(siteIdList);
         Map<String,  RiderSite> riderSiteMap = riderSiteList.stream().collect(Collectors.toMap(RiderSite::getId, Function.identity(), (a, b) -> b));
+        //获取推广人信息
+        List<String> referenceList = riderInterviews.stream().map(x -> x.getReference()).collect(Collectors.toList());
+        List<RiderCustomer> riderCustomerList = riderCustomerService.listByIds(referenceList);
+        Map<String,  RiderCustomer> riderCustomerMap = riderCustomerList.stream().collect(Collectors.toMap(RiderCustomer::getId, Function.identity(), (a, b) -> b));
         //更新为已结算
         LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
                 .lambda()
@@ -86,7 +95,13 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
             riderCommission.setAuditStatus(0);
             if(riderSiteMap.containsKey(x.getSiteId())){
                 RiderSite riderSite = riderSiteMap.get(x.getSiteId());
-                riderCommission.setCommission(riderSite.getCommission() - riderSite.getProfit());
+                RiderCustomer riderCustomer = riderCustomerMap.get(x.getReference());
+                //若是渠道商，则获取单独的推广利润
+                if(Objects.nonNull(riderCustomer) && Objects.equals(riderCustomer.getSiteIdentity(), 1)){
+                    riderCommission.setCommission(riderSite.getCommission() * riderCustomer.getSiteProfit() / 100);
+                } else {
+                    riderCommission.setCommission(riderSite.getCommission() - riderSite.getProfit());
+                }
             }
             return riderCommission;
         }).collect(Collectors.toList());

@@ -67,6 +67,18 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
     }
 
     @Override
+    public void upgradeSite(String ids, Integer profit, Integer commission) {
+        LambdaUpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper<RiderCustomer>()
+                .lambda()
+                .in(RiderCustomer::getId, Arrays.asList(ids.split(",")))
+                .set(RiderCustomer::getSiteIdentity, 1)
+                .set(RiderCustomer::getSiteProfit, profit)
+                .set(RiderCustomer::getSiteReference, commission)
+                .set(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
+        this.update(updateWrapper);
+    }
+
+    @Override
     public void updateQrcode(String id) {
         LambdaUpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper<RiderCustomer>()
                 .lambda()

@@ -274,14 +274,37 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  * @param ids
 	  * @return
 	  */
-	 @AutoLog(value = "客户管理-修改推广人")
-	 @ApiOperation(value="客户管理-修改推广人", notes="客户管理-修改推广人")
-	 @PostMapping(value = "/update")
+	 @AutoLog(value = "客户管理-升级为合伙人")
+	 @ApiOperation(value="客户管理-升级为合伙人", notes="客户管理-升级为合伙人")
+	 @PostMapping(value = "/upgradePartner")
 	 public Result<String> upgradePartner(@RequestParam(name="ids",required=true) String ids) {
 		 if(StringUtils.isEmpty(ids)){
 			 return Result.error("请选择行数据!");
 		 }
 		 this.riderCustomerService.upgradePartner(ids);
+		 return Result.OK("批量更新成功!");
+	 }
+
+	 /**
+	  *  升级为渠道商
+	  *
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "客户管理-升级为渠道商")
+	 @ApiOperation(value="客户管理-升级为渠道商", notes="客户管理-升级为渠道商")
+	 @PostMapping(value = "/upgradeSite")
+	 public Result<String> upgradeSite(@RequestParam(name="ids",required=true) String ids,@RequestParam(name="profit",required=true) Integer profit,@RequestParam(name="commission",required=true) Integer commission) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 if(Objects.isNull(profit)){
+			 return Result.error("站点利润百分比不能为空!");
+		 }
+		 if(Objects.isNull(commission)){
+			 return Result.error("推广佣金不能为空!");
+		 }
+		 this.riderCustomerService.upgradeSite(ids, profit,commission);
 		 return Result.OK("批量更新成功!");
 	 }
 	

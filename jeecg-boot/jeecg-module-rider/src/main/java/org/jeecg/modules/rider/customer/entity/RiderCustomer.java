@@ -111,5 +111,14 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "推广佣金")
     private BigDecimal referenceCommission;
 
+    @ApiModelProperty(value = "是否渠道商(1-是 0-否)")
+    private Integer siteIdentity;
+
+    @ApiModelProperty(value = "站点利润")
+    private Integer siteProfit;
+
+    @ApiModelProperty(value = "推广金额")
+    private Integer siteReference;
+
 
 }

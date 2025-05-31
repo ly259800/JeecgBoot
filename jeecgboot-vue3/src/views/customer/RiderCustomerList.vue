@@ -6,6 +6,7 @@
       <template #tableTitle>
           <a-button type="primary" v-auth="'customer:rider_customer:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
         <a-button type="primary" v-auth="'customer:rider_customer:upgradePartner'" @click="upgradePartner" preIcon="ant-design:plus-outlined">升级为合伙人</a-button>
+        <a-button type="primary" v-auth="'customer:rider_customer:upgradeSite'" @click="upgradeSite" preIcon="ant-design:plus-outlined">升级为渠道商</a-button>
         <a-button  type="primary" v-auth="'customer:rider_customer:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
 <!--          <j-upload-button type="primary" v-auth="'customer:rider_customer:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
           <a-dropdown v-if="selectedRowKeys.length > 0">
@@ -34,6 +35,38 @@
     </BasicTable>
     <!-- 表单区域 -->
     <RiderCustomerModal @register="registerModal" @success="handleSuccess"></RiderCustomerModal>
+
+    <!-- 升级为渠道商弹框 -->
+    <a-modal
+      v-model:visible="showBatchProfitModal"
+      title="升级为渠道商"
+      @ok="handleBatchProfitSubmit"
+      @cancel="showBatchProfitModal = false"
+    >
+      <a-form layout="vertical">
+        <a-form-item label="利润百分比">
+          <a-input-number
+            v-model:value="batchProfitValue"
+            :min="0"
+            :max="100"
+            :precision="0"
+            style="width: 100%"
+            placeholder="请输入利润百分比"
+          />
+        </a-form-item>
+        <a-form-item label="推广佣金">
+          <a-input-number
+            v-model:value="batchCommissionValue"
+            :min="0"
+            :max="200"
+            :precision="0"
+            style="width: 100%"
+            placeholder="请输入推广佣金"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
   </div>
 </template>
 
@@ -50,12 +83,14 @@
     batchDelete,
     getImportUrl,
     getExportUrl,
-    upgradeIdentity
+    upgradeIdentity,
+    upgradeSiteIdentity
   } from './RiderCustomer.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   import {batchPass} from "@/views/interview/RiderInterview.api";
   import {useMessage} from "@/hooks/web/useMessage";
+  import {updateProfit} from "@/views/site/RiderSite.api";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -103,6 +138,13 @@
   const superQueryConfig = reactive(superQuerySchema);
 
   const { createMessage } = useMessage();
+
+  // 添加以下状态和函数
+  const showBatchProfitModal = ref(false);
+  const batchProfitValue = ref<number>(0);
+  const batchCommissionValue = ref<number>(0);
+
+
   /**
    * 高级查询事件
    */
@@ -160,6 +202,31 @@
       return;
     }
     await upgradeIdentity({ids: selectedRowKeys.value}, handleSuccess);
+  }
+
+  async function upgradeSite() {
+    if (selectedRowKeys.value.length === 0) {
+      createMessage.warning('请至少选择一条记录');
+      return;
+    }
+    batchProfitValue.value = 0;
+    batchCommissionValue.value = 0;
+    showBatchProfitModal.value = true;
+  }
+
+  // 批量升级为渠道商
+  async function handleBatchProfitSubmit() {
+    try {
+      await upgradeSiteIdentity({
+        ids: selectedRowKeys.value,
+        profit: batchProfitValue.value,
+        commission: batchCommissionValue.value
+      }, handleSuccess);
+      showBatchProfitModal.value = false;
+    } catch (error) {
+      console.error('升级为渠道商失败', error);
+      createMessage.error('升级为渠道商失败');
+    }
   }
 
    /**

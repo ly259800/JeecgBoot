@@ -145,7 +145,12 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 BeanUtils.copyProperties(x, interviewDTO);
 			 if(Objects.nonNull(x.getSiteId()) && riderSiteMap.containsKey(x.getSiteId())){
 				 RiderSite riderSite = riderSiteMap.get(x.getSiteId());
-				 interviewDTO.setSiteCommission(riderSite.getCommission() - riderSite.getProfit());
+				 //若是渠道商，则获取单独的推广利润
+				 if(Objects.equals(riderCustomer.getSiteIdentity(), 1)){
+					 interviewDTO.setSiteCommission(riderSite.getCommission() * riderCustomer.getSiteProfit() / 100);
+				 } else {
+					 interviewDTO.setSiteCommission(riderSite.getCommission() - riderSite.getProfit());
+				 }
 			 }
 			 return interviewDTO;
 		 }).collect(Collectors.toList());

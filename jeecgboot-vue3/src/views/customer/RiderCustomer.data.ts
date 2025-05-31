@@ -53,6 +53,24 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'settleCommission'
   },
+  {
+    title: '是否渠道商',
+    align:"center",
+    dataIndex: 'siteIdentity',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
+    title: '站点利润',
+    align:"center",
+    dataIndex: 'siteProfit'
+  },
+  {
+    title: '推广金额',
+    align:"center",
+    dataIndex: 'siteReference'
+  },
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [

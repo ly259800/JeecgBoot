@@ -12,6 +12,7 @@ enum Api {
   importExcel = '/customer/riderCustomer/importExcel',
   exportXls = '/customer/riderCustomer/exportXls',
   upgradePartner = '/customer/riderCustomer/upgradePartner',
+  upgradeSite = '/customer/riderCustomer/upgradeSite',
 }
 /**
  * 导出api
@@ -68,6 +69,25 @@ export const upgradeIdentity = (params, handleSuccess) => {
     cancelText: '取消',
     onOk: () => {
       return defHttp.post({url: Api.upgradePartner, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
+
+/**
+ * 升级为渠道商
+ * @param params
+ */
+export const upgradeSiteIdentity = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认升级',
+    content: '是否升级选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.upgradeSite, data: params}, {joinParamsToUrl: true}).then(() => {
         handleSuccess();
       });
     }

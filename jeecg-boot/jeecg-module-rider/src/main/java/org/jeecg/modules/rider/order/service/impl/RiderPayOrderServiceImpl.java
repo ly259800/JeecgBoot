@@ -156,23 +156,32 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
             riderCustomer.setId(riderUserOrder.getCustomerId());
             //4.若存在推广人,则新增推广人用户佣金
             if(StringUtils.isNotEmpty(reference)){
-                //获取佣金金额
-                RiderParams commission_rules = riderParamsService.getByCode("commission_rules");
-                if(Objects.nonNull(commission_rules) && Objects.nonNull(commission_rules.getParamValue())){
-                    //查看推广人已推广为合伙人的数量
-                    LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
-                    query.eq(RiderCustomer::getReference, reference)
-                            .eq(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
-                    Long count =riderCustomerService.getBaseMapper().selectCount(query);
-                    String[] rules = commission_rules.getParamValue().split(";");
+                //获取推广人信息
+                RiderCustomer byReference = riderCustomerService.getById(reference);
+                if(Objects.nonNull(byReference)){
                     int commission = 0;
-                    for (String rule : rules) {
-                        String[] ruleArr = rule.split(",");
-                        int cnt = Integer.parseInt(ruleArr[0]);
-                        if(cnt > count){
-                            break;
+                    //若是渠道商，则获取单独的推广金额
+                    if(Objects.equals(byReference.getSiteIdentity(), 1)){
+                        commission = Objects.nonNull( byReference.getSiteReference()) ? byReference.getSiteReference() : 0;
+                    } else {
+                        //获取佣金金额
+                        RiderParams commission_rules = riderParamsService.getByCode("commission_rules");
+                        if(Objects.nonNull(commission_rules) && Objects.nonNull(commission_rules.getParamValue())){
+                            //查看推广人已推广为合伙人的数量
+                            LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
+                            query.eq(RiderCustomer::getReference, reference)
+                                    .eq(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
+                            Long count =riderCustomerService.getBaseMapper().selectCount(query);
+                            String[] rules = commission_rules.getParamValue().split(";");
+                            for (String rule : rules) {
+                                String[] ruleArr = rule.split(",");
+                                int cnt = Integer.parseInt(ruleArr[0]);
+                                if(cnt > count){
+                                    break;
+                                }
+                                commission = Integer.parseInt(ruleArr[1]);
+                            }
                         }
-                        commission = Integer.parseInt(ruleArr[1]);
                     }
                     riderCustomerService.addCommission(reference, BigDecimal.valueOf(commission));
                     //更新当前用户的推广金额
