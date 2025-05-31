@@ -5,6 +5,7 @@ import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Description: 客户管理
@@ -18,6 +19,9 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
 
 
     RiderCustomer getByPhone(String phone);
+
+
+    List<RiderCustomer> getByReferencePhone(String referencePhone);
 
     void upgradePartner(String ids);
 

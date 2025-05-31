@@ -51,6 +51,13 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
     }
 
     @Override
+    public List<RiderCustomer> getByReferencePhone(String referencePhone) {
+        QueryWrapper<RiderCustomer> wrapper = new QueryWrapper<>();
+        wrapper.lambda().likeLeft(RiderCustomer::getPhone,referencePhone);
+        return baseMapper.selectList(wrapper);
+    }
+
+    @Override
     public void upgradePartner(String ids) {
         LambdaUpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper<RiderCustomer>()
                 .lambda()

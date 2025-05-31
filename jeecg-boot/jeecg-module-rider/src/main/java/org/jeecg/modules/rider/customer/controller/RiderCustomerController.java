@@ -221,15 +221,62 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	}
 
 	 /**
+	  *  更新推广人
+	  *
+	  * @param riderCustomer
+	  * @return
+	  */
+	 @AutoLog(value = "客户管理-更新推广人")
+	 @ApiOperation(value="客户管理-更新推广人", notes="客户管理-更新推广人")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/updateReference", method = {RequestMethod.POST})
+	 public Result<String> updateReference(@RequestBody RiderCustomer riderCustomer) {
+		 //	获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if (oConvertUtils.isEmpty(loginUser)) {
+			 return Result.error("请登录系统！");
+		 }
+		 RiderCustomer r = riderCustomerService.getByPhone(loginUser.getPhone());
+		 if (oConvertUtils.isEmpty(r)) {
+			 return Result.error("请注册用户！");
+		 }
+		 if (Objects.equals( CustomerIdentityEnum.PARTNER.getCode(),r.getIdentity())) {
+			 return Result.error("当前用户已经是合伙人，不能修改推广人！");
+		 }
+		 riderCustomer.setId(r.getId());
+		 if(StringUtils.isEmpty(riderCustomer.getReferencePhone())){
+			 throw new JeecgBootException("推广人手机号不能为空");
+		 }
+		 if(riderCustomer.getReferencePhone().length() < 4){
+			 throw new JeecgBootException("请输入推广人手机号后4位！");
+		 }
+		 List<RiderCustomer> list = riderCustomerService.getByReferencePhone(riderCustomer.getReferencePhone());
+		 if( CollectionUtils.isEmpty(list)){
+			 throw new JeecgBootException("推广人手机号后4位不存在");
+		 }
+		 if(list.size() > 1){
+			 throw new JeecgBootException("推广人手机号后4位存在多个，请输入全部的手机号");
+		 }
+		 RiderCustomer referenceCustomer = list.get(0);
+		 if (!Objects.equals( CustomerIdentityEnum.PARTNER.getCode(),referenceCustomer.getIdentity())) {
+			 return Result.error("该推广人手机号不是合伙人，不能修改！");
+		 }
+		 // 修改当前用户的推广人信息
+		 riderCustomer.setReference(referenceCustomer.getId());
+		 riderCustomer.setReferencePhone(referenceCustomer.getPhone());
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("更新成功!");
+	 }
+
+	 /**
 	  *  升级为合伙人
 	  *
 	  * @param ids
 	  * @return
 	  */
-	 @AutoLog(value = "客户管理-升级为合伙人")
-	 @ApiOperation(value="客户管理-升级为合伙人", notes="客户管理-升级为合伙人")
-	 @RequiresPermissions("customer:rider_customer:upgradePartner")
-	 @PostMapping(value = "/upgradePartner")
+	 @AutoLog(value = "客户管理-修改推广人")
+	 @ApiOperation(value="客户管理-修改推广人", notes="客户管理-修改推广人")
+	 @PostMapping(value = "/update")
 	 public Result<String> upgradePartner(@RequestParam(name="ids",required=true) String ids) {
 		 if(StringUtils.isEmpty(ids)){
 			 return Result.error("请选择行数据!");
