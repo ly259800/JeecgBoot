@@ -6,10 +6,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.site.dto.RiderSiteDTO;
 import org.jeecg.modules.rider.site.entity.RiderSite;
 import org.jeecg.modules.rider.site.service.IRiderSiteService;
@@ -42,7 +46,10 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteService> {
 	@Autowired
 	private IRiderSiteService riderSiteService;
-	
+
+	 @Autowired
+	 private IRiderCustomerService riderCustomerService;
+
 	/**
 	 * 分页列表查询
 	 *
@@ -59,7 +66,12 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 													 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 													 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 													 HttpServletRequest req) {
-
+		// 直接获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		if (oConvertUtils.isEmpty(loginUser)) {
+			return Result.error("请登录系统！");
+		}
+		RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
 		// 自定义查询规则
 		Map<String, QueryRuleEnum> siteRuleMap = new HashMap<>();
 		// 自定义多选的查询规则为：LIKE_WITH_OR
@@ -71,8 +83,12 @@ public class RiderSiteController extends JeecgController<RiderSite, IRiderSiteSe
 		IPage<RiderSiteDTO> siteDTOIPage = pageList.convert(x -> {
 			RiderSiteDTO siteDTO = new RiderSiteDTO();
 			BeanUtils.copyProperties(x, siteDTO);
-			//设置站长佣金
-			siteDTO.setSiteCommission(x.getCommission() - x.getProfit());
+			//若是渠道商，则获取单独的推广利润
+			if(Objects.nonNull(riderCustomer) && Objects.equals(riderCustomer.getSiteIdentity(), 1)){
+				siteDTO.setSiteCommission(x.getCommission() * riderCustomer.getSiteProfit() / 100);
+			} else {
+				siteDTO.setSiteCommission(x.getCommission() - x.getProfit());
+			}
 			return siteDTO;
 		});
 		return Result.OK(siteDTOIPage);
