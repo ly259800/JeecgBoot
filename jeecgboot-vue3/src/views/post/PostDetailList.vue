@@ -4,9 +4,7 @@
    <BasicTable @register="registerTable" :rowSelection="rowSelection">
      <!--插槽:table标题-->
       <template #tableTitle>
-          <a-button type="primary" v-auth="'post:family_post:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button  type="primary" v-auth="'post:family_post:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-          <j-upload-button type="primary" v-auth="'post:family_post:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+          <a-button type="primary" v-auth="'post:family_post_detail:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -16,7 +14,7 @@
                   </a-menu-item>
                 </a-menu>
               </template>
-              <a-button v-auth="'post:family_post:deleteBatch'">批量操作
+              <a-button v-auth="'post:family_post_detail:deleteBatch'">批量操作
                 <Icon icon="mdi:chevron-down"></Icon>
               </a-button>
         </a-dropdown>
@@ -29,40 +27,36 @@
       </template>
       <!--字段回显插槽-->
       <template v-slot:bodyCell="{ column, record, index, text }">
+        <template v-if="column.dataIndex==='postDetail'">
+          <!--富文本件字段回显插槽-->
+          <div v-html="text"></div>
+        </template>
       </template>
     </BasicTable>
     <!-- 表单区域 -->
-    <PostModal @register="registerModal" @success="handleSuccess"></PostModal>
-
-    <!-- 表单详情区域 -->
-    <PostDetailModal @register="registerDetailModal" @success="handleSuccess"></PostDetailModal>
+    <PostDetailModal @register="registerModal" @success="handleSuccess"></PostDetailModal>
   </div>
 </template>
 
-<script lang="ts" name="post-post" setup>
+<script lang="ts" name="post-postDetail" setup>
   import {ref, reactive, computed, unref} from 'vue';
   import {BasicTable, useTable, TableAction} from '/@/components/Table';
   import {useModal} from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage'
-  import PostModal from './components/PostModal.vue'
-  import {columns, searchFormSchema, superQuerySchema} from './Post.data';
-  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './Post.api';
+  import PostDetailModal from './components/PostDetailModal.vue'
+  import {columns, searchFormSchema, superQuerySchema} from './PostDetail.data';
+  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './PostDetail.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
-  import { loadCategoryData } from '/@/api/common/api'
-  import { getAuthCache, setAuthCache } from '/@/utils/auth';
-  import { DB_DICT_DATA_KEY } from '/@/enums/cacheEnum';
-  import PostDetailModal from "@/views/post/components/PostDetailModal.vue";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
   //注册model
   const [registerModal, {openModal}] = useModal();
-  const [registerDetailModal, { openModal: openDetailModal }] = useModal();
   //注册table数据
   const { prefixCls,tableContext,onExportXls,onImportXls } = useListPage({
       tableProps:{
-           title: '岗位管理',
+           title: '岗位详情',
            api: list,
            columns,
            canResize:false,
@@ -85,7 +79,7 @@
             },
       },
        exportConfig: {
-            name:"岗位管理",
+            name:"岗位详情",
             url: getExportUrl,
             params: queryParam,
           },
@@ -128,18 +122,6 @@
        showFooter: true,
      });
    }
-
-  /**
-   * 编辑详情事件
-   */
-  function handleDetailEdit(record: Recordable) {
-    openDetailModal(true, {
-      record,
-      isUpdate: true,
-      showFooter: true,
-    });
-  }
-
    /**
     * 详情
    */
@@ -176,13 +158,7 @@
          {
            label: '编辑',
            onClick: handleEdit.bind(null, record),
-           auth: 'post:family_post:edit'
-         },
-         {
-           label: '设置岗位详情',
-           onClick: handleDetailEdit.bind(null, record),
-           auth: 'post:family_post:edit'
-           //auth: 'post:family_post_detail:edit'
+           auth: 'post:family_post_detail:edit'
          }
        ]
    }
@@ -192,7 +168,7 @@
   function getDropDownAction(record){
        return [
          {
-           label: '查看详情',
+           label: '详情',
            onClick: handleDetail.bind(null, record),
          }, {
            label: '删除',
@@ -201,26 +177,12 @@
              confirm: handleDelete.bind(null, record),
              placement: 'topLeft',
            },
-           auth: 'post:family_post:delete'
+           auth: 'post:family_post_detail:delete'
          }
        ]
    }
 
 
-   /**
-    * 初始化字典配置
-   */
-    function initDictConfig(){
-       loadCategoryData({code:''}).then((res) => {
-         if (res) {
-             const allDictDate = userStore.getAllDictItems;
-             if(!allDictDate['']){
-               userStore.setAllDictItems({...allDictDate,'':res});
-             }
-         }
-       })
-   }
-   initDictConfig();
 </script>
 
 <style lang="less" scoped>
