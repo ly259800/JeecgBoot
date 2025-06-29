@@ -18,7 +18,16 @@ export const columns: BasicColumn[] = [
    {
     title: '付费类型',
     align:"center",
-    dataIndex: 'payType_dictText'
+    dataIndex: 'payType',
+     customRender: ({ text }) => {
+       if (text === 0) {
+         return '免费';
+       } else if (text === 1) {
+         return '付费';
+       } else {
+         return '';
+       }
+     },
    },
    {
     title: '付费价格',
@@ -96,6 +105,20 @@ export const formSchema: FormSchema[] = [
   {
     label: '付费类型',
     field: 'payType',
+    component: 'RadioGroup',
+    defaultValue: 1,
+    componentProps: ({ formModel }) => {
+      return {
+        options: [
+          { label: '免费', value: 0, key: '0' },
+          { label: '付费', value: 1, key: '1' },
+        ],
+      };
+    },
+  },
+  /*{
+    label: '付费类型',
+    field: 'payType',
     component: 'JDictSelectTag',
     componentProps:{
         dictCode:"pay_type"
@@ -105,7 +128,7 @@ export const formSchema: FormSchema[] = [
                  { required: true, message: '请输入付费类型!'},
           ];
      },
-  },
+  },*/
   {
     label: '付费价格',
     field: 'price',

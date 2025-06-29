@@ -1,9 +1,6 @@
 package org.jeecg.modules.rider.course.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,6 +15,7 @@ import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.course.entity.VideoCourse;
+import org.jeecg.modules.rider.course.entity.VideoUnlockRecord;
 import org.jeecg.modules.rider.course.service.IVideoCourseService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -25,7 +23,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.rider.course.service.IVideoUnlockRecordService;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.system.entity.SysCategory;
 import org.jeecg.modules.system.service.ISysCategoryService;
@@ -65,6 +65,9 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 
 	 @Autowired
 	 private IRiderCustomerService riderCustomerService;
+
+	 @Autowired
+	 private IVideoUnlockRecordService videoUnlockRecordService;
 	
 	/**
 	 * 分页列表查询
@@ -84,8 +87,6 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 								   HttpServletRequest req) {
         // 自定义查询规则
         Map<String, QueryRuleEnum> customeRuleMap = new HashMap<>();
-        // 自定义多选的查询规则为：LIKE_WITH_OR
-        customeRuleMap.put("payType", QueryRuleEnum.LIKE_WITH_OR);
         QueryWrapper<VideoCourse> queryWrapper = QueryGenerator.initQueryWrapper(videoCourse, req.getParameterMap(),customeRuleMap);
 		Page<VideoCourse> page = new Page<VideoCourse>(pageNo, pageSize);
 		IPage<VideoCourse> pageList = videoCourseService.page(page, queryWrapper);
@@ -126,6 +127,9 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 	@RequiresPermissions("course:video_course:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody VideoCourse videoCourse) {
+		if(videoCourse.getPayType() == 1 && videoCourse.getPrice() == null){
+			return Result.error("付费课程必须设置付费价格");
+		}
 		if(videoCourse.getClassification()!=null){
 			SysCategory category = sysCategoryService.getById(videoCourse.getClassification());
 			videoCourse.setClassificationName(category.getName());
@@ -145,6 +149,9 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 	@RequiresPermissions("course:video_course:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody VideoCourse videoCourse) {
+		if(videoCourse.getPayType() == 1 && videoCourse.getPrice() == null){
+			return Result.error("付费课程必须设置付费价格");
+		}
 		if(videoCourse.getClassification()!=null){
 			SysCategory category = sysCategoryService.getById(videoCourse.getClassification());
 			videoCourse.setClassificationName(category.getName());
@@ -214,21 +221,26 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 		 if (oConvertUtils.isEmpty(loginUser)) {
 			 return Result.error("请登录系统！");
 		 }
-		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
-
-
-
 		 VideoCourse videoCourse = videoCourseService.getById(id);
 		 if(videoCourse==null) {
 			 return Result.error("未找到对应数据");
 		 }
-		 //判断视频是否已经解锁
-
-
-
-
-
-		 return Result.OK(videoCourse);
+		 //免费
+		 if(videoCourse.getPayType() == 0) {
+			 return Result.OK(videoCourse);
+		 }
+		 //判断是否是合伙人
+		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+		if(Objects.equals(riderCustomer.getIdentity() , CustomerIdentityEnum.PARTNER.getCode())){
+			return Result.OK(videoCourse);
+		}
+		 //不是合伙人，则判断视频是否已经解锁
+		 VideoUnlockRecord videoUnlockRecord = videoUnlockRecordService.queryByUserIdAndCourseId(riderCustomer.getId(), id);
+		 if(Objects.nonNull(videoUnlockRecord)){
+			 return Result.OK(videoCourse);
+		 } else {
+			 return Result.error("请先解锁该课程");
+		 }
 	 }
 
     /**
