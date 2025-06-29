@@ -11,4 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IPostDetailService extends IService<PostDetail> {
 
+    PostDetail getByPostId(String postId);
+
 }

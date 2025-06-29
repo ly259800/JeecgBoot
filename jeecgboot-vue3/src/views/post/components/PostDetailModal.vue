@@ -29,10 +29,15 @@
         isUpdate.value = !!data?.isUpdate;
         isDetail.value = !!data?.showFooter;
         if (unref(isUpdate)) {
-            //表单赋值
-            await setFieldsValue({
-                ...data.record,
-            });
+          // 始终可以获取到 postId（即使 detailRecord 为空）
+          const { postId, record } = data;
+          if (record) {
+            // 有明细数据：直接填充表单
+            await setFieldsValue(record);
+          } else {
+            // 无明细数据：可以根据 postId 初始化表单
+            await setFieldsValue({ postId });
+          }
         }
         // 隐藏底部时禁用整个表单
        setProps({ disabled: !data?.showFooter })

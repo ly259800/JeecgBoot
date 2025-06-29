@@ -22,19 +22,15 @@ export const searchFormSchema: FormSchema[] = [
 //表单数据
 export const formSchema: FormSchema[] = [
   {
-    label: '岗位ID',
-    field: 'postId',
-    component: 'Input',
-    dynamicRules: ({model,schema}) => {
-          return [
-                 { required: true, message: '请输入岗位ID!'},
-          ];
-     },
-  },
-  {
     label: '岗位详情',
     field: 'postDetail',
     component: 'JEditor',
+  },
+  {
+    label: '岗位ID',
+    field: 'postId',
+    component: 'Input',
+    show: false
   },
 	// TODO 主键隐藏字段，目前写死为ID
 	{

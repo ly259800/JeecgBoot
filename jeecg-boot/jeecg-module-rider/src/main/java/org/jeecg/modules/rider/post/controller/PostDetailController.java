@@ -101,7 +101,13 @@ public class PostDetailController extends JeecgController<PostDetail, IPostDetai
 	@RequiresPermissions("post:family_post_detail:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody PostDetail postDetail) {
-		postDetailService.updateById(postDetail);
+		PostDetail oldPostDetail = postDetailService.getByPostId(postDetail.getPostId());
+		if(oldPostDetail != null){
+			oldPostDetail.setPostDetail(postDetail.getPostDetail());
+			postDetailService.updateById(oldPostDetail);
+		} else {
+			postDetailService.save(postDetail);
+		}
 		return Result.OK("编辑成功!");
 	}
 	
@@ -151,5 +157,18 @@ public class PostDetailController extends JeecgController<PostDetail, IPostDetai
 		}
 		return Result.OK(postDetail);
 	}
+
+	 /**
+	  * 通过postId查询
+	  *
+	  * @param postId
+	  * @return
+	  */
+	 @ApiOperation(value="岗位详情-通过postId查询", notes="岗位详情-通过postId查询")
+	 @GetMapping(value = "/queryByPostId")
+	 public Result<PostDetail> queryByPostId(@RequestParam(name="postId",required=true) String postId) {
+		 PostDetail postDetail = postDetailService.getByPostId(postId);
+		 return Result.OK(postDetail);
+	 }
 
 }

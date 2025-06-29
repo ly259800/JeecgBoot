@@ -53,6 +53,7 @@
   import { getAuthCache, setAuthCache } from '/@/utils/auth';
   import { DB_DICT_DATA_KEY } from '/@/enums/cacheEnum';
   import PostDetailModal from "@/views/post/components/PostDetailModal.vue";
+  import {defHttp} from "@/utils/http/axios";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -132,9 +133,14 @@
   /**
    * 编辑详情事件
    */
-  function handleDetailEdit(record: Recordable) {
+  async function handleDetailEdit(record: Recordable) {
+    const queryByPostIdUrl = '/post/postDetail/queryByPostId';
+    let params = {postId: record.id};
+    const detailRecord = await defHttp.get({url: queryByPostIdUrl, params});
+
     openDetailModal(true, {
-      record,
+      postId: record.id,// 始终传递 postId
+      record: detailRecord,
       isUpdate: true,
       showFooter: true,
     });
@@ -181,8 +187,7 @@
          {
            label: '设置岗位详情',
            onClick: handleDetailEdit.bind(null, record),
-           auth: 'post:family_post:edit'
-           //auth: 'post:family_post_detail:edit'
+           auth: 'post:family_post_detail:edit'
          }
        ]
    }

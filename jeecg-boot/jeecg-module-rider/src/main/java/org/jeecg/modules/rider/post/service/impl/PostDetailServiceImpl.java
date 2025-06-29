@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.post.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.modules.rider.post.entity.PostDetail;
 import org.jeecg.modules.rider.post.mapper.PostDetailMapper;
 import org.jeecg.modules.rider.post.service.IPostDetailService;
@@ -16,4 +17,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 @Service
 public class PostDetailServiceImpl extends ServiceImpl<PostDetailMapper, PostDetail> implements IPostDetailService {
 
+
+    @Override
+    public PostDetail getByPostId(String postId) {
+        QueryWrapper<PostDetail> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(PostDetail::getPostId,postId).last("limit 1");
+        return baseMapper.selectOne(wrapper);
+    }
 }
