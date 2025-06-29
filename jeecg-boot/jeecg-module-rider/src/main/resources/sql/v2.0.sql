@@ -53,3 +53,15 @@ CREATE TABLE `video_course` (
                                 `cover` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '封面',
                                 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `video_unlock_record` (
+                                       `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                       `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建人',
+                                       `create_time` datetime DEFAULT NULL COMMENT '创建日期',
+                                       `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新人',
+                                       `update_time` datetime DEFAULT NULL COMMENT '更新日期',
+                                       `sys_org_code` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '所属部门',
+                                       `video_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '视频ID',
+                                       `customer_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户ID',
+                                       PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
