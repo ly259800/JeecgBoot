@@ -6,7 +6,7 @@ import { getWeekMonthQuarterYear } from '/@/utils';
 //列表数据
 export const columns: BasicColumn[] = [
    {
-    title: '岗位类型',
+    title: '岗位类型名称',
     align:"center",
     dataIndex: 'categoryName'
    },
@@ -50,6 +50,14 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'benefit'
    },
+   {
+    title: '发布状态',
+    align:"center",
+    dataIndex: 'publishStatus',
+     customRender: ({ text }) => {
+       return render.renderDict(text, 'yn');
+     },
+   },
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [
@@ -57,7 +65,7 @@ export const searchFormSchema: FormSchema[] = [
 //表单数据
 export const formSchema: FormSchema[] = [
   {
-    label: '岗位类',
+    label: '岗位类型ID',
     field: 'categoryId',
     component: 'JCategorySelect',
     componentProps:{
@@ -65,7 +73,7 @@ export const formSchema: FormSchema[] = [
     },
     dynamicRules: ({model,schema}) => {
           return [
-                 { required: true, message: '请输入岗位类型!'},
+                 { required: true, message: '请输入岗位类型ID!'},
           ];
      },
   },
@@ -135,7 +143,7 @@ export const formSchema: FormSchema[] = [
 
 // 高级查询数据
 export const superQuerySchema = {
-  categoryCode: {title: '岗位类型编码',order: 0,view: 'cat_tree', type: 'string',pcode: '',},
+  categoryId: {title: '岗位类型ID',order: 0,view: 'cat_tree', type: 'string',pcode: '',},
   categoryName: {title: '岗位类型名称',order: 1,view: 'text', type: 'string',},
   tag: {title: '标签',order: 2,view: 'text', type: 'string',},
   salaryRange: {title: '薪资范围',order: 3,view: 'text', type: 'string',},
@@ -147,6 +155,7 @@ export const superQuerySchema = {
   commission: {title: '佣金',order: 9,view: 'number', type: 'number',},
   city: {title: '城市',order: 10,view: 'text', type: 'string',},
   benefit: {title: '福利',order: 11,view: 'text', type: 'string',},
+  publishStatus: {title: '发布状态',order: 12,view: 'number', type: 'number',},
 };
 
 /**

@@ -57,9 +57,9 @@ public class Post implements Serializable {
 	/**所属部门*/
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
-	/**岗位类型编码*/
-    @Excel(name = "岗位类型编码", width = 15, dictTable = "sys_category", dicText = "name", dicCode = "id")
-    @ApiModelProperty(value = "岗位类型编码")
+	/**岗位类型ID*/
+    @Excel(name = "岗位类型ID", width = 15, dictTable = "sys_category", dicText = "name", dicCode = "id")
+    @ApiModelProperty(value = "岗位类型ID")
     private java.lang.String categoryId;
 	/**岗位类型名称*/
 	@Excel(name = "岗位类型名称", width = 15)
@@ -105,4 +105,9 @@ public class Post implements Serializable {
 	@Excel(name = "福利", width = 15)
     @ApiModelProperty(value = "福利")
     private java.lang.String benefit;
+	/**发布状态*/
+	@Excel(name = "发布状态", width = 15)
+    @ApiModelProperty(value = "发布状态")
+    @Dict(dicCode = "publish_status")
+    private java.lang.Integer publishStatus;
 }
