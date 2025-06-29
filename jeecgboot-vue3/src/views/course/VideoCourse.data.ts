@@ -61,7 +61,7 @@ export const searchFormSchema: FormSchema[] = [
 	{
       label: "付费类型",
       field: 'payType',
-      component: 'JSelectMultiple',
+      component: 'JDictSelectTag',
       componentProps:{
           dictCode:"pay_type"
       },
