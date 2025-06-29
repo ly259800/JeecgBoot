@@ -51,6 +51,10 @@ VALUES ('2025062912013080176', '2025062912013070170', '导入excel_岗位管理'
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
 VALUES ('2025062912013080177', '2025062912013070170', '设置岗位详情', NULL, NULL, 0, NULL, NULL, 2, 'post:family_post_detail:edit', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-06-29 00:01:17', NULL, NULL, 0, 0, '1', 0);
 
+INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
+VALUES ('2025062912013080178', '2025062912013070170', '确认发布', NULL, NULL, 0, NULL, NULL, 2, 'post:family_post:publishBatch', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-06-29 00:01:17', NULL, NULL, 0, 0, '1', 0);
 
+INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
+VALUES ('2025062912013080179', '2025062912013070170', '确认下架', NULL, NULL, 0, NULL, NULL, 2, 'post:family_post:cancelBatch', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-06-29 00:01:17', NULL, NULL, 0, 0, '1', 0);
 
 

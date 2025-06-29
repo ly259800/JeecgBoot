@@ -110,4 +110,13 @@ public class Post implements Serializable {
     @ApiModelProperty(value = "发布状态")
     @Dict(dicCode = "yn")
     private java.lang.Integer publishStatus;
+    /**联系电话*/
+    @Excel(name = "联系电话", width = 15)
+    @ApiModelProperty(value = "联系电话")
+    private java.lang.String contactPhone;
+
+    /**联系人*/
+    @Excel(name = "联系人", width = 15)
+    @ApiModelProperty(value = "联系人")
+    private java.lang.String contacts;
 }

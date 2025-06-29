@@ -5,8 +5,11 @@
      <!--插槽:table标题-->
       <template #tableTitle>
           <a-button type="primary" v-auth="'post:family_post:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-          <a-button  type="primary" v-auth="'post:family_post:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-          <j-upload-button type="primary" v-auth="'post:family_post:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+        <a-button type="primary" v-auth="'post:family_post:publishBatch'" @click="handlePublishStatus" preIcon="ant-design:plus-outlined">确认发布</a-button>
+        <a-button type="primary" v-auth="'post:family_post:cancelBatch'" @click="handleCancelStatus" preIcon="ant-design:plus-outlined">确认下架</a-button>
+<!--          <a-button  type="primary" v-auth="'post:family_post:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+          <j-upload-button type="primary" v-auth="'post:family_post:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
+
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -46,7 +49,7 @@
   import { useListPage } from '/@/hooks/system/useListPage'
   import PostModal from './components/PostModal.vue'
   import {columns, searchFormSchema, superQuerySchema} from './Post.data';
-  import {list, deleteOne, batchDelete, getImportUrl,getExportUrl} from './Post.api';
+  import {list, deleteOne, batchDelete, getImportUrl, getExportUrl, batchPublish, batchCancel} from './Post.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   import { loadCategoryData } from '/@/api/common/api'
@@ -54,6 +57,8 @@
   import { DB_DICT_DATA_KEY } from '/@/enums/cacheEnum';
   import PostDetailModal from "@/views/post/components/PostDetailModal.vue";
   import {defHttp} from "@/utils/http/axios";
+  import {batchPass} from "@/views/interview/RiderInterview.api";
+  import {useMessage} from "@/hooks/web/useMessage";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -101,6 +106,8 @@
   // 高级查询配置
   const superQueryConfig = reactive(superQuerySchema);
 
+  const { createMessage } = useMessage();
+
   /**
    * 高级查询事件
    */
@@ -144,6 +151,22 @@
       isUpdate: true,
       showFooter: true,
     });
+  }
+
+  async function handlePublishStatus() {
+    if (selectedRowKeys.value.length === 0) {
+      createMessage.warning('请至少选择一条记录');
+      return;
+    }
+    await batchPublish({ids: selectedRowKeys.value}, handleSuccess);
+  }
+
+  async function handleCancelStatus() {
+    if (selectedRowKeys.value.length === 0) {
+      createMessage.warning('请至少选择一条记录');
+      return;
+    }
+    await batchCancel({ids: selectedRowKeys.value}, handleSuccess);
   }
 
    /**

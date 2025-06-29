@@ -30,6 +30,16 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'hourlyWage'
    },
+  {
+    title: '联系人',
+    align:"center",
+    dataIndex: 'contacts'
+  },
+  {
+    title: '联系电话',
+    align:"center",
+    dataIndex: 'contactPhone'
+  },
    {
     title: '详细地址',
     align:"center",
@@ -106,6 +116,16 @@ export const formSchema: FormSchema[] = [
     label: '时薪',
     field: 'hourlyWage',
     component: 'Input',
+  },
+  {
+    label: '联系人',
+    field: 'contacts',
+    component: 'Input',
+  },
+  {
+    label: '联系电话',
+    field: 'contactPhone',
+    component: 'InputNumber',
   },
   {
     label: '详细地址',

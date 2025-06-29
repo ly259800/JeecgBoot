@@ -11,4 +11,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IPostService extends IService<Post> {
 
+
+    void publishBatch(String ids,Integer status);
+
 }

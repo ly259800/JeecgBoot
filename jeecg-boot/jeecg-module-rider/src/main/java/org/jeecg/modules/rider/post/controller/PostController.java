@@ -10,10 +10,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.post.entity.Post;
 import org.jeecg.modules.rider.post.service.IPostService;
 
@@ -23,6 +26,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.modules.system.entity.SysCategory;
+import org.jeecg.modules.system.entity.SysThirdAccount;
 import org.jeecg.modules.system.service.ISysCategoryService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
@@ -80,6 +84,26 @@ public class PostController extends JeecgController<Post, IPostService> {
 		IPage<Post> pageList = postService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
+
+	 /**
+	  * 列表查询
+	  *
+	  * @param post
+	  * @param req
+	  * @return
+	  */
+	 @ApiOperation(value="岗位管理-小程序列表查询", notes="岗位管理-小程序列表查询")
+	 @GetMapping(value = "/listForApp")
+	 public Result<List<Post>> listForApp(Post post,
+											  HttpServletRequest req) {
+		 QueryWrapper<Post> queryWrapper = QueryGenerator.initQueryWrapper(post, req.getParameterMap());
+		 //只查询已发布的岗位
+		 queryWrapper.lambda().eq(Post::getPublishStatus, 1);
+		 queryWrapper.lambda().orderByDesc(Post::getCreateTime);
+		 List<Post> postList = postService.list(queryWrapper);
+		 return Result.OK(postList);
+	 }
+
 	
 	/**
 	 *   添加
@@ -148,6 +172,40 @@ public class PostController extends JeecgController<Post, IPostService> {
 		this.postService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.OK("批量删除成功!");
 	}
+
+	 /**
+	  *  批量发布
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "岗位管理-批量发布")
+	 @ApiOperation(value="岗位管理-批量发布", notes="岗位管理-批量发布")
+	 @RequiresPermissions("post:family_post:publishBatch")
+	 @PostMapping(value = "/publishBatch")
+	 public Result<String> publishBatch(@RequestParam(name="ids",required=true) String ids) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 this.postService.publishBatch(ids , 1);
+		 return Result.OK("批量发布成功!");
+	 }
+
+	 /**
+	  *  批量下架
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "岗位管理-批量下架")
+	 @ApiOperation(value="岗位管理-批量下架", notes="岗位管理-批量下架")
+	 @RequiresPermissions("post:family_post:cancelBatch")
+	 @PostMapping(value = "/cancelBatch")
+	 public Result<String> cancelBatch(@RequestParam(name="ids",required=true) String ids) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 this.postService.publishBatch(ids , 0);
+		 return Result.OK("批量下架成功!");
+	 }
 	
 	/**
 	 * 通过id查询

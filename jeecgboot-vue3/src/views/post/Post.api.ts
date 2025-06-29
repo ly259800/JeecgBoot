@@ -11,6 +11,8 @@ enum Api {
   deleteBatch = '/post/post/deleteBatch',
   importExcel = '/post/post/importExcel',
   exportXls = '/post/post/exportXls',
+  publishBatch = '/post/post/publishBatch',
+  cancelBatch = '/post/post/cancelBatch',
 }
 /**
  * 导出api
@@ -54,6 +56,45 @@ export const batchDelete = (params, handleSuccess) => {
     }
   });
 }
+
+/**
+ * 批量发布
+ * @param params
+ */
+export const batchPublish = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认发布',
+    content: '是否发布选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.publishBatch, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
+
+/**
+ * 批量下架
+ * @param params
+ */
+export const batchCancel = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认下架',
+    content: '是否下架选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.cancelBatch, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
+
 /**
  * 保存或者更新
  * @param params
