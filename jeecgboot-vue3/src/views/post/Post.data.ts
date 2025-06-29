@@ -6,15 +6,7 @@ import { getWeekMonthQuarterYear } from '/@/utils';
 //列表数据
 export const columns: BasicColumn[] = [
    {
-    title: '岗位类型编码',
-    align:"center",
-    dataIndex: 'categoryCode',
-    customRender:({text}) => {
-       return  render.renderCategoryTree(text,'')
-   },
-   },
-   {
-    title: '岗位类型名称',
+    title: '岗位类型',
     align:"center",
     dataIndex: 'categoryName'
    },
@@ -44,16 +36,6 @@ export const columns: BasicColumn[] = [
     dataIndex: 'address'
    },
    {
-    title: '经度',
-    align:"center",
-    dataIndex: 'longitude'
-   },
-   {
-    title: '纬度',
-    align:"center",
-    dataIndex: 'latitude'
-   },
-   {
     title: '佣金',
     align:"center",
     dataIndex: 'commission'
@@ -76,7 +58,7 @@ export const searchFormSchema: FormSchema[] = [
 export const formSchema: FormSchema[] = [
   {
     label: '岗位类',
-    field: 'categoryCode',
+    field: 'categoryId',
     component: 'JCategorySelect',
     componentProps:{
        pcode:"", //TODO back和事件未添加，暂时有问题
@@ -126,16 +108,6 @@ export const formSchema: FormSchema[] = [
                  { required: true, message: '请输入详细地址!'},
           ];
      },
-  },
-  {
-    label: '经度',
-    field: 'longitude',
-    component: 'Input',
-  },
-  {
-    label: '纬度',
-    field: 'latitude',
-    component: 'Input',
   },
   {
     label: '佣金',

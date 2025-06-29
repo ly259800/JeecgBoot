@@ -60,7 +60,7 @@ public class Post implements Serializable {
 	/**岗位类型编码*/
     @Excel(name = "岗位类型编码", width = 15, dictTable = "sys_category", dicText = "name", dicCode = "id")
     @ApiModelProperty(value = "岗位类型编码")
-    private java.lang.String categoryCode;
+    private java.lang.String categoryId;
 	/**岗位类型名称*/
 	@Excel(name = "岗位类型名称", width = 15)
     @ApiModelProperty(value = "岗位类型名称")

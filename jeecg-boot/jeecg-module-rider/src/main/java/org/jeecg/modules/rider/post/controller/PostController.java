@@ -22,6 +22,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.system.entity.SysCategory;
+import org.jeecg.modules.system.service.ISysCategoryService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -52,6 +54,10 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class PostController extends JeecgController<Post, IPostService> {
 	@Autowired
 	private IPostService postService;
+
+	@Autowired
+	private ISysCategoryService sysCategoryService;
+
 	
 	/**
 	 * 分页列表查询
@@ -86,6 +92,10 @@ public class PostController extends JeecgController<Post, IPostService> {
 	@RequiresPermissions("post:family_post:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody Post post) {
+		if(post.getCategoryId()!=null){
+			SysCategory category = sysCategoryService.getById(post.getCategoryId());
+			post.setCategoryName(category.getName());
+		}
 		postService.save(post);
 		return Result.OK("添加成功！");
 	}
@@ -101,6 +111,10 @@ public class PostController extends JeecgController<Post, IPostService> {
 	@RequiresPermissions("post:family_post:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody Post post) {
+		if(post.getCategoryId()!=null){
+			SysCategory category = sysCategoryService.getById(post.getCategoryId());
+			post.setCategoryName(category.getName());
+		}
 		postService.updateById(post);
 		return Result.OK("编辑成功!");
 	}

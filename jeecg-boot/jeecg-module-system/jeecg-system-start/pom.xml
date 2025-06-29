@@ -12,13 +12,14 @@
     <artifactId>jeecg-system-start</artifactId>
     
     <dependencies>
-        <!-- SYSTEM 系统管理模块 -->
+
+
+        <!-- 骑手模块 -->
         <dependency>
             <groupId>org.jeecgframework.boot</groupId>
-            <artifactId>jeecg-system-biz</artifactId>
+            <artifactId>jeecg-module-rider</artifactId>
             <version>${jeecgboot.version}</version>
         </dependency>
-
         
         <!-- flyway 数据库自动升级 -->
         <dependency>
