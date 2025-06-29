@@ -108,6 +108,6 @@ public class Post implements Serializable {
 	/**发布状态*/
 	@Excel(name = "发布状态", width = 15)
     @ApiModelProperty(value = "发布状态")
-    @Dict(dicCode = "publish_status")
+    @Dict(dicCode = "yn")
     private java.lang.Integer publishStatus;
 }
