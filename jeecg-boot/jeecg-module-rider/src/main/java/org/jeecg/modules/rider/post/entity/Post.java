@@ -110,6 +110,24 @@ public class Post implements Serializable {
     @ApiModelProperty(value = "发布状态")
     @Dict(dicCode = "yn")
     private java.lang.Integer publishStatus;
+
+    /**付费类型*/
+    @Excel(name = "付费类型", width = 15, dicCode = "pay_type")
+    @Dict(dicCode = "pay_type")
+    @ApiModelProperty(value = "付费类型")
+    private java.lang.Integer payType;
+
+    /**付费价格*/
+    @Excel(name = "付费价格", width = 15)
+    @ApiModelProperty(value = "付费价格")
+    private java.math.BigDecimal price;
+
+    /**是否培训*/
+    @Excel(name = "是否培训", width = 15)
+    @ApiModelProperty(value = "是否培训")
+    @Dict(dicCode = "yn")
+    private java.lang.Integer trainingStatus;
+
     /**联系电话*/
     @Excel(name = "联系电话", width = 15)
     @ApiModelProperty(value = "联系电话")

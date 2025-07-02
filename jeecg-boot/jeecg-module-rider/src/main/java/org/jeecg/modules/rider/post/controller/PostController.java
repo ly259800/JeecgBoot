@@ -116,6 +116,9 @@ public class PostController extends JeecgController<Post, IPostService> {
 	@RequiresPermissions("post:family_post:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody Post post) {
+		if(post.getPayType() == 1 && post.getPrice() == null){
+			return Result.error("付费岗位必须设置付费价格");
+		}
 		if(post.getCategoryId()!=null){
 			SysCategory category = sysCategoryService.getById(post.getCategoryId());
 			post.setCategoryName(category.getName());
@@ -135,6 +138,9 @@ public class PostController extends JeecgController<Post, IPostService> {
 	@RequiresPermissions("post:family_post:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody Post post) {
+		if(post.getPayType() == 1 && post.getPrice() == null){
+			return Result.error("付费岗位必须设置付费价格");
+		}
 		if(post.getCategoryId()!=null){
 			SysCategory category = sysCategoryService.getById(post.getCategoryId());
 			post.setCategoryName(category.getName());

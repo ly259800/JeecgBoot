@@ -60,6 +60,32 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'benefit'
    },
+  {
+    title: '付费类型',
+    align:"center",
+    dataIndex: 'payType',
+    customRender: ({ text }) => {
+      if (text === 0) {
+        return '免费';
+      } else if (text === 1) {
+        return '付费';
+      } else {
+        return '';
+      }
+    },
+  },
+  {
+    title: '付费价格',
+    align:"center",
+    dataIndex: 'price'
+  },{
+    title: '是否培训',
+    align:"center",
+    dataIndex: 'trainingStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
    {
     title: '发布状态',
     align:"center",
@@ -151,6 +177,44 @@ export const formSchema: FormSchema[] = [
     label: '福利',
     field: 'benefit',
     component: 'Input',
+  },
+  {
+    label: '付费类型',
+    field: 'payType',
+    component: 'RadioGroup',
+    defaultValue: 1,
+    componentProps: ({ formModel }) => {
+      return {
+        options: [
+          { label: '免费', value: 0, key: '0' },
+          { label: '付费', value: 1, key: '1' },
+        ],
+      };
+    },
+  },
+  {
+    label: '付费价格',
+    field: 'price',
+    component: 'InputNumber',
+    dynamicRules: ({model,schema}) => {
+      return [
+        { required: false},
+        { pattern: /^(([1-9][0-9]*)|([0]\.\d{0,2}|[1-9][0-9]*\.\d{0,2}))$/, message: '请输入正确的金额!'},
+      ];
+    },
+  },
+  {
+    field: 'trainingStatus',
+    label: '是否培训',
+    component: 'RadioButtonGroup',
+    defaultValue: '0',
+    componentProps: {
+      options: [
+        { label: '否', value: '0' },
+        { label: '是', value: '1' },
+      ],
+    },
+    required: true,
   },
 	// TODO 主键隐藏字段，目前写死为ID
 	{
