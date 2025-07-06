@@ -93,6 +93,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/city/riderCity/list", "anon"); //城市列表接口排除
         filterChainDefinitionMap.put("/qrcode/riderQrcode/queryByScene", "anon"); //获取二维码信息接口排除
         filterChainDefinitionMap.put("/params/riderParams/queryByCode", "anon"); //获取系统参数接口排除
+        filterChainDefinitionMap.put("/post/post/listForApp", "anon"); //获取视频接口排除
+        filterChainDefinitionMap.put("/course/videoCourse/listForApp", "anon"); //获取岗位接口排除
         filterChainDefinitionMap.put("/sys/logout", "anon"); //登出接口排除
         filterChainDefinitionMap.put("/wxpay/notify", "anon"); //支付回调接口排除
         filterChainDefinitionMap.put("/transfer/notify", "anon"); //转账回调接口排除
