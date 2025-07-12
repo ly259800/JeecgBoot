@@ -29,6 +29,14 @@
             <artifactId>wechatpay-apache-httpclient</artifactId>
             <version>0.6.0</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.fadada.api/fasc-openapi-java-sdk -->
+        <dependency>
+            <groupId>com.fadada.api</groupId>
+            <artifactId>fasc-openapi-java-sdk</artifactId>
+            <version>5.6.9.0703</version>
+        </dependency>
+
     </dependencies>
 
 </project>
