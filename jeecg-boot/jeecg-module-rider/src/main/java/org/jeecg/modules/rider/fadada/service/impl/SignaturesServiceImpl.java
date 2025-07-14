@@ -161,9 +161,9 @@ public class SignaturesServiceImpl implements SignaturesService {
             //（可选）您的业务应用系统中的业务场景信息，用于更好地定义业务场景和签署任务的关系。
             BusinessSceneInfo businessSceneInfo = new BusinessSceneInfo();
             //（可选）业务场景标识。长度最大32字节。指定该签署任务是某个特定业务场景的，参与各方可能对该业务场景有不同的控制逻辑和规则。
-            businessSceneInfo.setBusinessId(businessId);
+            //businessSceneInfo.setBusinessId(businessId);
             //（可选）业务参考号，由应用系统基于自身业务上下文提供。长度最大100个字符。该参数用于应用系统和签署任务建立关联关系，方便业务流程和数据的关联，例如可以是电商场景的订单号。
-            businessSceneInfo.setTransReferenceId(transReferenceId);
+            //businessSceneInfo.setTransReferenceId(transReferenceId);
             //有必要的设置BusinessScene值
             //createWithTemplateReq.setBusinessScene(null);
 
@@ -332,6 +332,69 @@ public class SignaturesServiceImpl implements SignaturesService {
         return addSignFieldInfo;
     }
 
+
+    @Override
+    public void fillField(String signTaskId) {
+        try {
+            // 初始化业务客户端
+            ServiceClient serviceClient = new ServiceClient(openApiClient);
+            // 获取accessToken
+            BaseRes<AccessTokenRes> accessTokenRes = serviceClient.getAccessToken();
+            String accessToken = accessTokenRes.getData().getAccessToken();
+            SignTaskClient signTaskClient = new SignTaskClient(openApiClient);
+            FillFieldValuesReq fillFieldValuesReq = new FillFieldValuesReq();
+            fillFieldValuesReq.setAccessToken(accessToken);
+            //签署任务id，通过创建签署任务接口返回
+            fillFieldValuesReq.setSignTaskId(signTaskId);
+            //填写类控件列表
+            fillFieldValuesReq.setDocFieldValues(getDocFieldValues());
+            BaseRes<Void> res = signTaskClient.fillFieldValues(fillFieldValuesReq);
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+        } catch (Exception e) {
+            log.error("填充属性值失败！",e);
+            throw new JeecgBootException("填充属性值失败！");
+        }
+    }
+
+
+    /**
+     * 填写签署任务控件内容--填写控件列表
+     */
+    private static List<DocFieldValueInfo> getDocFieldValues() {
+        List<DocFieldValueInfo> docFieldValues = new ArrayList<>();
+        //填写控件对象
+        DocFieldValueInfo field = new DocFieldValueInfo();
+        //文档序号。
+        field.setDocId("1");
+        //控件编码。仅支持填写类控件。
+        field.setFieldId("控件编码");
+        field.setFieldValue("填写的值");
+        docFieldValues.add(field);
+        return docFieldValues;
+    }
+
+
+
+    @Override
+    public void signTaskStart(String signTaskId) {
+        try {
+            // 初始化业务客户端
+            ServiceClient serviceClient = new ServiceClient(openApiClient);
+            // 获取accessToken
+            BaseRes<AccessTokenRes> accessTokenRes = serviceClient.getAccessToken();
+            String accessToken = accessTokenRes.getData().getAccessToken();
+            SignTaskClient signTaskClient = new SignTaskClient(openApiClient);
+            SignTaskBaseReq signTaskBaseReq = new SignTaskBaseReq();
+            signTaskBaseReq.setAccessToken(accessToken);
+            //签署任务id，通过创建签署任务接口返回
+            signTaskBaseReq.setSignTaskId(signTaskId);
+            BaseRes<Void> res = signTaskClient.start(signTaskBaseReq);
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+        } catch (Exception e) {
+            log.error("签署任务开始失败！",e);
+            throw new JeecgBootException("签署任务开始失败！");
+        }
+    }
 
 
 }

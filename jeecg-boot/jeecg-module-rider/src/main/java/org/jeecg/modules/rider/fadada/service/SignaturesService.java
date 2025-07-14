@@ -17,6 +17,9 @@ public interface SignaturesService {
     void createWithTemplate(String signTemplateId);
 
 
+    void fillField(String signTaskId);
+
+    void signTaskStart(String signTaskId);
 
 
 
