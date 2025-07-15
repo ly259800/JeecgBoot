@@ -1,6 +1,9 @@
 package org.jeecg.modules.rider.fadada.service;
 
 import com.fasc.open.api.v5_1.res.common.ECorpAuthUrlRes;
+import com.fasc.open.api.v5_1.res.signtask.OwnerDownloadUrlRes;
+import com.fasc.open.api.v5_1.res.signtask.SignTaskActorGetUrlRes;
+import com.fasc.open.api.v5_1.res.signtask.SignTaskDetailRes;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
 
 public interface SignaturesService {
@@ -21,6 +24,14 @@ public interface SignaturesService {
 
     void signTaskStart(String signTaskId);
 
+
+    SignTaskActorGetUrlRes getActorUrl(String signTaskId, String actorId);
+
+
+    SignTaskDetailRes getAppDetail(String signTaskId);
+
+
+    OwnerDownloadUrlRes getOwnerDownloadUrl(String signTaskId);
 
 
 
