@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.post.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -116,8 +117,11 @@ public class PostController extends JeecgController<Post, IPostService> {
 	@RequiresPermissions("post:family_post:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody Post post) {
-		if(post.getPayType() == 1 && post.getPrice() == null){
+		if(post.getPayType() == 1 && (post.getPrice() == null || post.getPrice().compareTo(BigDecimal.ZERO) <= 0)){
 			return Result.error("付费岗位必须设置付费价格");
+		}
+		if(post.getPayType() == 0){
+			post.setPrice(BigDecimal.ZERO);
 		}
 		if(post.getCategoryId()!=null){
 			SysCategory category = sysCategoryService.getById(post.getCategoryId());
@@ -138,8 +142,11 @@ public class PostController extends JeecgController<Post, IPostService> {
 	@RequiresPermissions("post:family_post:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody Post post) {
-		if(post.getPayType() == 1 && post.getPrice() == null){
+		if(post.getPayType() == 1 && (post.getPrice() == null || post.getPrice().compareTo(BigDecimal.ZERO) <= 0)){
 			return Result.error("付费岗位必须设置付费价格");
+		}
+		if(post.getPayType() == 0){
+			post.setPrice(BigDecimal.ZERO);
 		}
 		if(post.getCategoryId()!=null){
 			SysCategory category = sysCategoryService.getById(post.getCategoryId());

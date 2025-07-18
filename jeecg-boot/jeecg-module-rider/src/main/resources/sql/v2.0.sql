@@ -69,3 +69,9 @@ CREATE TABLE `video_unlock_record` (
 
 alter table rider_customer add column `open_user_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '法大大openid';
 alter table rider_customer add column `id_card` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '身份证号';
+
+alter table family_post add column  `pay_type` int DEFAULT NULL COMMENT '付费类型';
+alter table family_post add column `price` decimal(10,2) DEFAULT NULL COMMENT '付费价格';
+alter table family_post add column `training_status` int DEFAULT '0' COMMENT '是否培训';
+
+

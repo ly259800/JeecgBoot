@@ -35,6 +35,12 @@
             <groupId>com.fadada.api</groupId>
             <artifactId>fasc-openapi-java-sdk</artifactId>
             <version>5.6.9.0703</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

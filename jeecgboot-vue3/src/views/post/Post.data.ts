@@ -199,7 +199,7 @@ export const formSchema: FormSchema[] = [
     dynamicRules: ({model,schema}) => {
       return [
         { required: false},
-        { pattern: /^(([1-9][0-9]*)|([0]\.\d{0,2}|[1-9][0-9]*\.\d{0,2}))$/, message: '请输入正确的金额!'},
+        { pattern: /^(0|[1-9]\d*)$/, message: '请输入正确的金额!'},
       ];
     },
   },
