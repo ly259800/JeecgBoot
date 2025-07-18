@@ -120,5 +120,13 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "推广金额")
     private Integer siteReference;
 
+    /**法大大openid*/
+    @ApiModelProperty(value = "openUserId")
+    private java.lang.String openUserId;
+
+    /**身份证号*/
+    @ApiModelProperty(value = "身份证号")
+    private java.lang.String idCard;
+
 
 }

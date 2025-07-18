@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.interview.controller;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -13,11 +14,10 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.IdCardUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
-import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
-import org.jeecg.modules.rider.interview.enums.InterviewEntranceEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
@@ -28,8 +28,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
-import org.jeecg.modules.rider.site.entity.RiderSite;
-import org.jeecg.modules.rider.site.service.IRiderSiteService;
+import org.jeecg.modules.rider.post.entity.Post;
+import org.jeecg.modules.rider.post.service.IPostService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -58,7 +58,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 	 private IRiderCustomerService riderCustomerService;
 
 	 @Autowired
-	 private IRiderSiteService riderSiteService;
+	 private IPostService postService;
 	
 	/**
 	 * 分页列表查询
@@ -138,80 +138,72 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 }).collect(Collectors.toList());
 			 return Result.OK(dtoList);
 		 }
-		 List<RiderSite> riderSiteList = riderSiteService.listByIds(siteIdList);
-		 Map<String,  RiderSite> riderSiteMap = riderSiteList.stream().collect(Collectors.toMap(RiderSite::getId, Function.identity(), (a, b) -> b));
+		 List<Post> riderSiteList = postService.listByIds(siteIdList);
+		 Map<String,  Post> riderSiteMap = riderSiteList.stream().collect(Collectors.toMap(Post::getId, Function.identity(), (a, b) -> b));
 		 List<RiderInterviewDTO> dtoList = pageList.stream().map(x -> {
 			 RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
 			 BeanUtils.copyProperties(x, interviewDTO);
 			 if(Objects.nonNull(x.getSiteId()) && riderSiteMap.containsKey(x.getSiteId())){
-				 RiderSite riderSite = riderSiteMap.get(x.getSiteId());
-				 //若是渠道商，则获取单独的推广利润
-				 if(Objects.equals(riderCustomer.getSiteIdentity(), 1)){
-					 interviewDTO.setSiteCommission(riderSite.getCommission() * riderCustomer.getSiteProfit() / 100);
-				 } else {
-					 interviewDTO.setSiteCommission(riderSite.getCommission() - riderSite.getProfit());
-				 }
+				 Post riderSite = riderSiteMap.get(x.getSiteId());
+				 //佣金为价格的一半
+				 interviewDTO.setSiteCommission(riderSite.getPrice().divide(BigDecimal.valueOf(2)).intValue());
 			 }
 			 return interviewDTO;
 		 }).collect(Collectors.toList());
 		 return Result.OK(dtoList);
 	 }
 
-	
-	/**
-	 *   骑手报名
-	 */
-	@AutoLog(value = "骑手报名")
-	@ApiOperation(value="骑手报名", notes="骑手报名")
-	@RequiresPermissions("interview:rider_interview:add")
-	@PostMapping(value = "/add")
-	public Result<String> add(@RequestBody RiderInterview riderInterview) {
-		LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-		if(Objects.isNull(sysUser)){
-			throw new JeecgBootException("请先登录");
-		}
-		RiderCustomer riderCustomer = riderCustomerService.getByPhone(sysUser.getPhone());
-		if(riderCustomer == null){
-			return Result.error("用户未注册");
-		}
+	 /**
+	  * 面试管理-我的报名
+	  *
+	  * @param riderInterview
+	  * @param pageNo
+	  * @param pageSize
+	  * @param req
+	  * @return
+	  */
+	 @ApiOperation(value="面试管理-我的报名", notes="面试管理-我的报名")
+	 @GetMapping(value = "/listForCustomer")
+	 public Result<List<RiderInterviewDTO>> listForCustomer(RiderInterview riderInterview,
+														@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+														@RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+														HttpServletRequest req) {
+		 // 直接获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if (oConvertUtils.isEmpty(loginUser)) {
+			 return Result.error("请登录系统！");
+		 }
+		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+		 if (oConvertUtils.isEmpty(riderCustomer)) {
+			 return Result.error("请注册用户！");
+		 }
+		 // 自定义查询规则
+		 QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.lambda().eq(RiderInterview::getPhone,riderCustomer.getPhone());
+		 queryWrapper.lambda().orderByDesc(RiderInterview::getCreateTime);
+		 List<RiderInterview> pageList = riderInterviewService.list(queryWrapper);
+		 if(CollectionUtils.isEmpty(pageList)){
+			 return Result.OK(new ArrayList<>());
+		 }
+		 List<RiderInterviewDTO> dtoList = pageList.stream().map(x -> {
+			 RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
+			 BeanUtils.copyProperties(x, interviewDTO);
+			 return interviewDTO;
+		 }).collect(Collectors.toList());
+		 return Result.OK(dtoList);
+	 }
 
-		RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("entrance", 1));
-		if(one != null){
-			return Result.error("该手机号已报名");
-		}
-		//小程序入口，1-骑手
-		riderInterview.setEntrance(InterviewEntranceEnum.RIDER.getCode());
-		riderInterview.setSource("骑手报名");
-		//若未传推广码
-		if(StringUtils.isNotEmpty(riderInterview.getReference())){
-			RiderCustomer byId = riderCustomerService.getById(riderInterview.getReference());
-			if(Objects.nonNull(byId)){
-				riderInterview.setReferencePhone(byId.getPhone());
-			}
-		} else {
-			//则取当前用户的推广码
-			riderInterview.setReference(riderCustomer.getReference());
-			riderInterview.setReferencePhone(riderCustomer.getReferencePhone());
-		}
-		riderInterviewService.save(riderInterview);
-		//若用户身份为游客，则更新为骑手
-		if(Objects.nonNull(riderCustomer.getIdentity()) && Objects.equals(riderCustomer.getIdentity(),CustomerIdentityEnum.TOURIST.getCode())){
-			riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
-			riderCustomerService.updateById(riderCustomer);
-		}
-		return Result.OK("报名成功！");
-	}
 
 	 /**
-	  *   站点申请
+	  *   岗位报名申请
 	  */
-	 @AutoLog(value = "站点申请")
-	 @ApiOperation(value="站点申请", notes="站点申请")
+	 @AutoLog(value = "岗位报名申请")
+	 @ApiOperation(value="岗位报名申请", notes="岗位报名申请")
 	 @RequiresPermissions("interview:rider_interview:add")
-	 @PostMapping(value = "/siteAdd")
-	 public Result<String> siteAdd(@RequestBody RiderInterview riderInterview) {
-		 if(StringUtils.isEmpty(riderInterview.getSiteId()) || StringUtils.isEmpty(riderInterview.getSiteName())){
-			 return Result.error("站点不能为空");
+	 @PostMapping(value = "/postAdd")
+	 public Result<String> postAdd(@RequestBody RiderInterview riderInterview) {
+		 if(StringUtils.isEmpty(riderInterview.getSiteId())){
+			 return Result.error("岗位不能为空");
 		 }
 		 LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 		 if(Objects.isNull(sysUser)){
@@ -221,21 +213,29 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 if(riderCustomer == null){
 			 return Result.error("用户未注册");
 		 }
-		 if(riderCustomer.getIdentity() != CustomerIdentityEnum.PARTNER.getCode() ){
-			 return Result.error("您当前不是合伙人，不能申请");
+		 if(StringUtils.isEmpty(riderCustomer.getIdCard())){
+			 Result result = new Result();
+			 result.setCode(10080);
+			 result.setMessage("用户未实名,请先实名认证!");
+			 return result;
 		 }
-		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("entrance", 2));
+		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("site_id", riderInterview.getSiteId()));
 		 if(one != null) {
-			 return Result.error("该手机号已存在申请记录，请联系客服！");
+			 return Result.error("您已经报名过该岗位，不能重复报名！");
 		 }
-		 //小程序入口，2-合伙人
-		 riderInterview.setEntrance(InterviewEntranceEnum.PARTNER.getCode());
-		 riderInterview.setSource("站点申请");
-		 riderInterview.setReference(riderCustomer.getId());
-		 riderInterview.setReferencePhone(riderCustomer.getPhone());
+		 riderInterview.setName(riderCustomer.getName());
+		 riderInterview.setPhone(riderCustomer.getPhone());
+		 riderInterview.setSex(IdCardUtils.getGenderFromIdCard(riderCustomer.getIdCard()));
+		 riderInterview.setAge(IdCardUtils.getAgeFromIdCard(riderCustomer.getIdCard()));
+		 riderInterview.setSource("报名申请");
+		 riderInterview.setReference(riderCustomer.getReference());
+		 riderInterview.setReferencePhone(riderCustomer.getReferencePhone());
 		 riderInterviewService.save(riderInterview);
-		 return Result.OK("登记成功！");
+		 return Result.OK("报名成功！");
 	 }
+
+
+
 	
 	/**
 	 *  编辑

@@ -100,15 +100,14 @@ public class RiderInterview implements Serializable {
 	@Excel(name = "是否需要购买社保", width = 15)
     @ApiModelProperty(value = "是否需要购买社保")
     private java.lang.Integer socialSecurity;
-	/**报道站点*/
-	@Excel(name = "报道站点", width = 15)
-    @ApiModelProperty(value = "报道站点")
+	/**岗位名称*/
+	@Excel(name = "岗位名称", width = 15)
+    @ApiModelProperty(value = "岗位名称")
     private java.lang.String siteName;
 
-    @Excel(name = "站点ID", width = 15)
-    @ApiModelProperty(value = "站点ID")
+    @Excel(name = "岗位ID", width = 15)
+    @ApiModelProperty(value = "岗位ID")
     private java.lang.String siteId;
-
 
 	/**期望区域地址*/
     @Excel(name = "期望区域地址", width = 15,exportConvert=true,importConvert = true )

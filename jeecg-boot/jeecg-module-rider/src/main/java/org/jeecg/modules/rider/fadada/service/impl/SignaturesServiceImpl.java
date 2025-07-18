@@ -10,6 +10,8 @@ import com.fasc.open.api.enums.common.IdTypeEnum;
 import com.fasc.open.api.enums.common.NotifyWayEnum;
 import com.fasc.open.api.enums.corp.CorpAuthScopeEnum;
 import com.fasc.open.api.enums.doc.FileTypeEnum;
+import com.fasc.open.api.enums.user.UserAuthScopeEnum;
+import com.fasc.open.api.enums.user.UserIdentMethodEnum;
 import com.fasc.open.api.exception.ApiException;
 import com.fasc.open.api.utils.ResultUtil;
 import com.fasc.open.api.v5_1.client.*;
@@ -18,15 +20,21 @@ import com.fasc.open.api.v5_1.req.corp.GetCorpAuthResourceUrlReq;
 import com.fasc.open.api.v5_1.req.corp.OprIdentInfoReq;
 import com.fasc.open.api.v5_1.req.signtask.*;
 import com.fasc.open.api.v5_1.req.template.SignTemplateDetailReq;
+import com.fasc.open.api.v5_1.req.user.GetUserAuthUrlReq;
+import com.fasc.open.api.v5_1.req.user.GetUserIdentityInfoReq;
+import com.fasc.open.api.v5_1.req.user.UserIdentInfoReq;
 import com.fasc.open.api.v5_1.res.common.ECorpAuthUrlRes;
+import com.fasc.open.api.v5_1.res.common.EUrlRes;
 import com.fasc.open.api.v5_1.res.service.AccessTokenRes;
 import com.fasc.open.api.v5_1.res.signtask.CreateSignTaskRes;
 import com.fasc.open.api.v5_1.res.signtask.OwnerDownloadUrlRes;
 import com.fasc.open.api.v5_1.res.signtask.SignTaskActorGetUrlRes;
 import com.fasc.open.api.v5_1.res.signtask.SignTaskDetailRes;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
+import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.exception.JeecgBootException;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +54,9 @@ public class SignaturesServiceImpl implements SignaturesService {
 
     @Value("${fadada.openUserId}")
     private String openUserId;
+
+    @Value("${fadada.redirectUrl}")
+    private String redirectUrl;
 
     @Autowired
     private OpenApiClient openApiClient;
@@ -501,6 +512,86 @@ public class SignaturesServiceImpl implements SignaturesService {
         } catch (Exception e) {
             log.error("获取签署文档下载地址失败！",e);
             throw new JeecgBootException("获取签署文档下载地址失败！");
+        }
+    }
+
+    @Override
+    public EUrlRes getUserAuthUrl(RiderCustomer riderCustomer) {
+        try {
+            // 初始化业务客户端
+            ServiceClient serviceClient = new ServiceClient(openApiClient);
+            // 获取accessToken
+            BaseRes<AccessTokenRes> accessTokenRes = serviceClient.getAccessToken();
+            String accessToken = accessTokenRes.getData().getAccessToken();
+            UserClient userClient = new UserClient(openApiClient);
+
+            GetUserAuthUrlReq req = new GetUserAuthUrlReq();
+            //人用户的法大大帐号，仅限手机号或邮箱
+            req.setAccountName("");
+            UserIdentInfoReq userIdentInfoReq = new UserIdentInfoReq();
+            //个人用户真实姓名
+            userIdentInfoReq.setUserName("");
+            //证件类型 参考枚举类型 UserIdentTypeEnum
+            userIdentInfoReq.setUserIdentType("");
+            //证件号
+            userIdentInfoReq.setUserIdentNo("");
+            //个人手机号
+            userIdentInfoReq.setMobile(riderCustomer.getPhone());
+            //个人银行账户号
+            userIdentInfoReq.setBankAccountNo("");
+            //用户实名认证方式 参考枚举类型 UserIdentMethodEnum,暂不支持人工审核方式
+            userIdentInfoReq.setIdentMethod(Arrays.asList(new String[]{
+                    UserIdentMethodEnum.FACE.getCode(),
+                    UserIdentMethodEnum.BANK.getCode(),
+                    UserIdentMethodEnum.MOBILE.getCode()
+            }));
+
+            req.setUserIdentInfo(userIdentInfoReq);
+            //页面中不可编辑的个人信息，不传默认都可编辑
+            req.setNonEditableInfo(null);
+            //个人用户在应用中的唯一标识
+            req.setClientUserId(riderCustomer.getId());
+            //业务请求的个人授权范围列表
+            req.setAuthScopes(Arrays.asList(new String[]{
+                    UserAuthScopeEnum.IDENT_INFO.getCode(),
+                    UserAuthScopeEnum.SIGN_TASK_INFO.getCode(),
+                    UserAuthScopeEnum.SIGN_TASK_INIT.getCode(),
+                    UserAuthScopeEnum.SIGN_TASK_FILE.getCode(),
+                    UserAuthScopeEnum.SEAL_INFO.getCode()
+            }));
+            //重定向地址
+            req.setRedirectUrl(redirectUrl+"/signatures/callback/userauth");
+            req.setAccessToken(accessToken);
+
+            BaseRes<EUrlRes> res = userClient.getUserAuthUrl(req);
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+            return res.getData();
+        } catch (Exception e) {
+            log.error("获取个人授权链接失败！",e);
+            throw new JeecgBootException("获取个人授权链接失败！");
+        }
+    }
+
+    @Override
+    public UserIdentityInfoRes getIdentityInfo(String openUserId) {
+        try {
+            // 初始化业务客户端
+            ServiceClient serviceClient = new ServiceClient(openApiClient);
+            // 获取accessToken
+            BaseRes<AccessTokenRes> accessTokenRes = serviceClient.getAccessToken();
+            String accessToken = accessTokenRes.getData().getAccessToken();
+            UserClient userClient = new UserClient(openApiClient);
+
+            GetUserIdentityInfoReq getUserIdentityInfoReq = new GetUserIdentityInfoReq();
+            getUserIdentityInfoReq.setAccessToken(accessToken);
+            //法大大平台为该用户在该应用appId范围内分配的唯一标识。
+            getUserIdentityInfoReq.setOpenUserId(openUserId);
+            BaseRes<UserIdentityInfoRes> res = userClient.getIdentityInfo(getUserIdentityInfoReq);
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+            return res.getData();
+        } catch (Exception e) {
+            log.error("获取个人认证身份信息失败！",e);
+            throw new JeecgBootException("获取个人认证身份信息失败！");
         }
     }
 }

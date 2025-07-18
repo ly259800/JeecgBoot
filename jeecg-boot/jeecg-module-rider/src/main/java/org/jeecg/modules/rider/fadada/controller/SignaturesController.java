@@ -1,6 +1,6 @@
 package org.jeecg.modules.rider.fadada.controller;
 
-import com.fasc.open.api.v5_1.res.common.ECorpAuthUrlRes;
+import com.fasc.open.api.v5_1.res.common.EUrlRes;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -11,19 +11,14 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
 * @Description: 电子签管理
@@ -40,26 +35,39 @@ public class SignaturesController{
     @Autowired
     private SignaturesService signaturesService;
 
+    @Autowired
+    private IRiderCustomerService riderCustomerService;
+
     /**
-    * 获取企业授权链接
+    * 获取个人授权链接
     * @return
     */
-   @ApiOperation(value="电子签管理-获取企业授权链接", notes="电子签管理-获取企业授权链接")
+   @ApiOperation(value="电子签管理-获取个人授权链接", notes="电子签管理-获取个人授权链接")
    @GetMapping(value = "/getCorpAuthUrl")
-   public Result<ECorpAuthUrlRes> getCorpAuthUrl() {
-       return Result.ok(signaturesService.getCorpAuthUrl());
-
+   public Result<EUrlRes> getCorpAuthUrl() {
+       //	获取当前用户
+       LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+       if (oConvertUtils.isEmpty(loginUser)) {
+           return Result.error("请登录系统！");
+       }
+       RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+       if (oConvertUtils.isEmpty(riderCustomer)) {
+           return Result.error("请注册用户！");
+       }
+       if(StringUtils.isNotEmpty(riderCustomer.getIdCard())){
+           return Result.error("用户已经实名成功！");
+       }
+       return Result.ok(signaturesService.getUserAuthUrl(riderCustomer));
    }
 
 
     /**
-     *   站点申请
+     *   创建签署任务
      */
-    @AutoLog(value = "站点申请")
-    @ApiOperation(value="站点申请", notes="站点申请")
-    @RequiresPermissions("interview:rider_interview:add")
-    @PostMapping(value = "/siteAdd")
-    public Result<String> siteAdd(@RequestBody RiderInterview riderInterview) {
+    @AutoLog(value = "创建签署任务")
+    @ApiOperation(value="创建签署任务", notes="创建签署任务")
+    @PostMapping(value = "/createSginTask")
+    public Result<String> createSginTask(@RequestBody RiderInterview riderInterview) {
         if(StringUtils.isEmpty(riderInterview.getSiteId()) || StringUtils.isEmpty(riderInterview.getSiteName())){
             return Result.error("站点不能为空");
         }

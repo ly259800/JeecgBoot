@@ -1,10 +1,13 @@
 package org.jeecg.modules.rider.fadada.service;
 
 import com.fasc.open.api.v5_1.res.common.ECorpAuthUrlRes;
+import com.fasc.open.api.v5_1.res.common.EUrlRes;
 import com.fasc.open.api.v5_1.res.signtask.OwnerDownloadUrlRes;
 import com.fasc.open.api.v5_1.res.signtask.SignTaskActorGetUrlRes;
 import com.fasc.open.api.v5_1.res.signtask.SignTaskDetailRes;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
+import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 
 public interface SignaturesService {
 
@@ -33,7 +36,10 @@ public interface SignaturesService {
 
     OwnerDownloadUrlRes getOwnerDownloadUrl(String signTaskId);
 
+    EUrlRes getUserAuthUrl(RiderCustomer riderCustomer);
 
+    //获取用户实名信息
+    UserIdentityInfoRes getIdentityInfo(String openUserId);
 
 
 }
