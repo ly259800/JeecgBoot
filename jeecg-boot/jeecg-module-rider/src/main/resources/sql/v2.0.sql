@@ -65,3 +65,7 @@ CREATE TABLE `video_unlock_record` (
                                        `customer_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户ID',
                                        PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+alter table rider_customer add column `open_user_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '法大大openid';
+alter table rider_customer add column `id_card` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '身份证号';

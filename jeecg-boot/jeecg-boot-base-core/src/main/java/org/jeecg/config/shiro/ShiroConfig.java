@@ -98,6 +98,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/sys/logout", "anon"); //登出接口排除
         filterChainDefinitionMap.put("/wxpay/notify", "anon"); //支付回调接口排除
         filterChainDefinitionMap.put("/transfer/notify", "anon"); //转账回调接口排除
+        filterChainDefinitionMap.put("/signatures/callback/**", "anon"); //法大大回调接口排除
         filterChainDefinitionMap.put("/sys/thirdLogin/**", "anon"); //第三方登录
         filterChainDefinitionMap.put("/sys/getEncryptedString", "anon"); //获取加密串
         filterChainDefinitionMap.put("/sys/sms", "anon");//短信验证码
