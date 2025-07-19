@@ -8,6 +8,7 @@ import com.fasc.open.api.v5_1.res.signtask.SignTaskDetailRes;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
 import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.interview.entity.RiderInterview;
 
 public interface SignaturesService {
 
@@ -20,7 +21,7 @@ public interface SignaturesService {
 
 
     //创建签署任务（基于签署模板）
-    void createWithTemplate(String signTemplateId);
+    void createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterview riderInterview);
 
 
     void fillField(String signTaskId);

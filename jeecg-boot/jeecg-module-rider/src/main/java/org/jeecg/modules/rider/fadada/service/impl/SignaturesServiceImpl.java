@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
+import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -150,7 +151,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
     @Override
-    public void createWithTemplate(String signTemplateId) {
+    public void createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterview riderInterview) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);
@@ -184,7 +185,7 @@ public class SignaturesServiceImpl implements SignaturesService {
             //createWithTemplateReq.setBusinessScene(null);
 
             //（可选）参与方列表。
-            createWithTemplateReq.setActors(getSignTemplateActors(signTemplateId));
+            createWithTemplateReq.setActors(getSignTemplateActors(signTemplateId,riderCustomer));
 
             System.out.println(openApiClient.getJsonStrategy().toJson(createWithTemplateReq));
             BaseRes<CreateSignTaskRes> res = signTaskClient.createWithTemplate(createWithTemplateReq);
@@ -200,7 +201,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     /**
      * 签署任务--签署模板的参与方列表
      */
-    private List<AddActorsTempInfo> getSignTemplateActors(String TemplateFieldDocId) throws ApiException {
+    private List<AddActorsTempInfo> getSignTemplateActors(String TemplateFieldDocId,RiderCustomer riderCustomer) throws ApiException {
         List<AddActorsTempInfo> addActors = new ArrayList<>();
 
         //参与方一：个人参与方
@@ -209,7 +210,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         //参与方具体名称
         String actorName = "个人方名称";
         //（可选）参与方主体在应用上的OpenId
-        String actorOpenId = openUserId;
+        String actorOpenId = riderCustomer.getOpenUserId();
         //（可选）参与方主体的法大大号
         String actorFDDId = null;
         //（可选）参与方身份名称匹配信息
@@ -217,7 +218,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         //（可选）参与方证件号码匹配信息
         String certNoForMatch = null;
         //（可选）法大大送达信息
-        Notification notification = Notification.getInstance(true, NotifyWayEnum.MOBILE.getCode(), mobile);
+        Notification notification = Notification.getInstance(true, NotifyWayEnum.MOBILE.getCode(), riderCustomer.getPhone());
         Actor person = getActor(actorId, IdTypeEnum.PERSON.getCode(), actorName, null,
                 actorOpenId, actorFDDId,
                 null, identNameForMatch, certNoForMatch,
@@ -248,7 +249,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         //（可选）是否请求该参与方免验证签
         signConfigInfo.setRequestVerifyFree(true);
         //（可选）要求该参与方必须实名才能查看签署任务，默认true
-        signConfigInfo.setIdentifiedView(false);
+        signConfigInfo.setIdentifiedView(true);
 
         AddActorsTempInfo addPerson = new AddActorsTempInfo();
         addPerson.setActor(person);

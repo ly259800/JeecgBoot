@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.exception.JeecgBootException;
@@ -17,6 +16,7 @@ import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -37,6 +37,10 @@ public class SignaturesController{
 
     @Autowired
     private IRiderCustomerService riderCustomerService;
+
+
+    @Value("${fadada.templateId}")
+    private String templateId;
 
     /**
     * 获取个人授权链接
@@ -68,14 +72,23 @@ public class SignaturesController{
     @ApiOperation(value="创建签署任务", notes="创建签署任务")
     @PostMapping(value = "/createSginTask")
     public Result<String> createSginTask(@RequestBody RiderInterview riderInterview) {
-        if(StringUtils.isEmpty(riderInterview.getSiteId()) || StringUtils.isEmpty(riderInterview.getSiteName())){
-            return Result.error("站点不能为空");
+        //	获取当前用户
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        if (oConvertUtils.isEmpty(loginUser)) {
+            return Result.error("请登录系统！");
         }
-        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        if(Objects.isNull(sysUser)){
-            throw new JeecgBootException("请先登录");
+        RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+        if (oConvertUtils.isEmpty(riderCustomer)) {
+            return Result.error("请注册用户！");
         }
-        return Result.OK("登记成功！");
+        if(StringUtils.isEmpty(riderCustomer.getIdCard())){
+            Result result = new Result();
+            result.setCode(10080);
+            result.setMessage("用户未实名,请先实名认证!");
+            return result;
+        }
+        signaturesService.createWithTemplate(templateId,riderCustomer,riderInterview);
+        return Result.OK("签署成功！");
     }
 
 }

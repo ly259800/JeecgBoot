@@ -146,7 +146,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 if(Objects.nonNull(x.getSiteId()) && riderSiteMap.containsKey(x.getSiteId())){
 				 Post riderSite = riderSiteMap.get(x.getSiteId());
 				 //佣金为价格的一半
-				 interviewDTO.setSiteCommission(riderSite.getPrice().divide(BigDecimal.valueOf(2)).intValue());
+				 interviewDTO.setSiteCommission(riderSite.getCommission().intValue());
 			 }
 			 return interviewDTO;
 		 }).collect(Collectors.toList());

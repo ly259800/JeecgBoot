@@ -65,4 +65,11 @@ public class PostDetail implements Serializable {
 	@Excel(name = "岗位详情", width = 15)
     @ApiModelProperty(value = "岗位详情")
     private java.lang.String postDetail;
+
+    /**岗位详情*/
+    @Excel(name = "岗位详情", width = 15)
+    @ApiModelProperty(value = "岗位详情")
+    private java.lang.String environment;
+
+
 }
