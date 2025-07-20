@@ -517,7 +517,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
     @Override
-    public EUrlRes getUserAuthUrl(RiderCustomer riderCustomer) {
+        public EUrlRes getUserAuthUrl(RiderCustomer riderCustomer) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);

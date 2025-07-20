@@ -213,6 +213,11 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 if(riderCustomer == null){
 			 return Result.error("用户未注册");
 		 }
+
+		 Post post = postService.getById(riderInterview.getSiteId());
+		 if(post == null){
+			 return Result.error("岗位不存在");
+		 }
 		 if(StringUtils.isEmpty(riderCustomer.getIdCard())){
 			 Result result = new Result();
 			 result.setCode(10080);
