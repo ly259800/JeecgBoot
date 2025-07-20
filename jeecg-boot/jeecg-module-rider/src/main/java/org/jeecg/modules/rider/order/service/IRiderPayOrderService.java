@@ -26,6 +26,11 @@ public interface IRiderPayOrderService extends IService<RiderPayOrder> {
 
     void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , CallbackDecryptData consumeData ,String reference);
 
+
+    void updateInterviewOrder(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , CallbackDecryptData consumeData ,String reference);
+
+
+
     void updateOrderinfo(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo , TransferCallbackDecryptData consumeData);
 
 }

@@ -15,30 +15,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
-import org.jeecg.common.system.query.QueryRuleEnum;
-import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.rider.interview.entity.RiderInterview;
+import org.jeecg.modules.rider.post.dto.PostDTO;
 import org.jeecg.modules.rider.post.entity.Post;
+import org.jeecg.modules.rider.post.entity.PostDetail;
+import org.jeecg.modules.rider.post.service.IPostDetailService;
 import org.jeecg.modules.rider.post.service.IPostService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.extern.slf4j.Slf4j;
-
-import org.jeecg.modules.system.entity.SysCategory;
-import org.jeecg.modules.system.entity.SysThirdAccount;
-import org.jeecg.modules.system.service.ISysCategoryService;
-import org.jeecgframework.poi.excel.ExcelImportUtil;
-import org.jeecgframework.poi.excel.def.NormalExcelConstants;
-import org.jeecgframework.poi.excel.entity.ExportParams;
-import org.jeecgframework.poi.excel.entity.ImportParams;
-import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
@@ -62,6 +50,9 @@ public class PostController extends JeecgController<Post, IPostService> {
 
 	@Autowired
 	private ISysCategoryService sysCategoryService;
+
+	@Autowired
+	private IPostDetailService postDetailService;
 
 	
 	/**
@@ -229,12 +220,16 @@ public class PostController extends JeecgController<Post, IPostService> {
 	//@AutoLog(value = "岗位管理-通过id查询")
 	@ApiOperation(value="岗位管理-通过id查询", notes="岗位管理-通过id查询")
 	@GetMapping(value = "/queryById")
-	public Result<Post> queryById(@RequestParam(name="id",required=true) String id) {
+	public Result<PostDTO> queryById(@RequestParam(name="id",required=true) String id) {
 		Post post = postService.getById(id);
 		if(post==null) {
 			return Result.error("未找到对应数据");
 		}
-		return Result.OK(post);
+		PostDTO postDTO = new PostDTO();
+		BeanUtils.copyProperties(post, postDTO);
+		PostDetail postDetail = postDetailService.getByPostId(post.getId());
+		postDTO.setPostDetail(postDetail);
+		return Result.OK(postDTO);
 	}
 
     /**

@@ -224,7 +224,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 result.setMessage("用户未实名,请先实名认证!");
 			 return result;
 		 }
-		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderInterview.getPhone()).eq("site_id", riderInterview.getSiteId()));
+		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderCustomer.getPhone()).eq("site_id", riderInterview.getSiteId()));
 		 if(one != null) {
 			 return Result.error("您已经报名过该岗位，不能重复报名！");
 		 }
@@ -236,7 +236,9 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 riderInterview.setReference(riderCustomer.getReference());
 		 riderInterview.setReferencePhone(riderCustomer.getReferencePhone());
 		 riderInterviewService.save(riderInterview);
-		 return Result.OK("报名成功！");
+		 Result<String> ok = Result.OK("报名成功！");
+		 ok.setResult(riderInterview.getId());
+		 return ok;
 	 }
 
 

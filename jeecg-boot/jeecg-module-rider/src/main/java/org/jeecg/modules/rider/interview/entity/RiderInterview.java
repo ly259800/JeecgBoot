@@ -84,22 +84,22 @@ public class RiderInterview implements Serializable {
     @Dict(dicCode = "job_position")
     private java.lang.Integer jobPosition;
 
-	/**是否全职*/
-	@Excel(name = "是否全职", width = 15)
-    @ApiModelProperty(value = "是否全职")
-    private java.lang.Integer jobType;
-	/**是否需要住宿*/
-	@Excel(name = "是否需要住宿", width = 15)
-    @ApiModelProperty(value = "是否需要住宿")
-    private java.lang.Integer accommodation;
-    /**是否需要住宿*/
-    @Excel(name = "是否需要电动车", width = 15)
-    @ApiModelProperty(value = "是否需要电动车")
-    private java.lang.Integer electricVehicle;
-	/**是否需要购买社保*/
-	@Excel(name = "是否需要购买社保", width = 15)
-    @ApiModelProperty(value = "是否需要购买社保")
-    private java.lang.Integer socialSecurity;
+	/**是否支付*/
+	@Excel(name = "是否支付", width = 15)
+    @ApiModelProperty(value = "是否支付")
+    private java.lang.Integer payStatus;
+	/**是否签署*/
+	@Excel(name = "是否签署", width = 15)
+    @ApiModelProperty(value = "是否签署")
+    private java.lang.Integer signStatus;
+    /**是否培训*/
+    @Excel(name = "是否培训", width = 15)
+    @ApiModelProperty(value = "是否培训")
+    private java.lang.Integer trainingStatus;
+	/**是否岗位确认*/
+	@Excel(name = "是否岗位确认", width = 15)
+    @ApiModelProperty(value = "是否岗位确认")
+    private java.lang.Integer confirmStatus;
 	/**岗位名称*/
 	@Excel(name = "岗位名称", width = 15)
     @ApiModelProperty(value = "岗位名称")

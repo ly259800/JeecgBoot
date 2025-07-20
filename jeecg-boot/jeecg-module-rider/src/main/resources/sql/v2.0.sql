@@ -75,3 +75,27 @@ alter table family_post add column `price` decimal(10,2) DEFAULT NULL COMMENT '�
 alter table family_post add column `training_status` int DEFAULT '0' COMMENT '是否培训';
 
 
+alter table rider_interview
+    change job_type pay_status int default 0 null comment '是否支付';
+
+alter table rider_interview
+    change accommodation sign_status int default 0 null comment '是否签署';
+
+alter table rider_interview
+    change social_security training_status int default 0 null comment '是否培训';
+
+alter table rider_interview
+    change electric_vehicle confirm_status int default 0 null comment '是否岗位确认';
+
+alter table rider_user_order add column `interview_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报名记录ID';
+
+
+
+
+
+
+
+
+
+
+

@@ -119,4 +119,10 @@ public class RiderUserOrder implements Serializable {
 	@Excel(name = "支付方式", width = 15)
     @ApiModelProperty(value = "支付方式")
     private java.lang.Integer paymentMethod;
+
+    /**报名记录ID*/
+    @Excel(name = "报名记录ID", width = 15)
+    @ApiModelProperty(value = "报名记录ID")
+    private java.lang.String interviewId;
+
 }

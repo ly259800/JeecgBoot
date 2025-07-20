@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
@@ -123,7 +124,11 @@ public class WeChatPayNotifyInvoke {
             reference = user.getReference();
         }
         // 6.更新支付订单、租户订单及租户信息
-        payOrderinfoService.updateOrderinfo(riderUserOrder,payOrderinfo,consumeData,reference);
+        if(StringUtils.isEmpty(riderUserOrder.getInterviewId())){
+            payOrderinfoService.updateOrderinfo(riderUserOrder,payOrderinfo,consumeData,reference);
+        } else {
+            payOrderinfoService.updateInterviewOrder(riderUserOrder,payOrderinfo,consumeData,reference);
+        }
     }
 
     @SneakyThrows

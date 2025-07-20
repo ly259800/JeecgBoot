@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.interview.entity.RiderInterview;
+import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 import org.jeecg.modules.rider.order.entity.RiderPayOrder;
 import org.jeecg.modules.rider.order.entity.RiderUserOrder;
 import org.jeecg.modules.rider.order.mapper.RiderPayOrderMapper;
@@ -57,6 +59,9 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
 
     @Autowired
     private IRiderParamsService riderParamsService;
+
+    @Autowired
+    private IRiderInterviewService riderInterviewService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -189,6 +194,60 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
                 }
             }
             riderCustomerService.updateById(riderCustomer);
+        }
+    }
+
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateInterviewOrder(RiderUserOrder riderUserOrder, RiderPayOrder payOrderinfo, CallbackDecryptData consumeData, String reference) {
+        // 1.更新支付订单
+        Date payOrderUpdateTime = payOrderinfo.getUpdateTime();
+        TradeStateEnum tradeStateEnum = TradeStateEnum.getEnum(consumeData.getTradeState());
+        //支付金额单位为分转换为元
+        BigDecimal payAmount = PriceUtils.FenToYuan(consumeData.getAmount().getPayerTotal());
+        payOrderinfo.setPayAmount(payAmount);//用户支付金额
+        payOrderinfo.setPayCurrency(consumeData.getAmount().getPayerCurrency());//支付币种
+        payOrderinfo.setTransactionId(consumeData.getTransactionId());//微信支付订单号
+        payOrderinfo.setTradeState(tradeStateEnum.getStatus());
+        if(Objects.equals(tradeStateEnum,TradeStateEnum.CLOSED)){
+            //订单已关闭
+            payOrderinfo.setCloseState(WechatPayContants.PayCloseStatus.CLOSE);
+        }
+        payOrderinfo.setBankType(consumeData.getBankType());//银行类型
+        payOrderinfo.setSuccessTime(consumeData.getSuccessTime());//支付完成时间
+        payOrderinfo.setUpdateTime(new Date());
+        QueryWrapper<RiderPayOrder> payOrderWrapper = new QueryWrapper<>();
+        payOrderWrapper.lambda().eq(RiderPayOrder::getId, payOrderinfo.getId())
+                .eq(RiderPayOrder::getUpdateTime, payOrderUpdateTime);
+        int update = this.baseMapper.update(payOrderinfo, payOrderWrapper);
+        //支付订单更新成功
+        if(update > 0){
+            // 2.更新用户订单
+            Date userOrderUpdateTime = riderUserOrder.getUpdateTime();
+            riderUserOrder.setActualAmount(payAmount);//实际支付金额
+            riderUserOrder.setSuccessTime(consumeData.getSuccessTime());//支付完成日期
+            riderUserOrder.setPaymentMethod(PayMethodEnum.WECHAT.getCode());//微信支付
+            riderUserOrder.setDescription("支付订单");
+            if(Objects.equals(tradeStateEnum,TradeStateEnum.SUCCESS)){
+                riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//支付成功
+            } else if(Objects.equals(tradeStateEnum,TradeStateEnum.NOTPAY)){
+                riderUserOrder.setOrderState(OrderStateEnum.SUCCESS.getCode());//未支付
+            } else {
+                riderUserOrder.setOrderState(OrderStateEnum.PAYERROR.getCode());//支付失败
+            }
+            riderUserOrder.setUpdateTime(new Date());
+            QueryWrapper<RiderUserOrder> userOrderWrapper = new QueryWrapper<>();
+            userOrderWrapper.lambda().eq(RiderUserOrder::getId, riderUserOrder.getId());
+            if(userOrderUpdateTime != null){
+                userOrderWrapper.lambda().eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
+            }
+            riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
+            //3.更新报名记录为已支付
+            RiderInterview riderInterview = new RiderInterview();
+            riderInterview.setPayStatus(1);
+            riderInterview.setId(riderUserOrder.getInterviewId());
+            riderInterviewService.updateById(riderInterview);
         }
     }
 
