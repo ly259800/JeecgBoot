@@ -190,7 +190,17 @@ public class SignaturesServiceImpl implements SignaturesService {
             System.out.println(openApiClient.getJsonStrategy().toJson(createWithTemplateReq));
             BaseRes<CreateSignTaskRes> res = signTaskClient.createWithTemplate(createWithTemplateReq);
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
-        } catch (Exception e) {
+            if (res.isSuccess()){
+                String signTaskId = res.getData().getSignTaskId();
+                this.fillField(signTaskId);
+                this.signTaskStart(res.getData().getSignTaskId());
+            } else {
+                log.error("创建签署任务失败！");
+                throw new JeecgBootException("创建签署任务失败:"+res.getMsg());
+            }
+        }  catch (JeecgBootException e1){
+            throw e1;
+        }catch (Exception e) {
             log.error("创建签署任务失败！",e);
             throw new JeecgBootException("创建签署任务失败！");
         }
@@ -208,7 +218,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         //参与方标识：需要与签署模板中保持一致
         String actorId = "个人方";
         //参与方具体名称
-        String actorName = "个人方名称";
+        String actorName = "娘家人客户";
         //（可选）参与方主体在应用上的OpenId
         String actorOpenId = riderCustomer.getOpenUserId();
         //（可选）参与方主体的法大大号
@@ -261,7 +271,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         // actorId必须与签署模板中保持一致，actorType和permission以签署模板中为准，不用传参。
         //（可选）参与方企业成员列表
         ActorCorpMember actorCorpMember = new ActorCorpMember();
-        actorCorpMember.setMemberId(String.valueOf(openUserId));
+        actorCorpMember.setMemberId(null);
 
         //通知方式
         Notification notification1 =  Notification.getInstance(false, NotifyWayEnum.MOBILE.getCode(), mobile);
@@ -366,8 +376,14 @@ public class SignaturesServiceImpl implements SignaturesService {
             //填写类控件列表
             fillFieldValuesReq.setDocFieldValues(getDocFieldValues(getFiledMap()));
             BaseRes<Void> res = signTaskClient.fillFieldValues(fillFieldValuesReq);
+            if (!res.isSuccess()) {
+                log.error("填充属性值失败！");
+                throw new JeecgBootException("填充属性值失败！"+res.getMsg());
+            }
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
-        } catch (Exception e) {
+        }  catch (JeecgBootException e1){
+            throw e1;
+        }catch (Exception e) {
             log.error("填充属性值失败！",e);
             throw new JeecgBootException("填充属性值失败！");
         }
@@ -427,6 +443,12 @@ public class SignaturesServiceImpl implements SignaturesService {
             signTaskBaseReq.setSignTaskId(signTaskId);
             BaseRes<Void> res = signTaskClient.start(signTaskBaseReq);
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+            if (!res.isSuccess()) {
+                log.error("签署任务开始失败！");
+                throw new JeecgBootException("签署任务开始失败！"+res.getMsg());
+            }
+        } catch (JeecgBootException e1){
+            throw e1;
         } catch (Exception e) {
             log.error("签署任务开始失败！",e);
             throw new JeecgBootException("签署任务开始失败！");

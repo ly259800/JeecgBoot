@@ -17,6 +17,7 @@ import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.IdCardUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.interview.dto.InterviewOrderDTO;
 import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
@@ -28,6 +29,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.modules.rider.params.entity.RiderParams;
+import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.post.entity.Post;
 import org.jeecg.modules.rider.post.service.IPostService;
 import org.springframework.beans.BeanUtils;
@@ -59,6 +62,9 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 
 	 @Autowired
 	 private IPostService postService;
+
+	 @Autowired
+	 private IRiderParamsService riderParamsService;
 	
 	/**
 	 * 分页列表查询
@@ -185,9 +191,27 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 if(CollectionUtils.isEmpty(pageList)){
 			 return Result.OK(new ArrayList<>());
 		 }
+		 List<String> siteIdList = pageList.stream().filter(s -> Objects.nonNull(s.getSiteId())).map(x -> x.getSiteId()).collect(Collectors.toList());
+		 if(CollectionUtils.isEmpty(siteIdList)){
+			 //若站点不存在，则佣金设置为null
+			 List<RiderInterviewDTO> dtoList = pageList.stream().map(x -> {
+				 RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
+				 BeanUtils.copyProperties(x, interviewDTO);
+				 return interviewDTO;
+			 }).collect(Collectors.toList());
+			 return Result.OK(dtoList);
+		 }
+		 List<Post> riderSiteList = postService.listByIds(siteIdList);
+		 Map<String,  Post> riderSiteMap = riderSiteList.stream().collect(Collectors.toMap(Post::getId, Function.identity(), (a, b) -> b));
 		 List<RiderInterviewDTO> dtoList = pageList.stream().map(x -> {
 			 RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
 			 BeanUtils.copyProperties(x, interviewDTO);
+			 if(Objects.nonNull(x.getSiteId()) && riderSiteMap.containsKey(x.getSiteId())){
+				 Post riderSite = riderSiteMap.get(x.getSiteId());
+				 interviewDTO.setSalaryRange(riderSite.getSalaryRange());
+				 interviewDTO.setPrice(riderSite.getPrice());
+				 interviewDTO.setPayType(riderSite.getPayType());
+			 }
 			 return interviewDTO;
 		 }).collect(Collectors.toList());
 		 return Result.OK(dtoList);
@@ -373,29 +397,81 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		return Result.OK(riderInterview);
 	}
 
-    /**
-    * 导出excel
-    *
-    * @param request
-    * @param riderInterview
-    */
-    @RequiresPermissions("interview:rider_interview:exportXls")
-    @RequestMapping(value = "/exportXls")
-    public ModelAndView exportXls(HttpServletRequest request, RiderInterview riderInterview) {
-        return super.exportXls(request, riderInterview, RiderInterview.class, "面试管理");
-    }
 
-    /**
-      * 通过excel导入数据
-    *
-    * @param request
-    * @param response
-    * @return
-    */
-    @RequiresPermissions("interview:rider_interview:importExcel")
-    @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
-    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-        return super.importExcel(request, response, RiderInterview.class);
-    }
+	 /**
+	  *  岗位培训单
+	  * @param riderInterview
+	  * @return
+	  */
+	 @AutoLog(value = "岗位培训单")
+	 @ApiOperation(value="岗位培训单", notes="岗位培训单")
+	 @RequestMapping(value = "/getTrainOrder", method = {RequestMethod.GET})
+	 public Result<InterviewOrderDTO> training(RiderInterview riderInterview) {
+		 if(Objects.isNull(riderInterview.getId())){
+			 return Result.error("请选择报名记录!");
+		 }
+		 RiderParams train_order_template = riderParamsService.getByCode("train_order_template");
+		 InterviewOrderDTO dto = new InterviewOrderDTO();
+		 dto.setContent(train_order_template.getParamValue());
+		 return Result.ok(dto);
+	 }
+
+	 /**
+	  *  岗位培训单
+	  * @param riderInterview
+	  * @return
+	  */
+	 @AutoLog(value = "岗位培训确认")
+	 @ApiOperation(value="岗位培训确认", notes="岗位培训确认")
+	 @RequestMapping(value = "/sumbitTrainOrder", method = {RequestMethod.POST})
+	 public Result sumbitTrainOrder(@RequestBody RiderInterview riderInterview) {
+		 if(Objects.isNull(riderInterview.getId())){
+			 return Result.error("请选择报名记录!");
+		 }
+		 RiderInterview update = new RiderInterview();
+		 update.setId(riderInterview.getId());
+		 update.setTrainingStatus(1);
+		 riderInterviewService.updateById(update);
+		 return Result.ok();
+	 }
+
+
+
+	 /**
+	  *  岗位确认单
+	  * @param riderInterview
+	  * @return
+	  */
+	 @AutoLog(value = "岗位确认单")
+	 @ApiOperation(value="岗位确认单", notes="岗位确认单")
+	 @RequestMapping(value = "/getConfirmOrder", method = {RequestMethod.GET})
+	 public Result<InterviewOrderDTO> getConfirmOrder(RiderInterview riderInterview) {
+		 if(Objects.isNull(riderInterview.getId())){
+			 return Result.error("请选择报名记录!");
+		 }
+		 RiderParams confirm_order_template = riderParamsService.getByCode("confirm_order_template");
+		 InterviewOrderDTO dto = new InterviewOrderDTO();
+		 dto.setContent(confirm_order_template.getParamValue());
+		 return Result.ok(dto);
+	 }
+
+	 /**
+	  *  岗位确认单
+	  * @param riderInterview
+	  * @return
+	  */
+	 @AutoLog(value = "岗位确认单确认")
+	 @ApiOperation(value="岗位确认单确认", notes="岗位确认单确认")
+	 @RequestMapping(value = "/sumbitConfirmOrder", method = {RequestMethod.POST})
+	 public Result sumbitConfirmOrder(@RequestBody RiderInterview riderInterview) {
+		 if(Objects.isNull(riderInterview.getId())){
+			 return Result.error("请选择报名记录!");
+		 }
+		 RiderInterview update = new RiderInterview();
+		 update.setId(riderInterview.getId());
+		 update.setConfirmStatus(1);
+		 riderInterviewService.updateById(update);
+		 return Result.ok();
+	 }
 
 }

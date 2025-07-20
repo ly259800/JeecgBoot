@@ -90,9 +90,11 @@ alter table rider_interview
 alter table rider_user_order add column `interview_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报名记录ID';
 
 
+alter table family_post_detail add column `environment` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '工作环境';
 
 
-
+alter table rider_params
+    modify param_value longtext null comment '参数值';
 
 
 
