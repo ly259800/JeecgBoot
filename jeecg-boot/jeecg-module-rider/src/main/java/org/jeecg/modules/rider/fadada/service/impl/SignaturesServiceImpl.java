@@ -30,6 +30,8 @@ import com.fasc.open.api.v5_1.res.signtask.CreateSignTaskRes;
 import com.fasc.open.api.v5_1.res.signtask.OwnerDownloadUrlRes;
 import com.fasc.open.api.v5_1.res.signtask.SignTaskActorGetUrlRes;
 import com.fasc.open.api.v5_1.res.signtask.SignTaskDetailRes;
+import com.fasc.open.api.v5_1.res.template.DocumentInfo;
+import com.fasc.open.api.v5_1.res.template.SignTaskActorInfo;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
 import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
 import lombok.extern.slf4j.Slf4j;
@@ -141,9 +143,15 @@ public class SignaturesServiceImpl implements SignaturesService {
             signTemplateDetailReq.setOwnerId(OpenId.getInstance(IdTypeEnum.CORP.getCode(), openCorpId));
             //签署模板Id  1752073611336144084
             signTemplateDetailReq.setSignTemplateId(signTemplateId);
-            BaseRes<SignTemplateDetailRes> signTemplateDetailResBaseRes = templateClient.getSignTemplateDetail(signTemplateDetailReq);
-            ResultUtil.printLog(signTemplateDetailResBaseRes, openApiClient.getJsonStrategy());
-            return signTemplateDetailResBaseRes.getData();
+            BaseRes<SignTemplateDetailRes> res = templateClient.getSignTemplateDetail(signTemplateDetailReq);
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+            if (!res.isSuccess()) {
+                log.error("获取合同模板详情失败！");
+                throw new JeecgBootException("获取合同模板详情失败:"+res.getMsg());
+            }
+            return res.getData();
+        } catch (JeecgBootException e1){
+            throw e1;
         } catch (Exception e) {
             log.error("获取合同模板详情失败！",e);
             throw new JeecgBootException("获取合同模板详情失败！");
@@ -151,7 +159,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
     @Override
-    public void createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterview riderInterview) {
+    public SignTaskActorGetUrlRes createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterview riderInterview) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);
@@ -175,25 +183,30 @@ public class SignaturesServiceImpl implements SignaturesService {
             createWithTemplateReq.setAutoStart(false);
             //（可选）全部必填控件填写完成后是否自动定稿：false: 不自动定稿 true: 自动定稿 默认为true。
             createWithTemplateReq.setAutoFillFinalize(true);
-            //（可选）您的业务应用系统中的业务场景信息，用于更好地定义业务场景和签署任务的关系。
-            BusinessSceneInfo businessSceneInfo = new BusinessSceneInfo();
-            //（可选）业务场景标识。长度最大32字节。指定该签署任务是某个特定业务场景的，参与各方可能对该业务场景有不同的控制逻辑和规则。
-            //businessSceneInfo.setBusinessId(businessId);
-            //（可选）业务参考号，由应用系统基于自身业务上下文提供。长度最大100个字符。该参数用于应用系统和签署任务建立关联关系，方便业务流程和数据的关联，例如可以是电商场景的订单号。
-            //businessSceneInfo.setTransReferenceId(transReferenceId);
             //有必要的设置BusinessScene值
-            //createWithTemplateReq.setBusinessScene(null);
+            createWithTemplateReq.setBusinessId("b57be5fca7293a6c40130279934f20ab");
 
-            //（可选）参与方列表。
-            createWithTemplateReq.setActors(getSignTemplateActors(signTemplateId,riderCustomer));
+            //获取模版详情
+            SignTemplateDetailRes signTemplateDetailRes = this.signTempalteDetail(signTemplateId);
+
+
+            //（可选）参与方列表
+            createWithTemplateReq.setActors(getSignTemplateActors(signTemplateDetailRes, riderCustomer));
 
             System.out.println(openApiClient.getJsonStrategy().toJson(createWithTemplateReq));
             BaseRes<CreateSignTaskRes> res = signTaskClient.createWithTemplate(createWithTemplateReq);
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
             if (res.isSuccess()){
                 String signTaskId = res.getData().getSignTaskId();
-                this.fillField(signTaskId);
+                this.fillField(signTaskId,signTemplateDetailRes);
                 this.signTaskStart(res.getData().getSignTaskId());
+                //获取参与方签署链接
+                List<SignTaskActorInfo> actors = signTemplateDetailRes.getActors();
+                SignTaskActorGetUrlRes actorUrl = null;
+                for (SignTaskActorInfo actor : actors) {
+                    actorUrl = this.getActorUrl(signTaskId, actor.getActorInfo().getActorId(), riderCustomer.getId());
+                }
+                return actorUrl;
             } else {
                 log.error("创建签署任务失败！");
                 throw new JeecgBootException("创建签署任务失败:"+res.getMsg());
@@ -211,14 +224,14 @@ public class SignaturesServiceImpl implements SignaturesService {
     /**
      * 签署任务--签署模板的参与方列表
      */
-    private List<AddActorsTempInfo> getSignTemplateActors(String TemplateFieldDocId,RiderCustomer riderCustomer) throws ApiException {
+    private List<AddActorsTempInfo> getSignTemplateActors(SignTemplateDetailRes signTemplateDetailRes, RiderCustomer riderCustomer) throws ApiException {
         List<AddActorsTempInfo> addActors = new ArrayList<>();
 
         //参与方一：个人参与方
         //参与方标识：需要与签署模板中保持一致
-        String actorId = "个人方";
+        String actorId = "娘家人客户";
         //参与方具体名称
-        String actorName = "娘家人客户";
+        String actorName = riderCustomer.getName();
         //（可选）参与方主体在应用上的OpenId
         String actorOpenId = riderCustomer.getOpenUserId();
         //（可选）参与方主体的法大大号
@@ -234,11 +247,13 @@ public class SignaturesServiceImpl implements SignaturesService {
                 null, identNameForMatch, certNoForMatch,
                 notification
         );
-
+        String TemplateFieldDocId = signTemplateDetailRes.getDocs().get(0).getDocId().toString();
         //（可选）签署权限参与方关联的签章控件列表。
         List<AddSignFieldInfo> signFields = new ArrayList<>();
-        AddSignFieldInfo addSignFieldInfo = getAddSignFieldInfo(TemplateFieldDocId, "个人签署控件编码", "个人签署控件名称", null,true);
+        AddSignFieldInfo addSignFieldInfo = getAddSignFieldInfo(TemplateFieldDocId, "signature", "签名", null,true);
+        AddSignFieldInfo addSignFieldInfo1 = getAddSignFieldInfo(TemplateFieldDocId, "signDate", "签署日期", null,true);
         signFields.add(addSignFieldInfo);
+        signFields.add(addSignFieldInfo1);
 
         //（可选）签署权限参与方的签署配置信息
         TemplateSignConfigInfoReq signConfigInfo = new TemplateSignConfigInfoReq();
@@ -272,11 +287,12 @@ public class SignaturesServiceImpl implements SignaturesService {
         //（可选）参与方企业成员列表
         ActorCorpMember actorCorpMember = new ActorCorpMember();
         actorCorpMember.setMemberId(null);
+        actorCorpMember.setAccountName(mobile);
 
         //通知方式
         Notification notification1 =  Notification.getInstance(false, NotifyWayEnum.MOBILE.getCode(), mobile);
 
-        Actor corp = getActor("企业方",IdTypeEnum.CORP.getCode() , "企业方名称", new String[]{ActorPermissionEnum.SIGN.getCode()},
+        Actor corp = getActor("娘家人公司",IdTypeEnum.CORP.getCode() , "娘家人平台", new String[]{ActorPermissionEnum.SIGN.getCode()},
                 openCorpId, null, new ActorCorpMember[]{actorCorpMember}
                 , null, null,
                 notification1
@@ -284,7 +300,7 @@ public class SignaturesServiceImpl implements SignaturesService {
 
         //（可选）签署权限参与方关联的签章控件列表。
         List<AddSignFieldInfo> signFields2 = new ArrayList<>();
-        AddSignFieldInfo addSignFieldInfo2 = getAddSignFieldInfo(TemplateFieldDocId, "企业签署控件编码", "企业签署控件名称", null,true);
+        AddSignFieldInfo addSignFieldInfo2 = getAddSignFieldInfo(TemplateFieldDocId, "seal", "印章", null,true);
         signFields2.add(addSignFieldInfo2);
 
         //签署权限参与方的签署配置信息
@@ -361,7 +377,7 @@ public class SignaturesServiceImpl implements SignaturesService {
 
 
     @Override
-    public void fillField(String signTaskId) {
+    public void fillField(String signTaskId,SignTemplateDetailRes signTemplateDetailRes) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);
@@ -373,8 +389,9 @@ public class SignaturesServiceImpl implements SignaturesService {
             fillFieldValuesReq.setAccessToken(accessToken);
             //签署任务id，通过创建签署任务接口返回
             fillFieldValuesReq.setSignTaskId(signTaskId);
+            String docId = signTemplateDetailRes.getDocs().get(0).getDocId().toString();
             //填写类控件列表
-            fillFieldValuesReq.setDocFieldValues(getDocFieldValues(getFiledMap()));
+            fillFieldValuesReq.setDocFieldValues(getDocFieldValues(docId,getFiledMap()));
             BaseRes<Void> res = signTaskClient.fillFieldValues(fillFieldValuesReq);
             if (!res.isSuccess()) {
                 log.error("填充属性值失败！");
@@ -393,13 +410,13 @@ public class SignaturesServiceImpl implements SignaturesService {
     /**
      * 填写签署任务控件内容--填写控件列表
      */
-    private static List<DocFieldValueInfo> getDocFieldValues(Map<String,String> filedMap) {
+    private static List<DocFieldValueInfo> getDocFieldValues(String docId,Map<String,String> filedMap) {
         List<DocFieldValueInfo> docFieldValues = new ArrayList<>();
         for (Map.Entry<String, String> entry : filedMap.entrySet()) {
             //填写控件对象
             DocFieldValueInfo field = new DocFieldValueInfo();
             //文档序号。
-            field.setDocId("1");
+            field.setDocId(docId);
             //控件编码。仅支持填写类控件。
             field.setFieldId(entry.getKey());
             field.setFieldValue(entry.getValue());
@@ -418,9 +435,9 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("price","1580");
         filedMap.put("payType","微信支付");
         filedMap.put("month","7");
-        filedMap.put("health","否");
-        filedMap.put("credit","否");
-        filedMap.put("hobby","否");
+        filedMap.put("health","[false,true]");
+        filedMap.put("credit","[false,true]");
+        filedMap.put("hobby","[false,true]");
         filedMap.put("source","小程序");
         filedMap.put("contacts","程晓明");
         return filedMap;
@@ -456,7 +473,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
     @Override
-    public SignTaskActorGetUrlRes getActorUrl(String signTaskId,String actorId) {
+    public SignTaskActorGetUrlRes getActorUrl(String signTaskId,String actorId,String clientUserId) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);
@@ -469,16 +486,22 @@ public class SignaturesServiceImpl implements SignaturesService {
             //参与方在签署任务中被设定的唯一标识
             signTaskActorGetUrlReq.setActorId(actorId);
             //应用系统中唯一确定登录用户身份的标识，如应用系统中该用户标识和法大大的账号存在映射关系，则可以实现免登进入签署页面进行签署
-            //signTaskActorGetUrlReq.setClientUserId(clientUserId);
+            signTaskActorGetUrlReq.setClientUserId(clientUserId);
             //重定向地址
-            //signTaskActorGetUrlReq.setRedirectUrl("http://www.baidu.com");
+            signTaskActorGetUrlReq.setRedirectUrl(redirectUrl+"/signatures/callback/usersign");
             //签署任务ID
             signTaskActorGetUrlReq.setSignTaskId(signTaskId);
             signTaskActorGetUrlReq.setAccessToken(accessToken);
 
             BaseRes<SignTaskActorGetUrlRes> res = signTaskClient.signTaskActorGetUrl(signTaskActorGetUrlReq);
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+            if (!res.isSuccess()) {
+                log.error("获取参与方签署链接失败！");
+                throw new JeecgBootException("获取参与方签署链接失败！"+res.getMsg());
+            }
             return res.getData();
+        } catch (JeecgBootException e1){
+            throw e1;
         } catch (Exception e) {
             log.error("获取参与方签署链接失败！",e);
             throw new JeecgBootException("获取参与方签署链接失败！");

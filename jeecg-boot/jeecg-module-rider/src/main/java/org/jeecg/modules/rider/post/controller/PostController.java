@@ -99,6 +99,12 @@ public class PostController extends JeecgController<Post, IPostService> {
 	 public Result<List<Post>> listForApp(Post post,
 											  HttpServletRequest req) {
 		 QueryWrapper<Post> queryWrapper = QueryGenerator.initQueryWrapper(post, req.getParameterMap());
+		 //	获取分类的下级
+		 if(StringUtils.isNotEmpty(post.getCategoryId())){
+
+
+		 }
+
 		 //只查询已发布的岗位
 		 queryWrapper.lambda().eq(Post::getPublishStatus, 1);
 		 queryWrapper.lambda().orderByDesc(Post::getCreateTime);

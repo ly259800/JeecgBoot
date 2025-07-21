@@ -17,6 +17,7 @@ import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.IdCardUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.interview.dto.InterviewOrderDTO;
 import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
@@ -209,8 +210,12 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 if(Objects.nonNull(x.getSiteId()) && riderSiteMap.containsKey(x.getSiteId())){
 				 Post riderSite = riderSiteMap.get(x.getSiteId());
 				 interviewDTO.setSalaryRange(riderSite.getSalaryRange());
-				 interviewDTO.setPrice(riderSite.getPrice());
 				 interviewDTO.setPayType(riderSite.getPayType());
+				 interviewDTO.setPrice(riderSite.getPrice());
+				 //若岗位免费，则价格为0
+				 if(!Objects.equals(riderSite.getPayType(), 1)){
+					 interviewDTO.setPrice(BigDecimal.ZERO);
+				 }
 			 }
 			 return interviewDTO;
 		 }).collect(Collectors.toList());
@@ -260,6 +265,11 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 riderInterview.setReference(riderCustomer.getReference());
 		 riderInterview.setReferencePhone(riderCustomer.getReferencePhone());
 		 riderInterviewService.save(riderInterview);
+		 //若用户身份为会员，则更新为娘家人
+		 if(Objects.nonNull(riderCustomer.getIdentity()) && Objects.equals(riderCustomer.getIdentity(), CustomerIdentityEnum.TOURIST.getCode())){
+			 riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
+			 riderCustomerService.updateById(riderCustomer);
+		 }
 		 Result<String> ok = Result.OK("报名成功！");
 		 ok.setResult(riderInterview.getId());
 		 return ok;

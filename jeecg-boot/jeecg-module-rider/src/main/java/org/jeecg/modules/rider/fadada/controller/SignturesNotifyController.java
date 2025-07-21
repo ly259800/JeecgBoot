@@ -76,4 +76,52 @@ public class SignturesNotifyController {
 
     }
 
+
+
+    /**
+     * 用户签署回调
+     * @param req
+     * @return
+     */
+    @RequestMapping("/usersign")
+    public void usersign(HttpServletRequest req, UserAuthNotifyDto dto) {
+        log.info("用户签署回调信息接收成功:{}", JSONObject.toJSONString(dto));
+        try {
+            if(StringUtils.isNotEmpty(dto.getClientUserId()) && StringUtils.isNotEmpty(dto.getOpenUserId())){
+                RiderCustomer riderCustomer = riderCustomerService.getById(dto.getClientUserId());
+                //更新法大大的openId
+                if(Objects.nonNull(riderCustomer) ){
+                    RiderCustomer updateCustomer = new RiderCustomer();
+                    updateCustomer.setId(riderCustomer.getId());
+                    updateCustomer.setOpenUserId(dto.getOpenUserId());
+                    riderCustomerService.updateById(updateCustomer);
+                }
+            } else {
+                log.info("用户签署失败");
+            }
+        } catch (Exception e) {
+            log.error("用户签署回调处理异常", e);
+        }
+        try {
+            //授权成功，获取身份证信息
+            if(Objects.equals(dto.getAuthResult(), "success")){
+                UserIdentityInfoRes identityInfo = signaturesService.getIdentityInfo(dto.getOpenUserId());
+                //已经实名成功
+                if(Objects.nonNull(identityInfo) && Objects.equals(identityInfo.getIdentStatus(), "identified")){
+                    RiderCustomer riderCustomer = riderCustomerService.getById(dto.getClientUserId());
+                    if(Objects.nonNull(riderCustomer)){
+                        RiderCustomer updateCustomer = new RiderCustomer();
+                        updateCustomer.setId(riderCustomer.getId());
+                        updateCustomer.setIdCard(identityInfo.getUserIdentInfo().getIdentNo());
+                        updateCustomer.setName(identityInfo.getUserIdentInfo().getUserName());
+                        riderCustomerService.updateById(updateCustomer);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("用户签署回调处理异常", e);
+        }
+
+    }
+
 }

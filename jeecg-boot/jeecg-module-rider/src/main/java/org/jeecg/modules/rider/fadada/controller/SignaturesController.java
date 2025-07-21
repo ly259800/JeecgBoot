@@ -1,6 +1,7 @@
 package org.jeecg.modules.rider.fadada.controller;
 
 import com.fasc.open.api.v5_1.res.common.EUrlRes;
+import com.fasc.open.api.v5_1.res.signtask.SignTaskActorGetUrlRes;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +72,7 @@ public class SignaturesController{
     @AutoLog(value = "创建签署任务")
     @ApiOperation(value="创建签署任务", notes="创建签署任务")
     @PostMapping(value = "/createSginTask")
-    public Result<String> createSginTask(@RequestBody RiderInterview riderInterview) {
+    public Result<SignTaskActorGetUrlRes> createSginTask(@RequestBody RiderInterview riderInterview) {
         //	获取当前用户
         LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         if (oConvertUtils.isEmpty(loginUser)) {
@@ -87,8 +88,7 @@ public class SignaturesController{
             result.setMessage("用户未实名,请先实名认证!");
             return result;
         }
-        signaturesService.createWithTemplate(templateId,riderCustomer,riderInterview);
-        return Result.OK("签署成功！");
+        return Result.OK(signaturesService.createWithTemplate(templateId,riderCustomer,riderInterview));
     }
 
 }

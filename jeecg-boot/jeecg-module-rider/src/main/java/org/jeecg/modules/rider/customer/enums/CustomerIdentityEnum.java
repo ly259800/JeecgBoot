@@ -8,20 +8,20 @@ import java.util.Objects;
 public enum CustomerIdentityEnum {
 
     /**
-     * 游客
+     * 会员
      */
-    TOURIST(1,"游客"),
+    TOURIST(1,"会员"),
 
     /**
-     * 骑手
+     * 娘家人
      */
-    RIDER(2,"骑手"),
+    RIDER(2,"娘家人"),
 
 
     /**
-     * 合伙人
+     * 主理人
      */
-    PARTNER(3,"合伙人");
+    PARTNER(3,"主理人");
 
     private Integer code;
 

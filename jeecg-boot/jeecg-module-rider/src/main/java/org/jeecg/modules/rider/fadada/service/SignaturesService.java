@@ -21,15 +21,15 @@ public interface SignaturesService {
 
 
     //创建签署任务（基于签署模板）
-    void createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterview riderInterview);
+    SignTaskActorGetUrlRes createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterview riderInterview);
 
 
-    void fillField(String signTaskId);
+    void fillField(String signTaskId,SignTemplateDetailRes signTemplateDetailRes);
 
     void signTaskStart(String signTaskId);
 
 
-    SignTaskActorGetUrlRes getActorUrl(String signTaskId, String actorId);
+    SignTaskActorGetUrlRes getActorUrl(String signTaskId, String actorId,String clientUserId);
 
 
     SignTaskDetailRes getAppDetail(String signTaskId);
