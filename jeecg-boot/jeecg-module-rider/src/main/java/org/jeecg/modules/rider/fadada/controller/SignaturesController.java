@@ -15,7 +15,12 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
+import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
+import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
+import org.jeecg.modules.rider.post.entity.Post;
+import org.jeecg.modules.rider.post.service.IPostService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +43,12 @@ public class SignaturesController{
 
     @Autowired
     private IRiderCustomerService riderCustomerService;
+
+    @Autowired
+    private IRiderInterviewService riderInterviewService;
+
+    @Autowired
+    private IPostService postService;
 
 
     @Value("${fadada.templateId}")
@@ -88,7 +99,37 @@ public class SignaturesController{
             result.setMessage("用户未实名,请先实名认证!");
             return result;
         }
-        return Result.OK(signaturesService.createWithTemplate(templateId,riderCustomer,riderInterview));
+        if(StringUtils.isEmpty(riderInterview.getId())){
+            return Result.error("请选择报名记录！");
+        }
+        RiderInterview interview = riderInterviewService.getById(riderInterview.getId());
+        if(Objects.isNull(interview)){
+            return Result.error("该报名记录不存在！");
+        }
+        if(Objects.equals(interview.getSignStatus() , 1)){
+            return Result.error("该报名记录已签署！");
+        }
+        if(StringUtils.isNotEmpty(interview.getSignTaskId())){
+            // 已经签署过合同，直接返回链接
+            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(templateId, interview.getSignTaskId(), riderCustomer.getId());
+            return Result.OK(actorGetUrlRes);
+        }
+        Post post = postService.getById(interview.getSiteId());
+        if(post == null){
+            return Result.error("该报名记录岗位不存在！");
+        }
+        RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
+        BeanUtils.copyProperties(interview, interviewDTO);
+        interviewDTO.setContacts(post.getContacts());
+        SignTaskActorGetUrlRes res = signaturesService.createWithTemplate(templateId, riderCustomer, interviewDTO);
+        //更新报名记录的合同
+        if(StringUtils.isNotEmpty(interviewDTO.getSignTaskId())){
+            RiderInterview update = new RiderInterview();
+            update.setSignTaskId(interviewDTO.getSignTaskId());
+            update.setId(interview.getId());
+            riderInterviewService.updateById(update);
+        }
+        return Result.OK(res);
     }
 
 }

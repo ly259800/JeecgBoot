@@ -21,14 +21,15 @@ public class RiderInterviewDTO extends RiderInterview {
     @ApiModelProperty(value = "付费类型")
     private java.lang.Integer payType;
 
-    /**付费价格*/
-    @Excel(name = "付费价格", width = 15)
-    @ApiModelProperty(value = "付费价格")
-    private java.math.BigDecimal price;
-
     /**薪资范围*/
     @Excel(name = "薪资范围", width = 15)
     @ApiModelProperty(value = "薪资范围")
     private java.lang.String salaryRange;
+
+
+    /**联系人*/
+    @Excel(name = "联系人", width = 15)
+    @ApiModelProperty(value = "联系人")
+    private java.lang.String contacts;
 
 }

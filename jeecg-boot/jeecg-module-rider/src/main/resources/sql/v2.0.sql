@@ -97,7 +97,9 @@ alter table rider_params
     modify param_value longtext null comment '参数值';
 
 
-
+alter table rider_interview add column `id_card` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '身份证号';
+alter table rider_interview add column `sign_task_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '签署任务';
+alter table rider_interview add column `price` decimal(10,2) DEFAULT NULL COMMENT '付费价格';
 
 
 

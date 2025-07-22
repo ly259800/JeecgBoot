@@ -8,6 +8,7 @@ import com.fasc.open.api.v5_1.res.signtask.SignTaskDetailRes;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
 import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 
 public interface SignaturesService {
@@ -17,20 +18,10 @@ public interface SignaturesService {
     ECorpAuthUrlRes getCorpAuthUrl();
 
 
-    SignTemplateDetailRes signTempalteDetail(String signTemplateId);
-
-
     //创建签署任务（基于签署模板）
-    SignTaskActorGetUrlRes createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterview riderInterview);
+    SignTaskActorGetUrlRes createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterviewDTO riderInterview);
 
-
-    void fillField(String signTaskId,SignTemplateDetailRes signTemplateDetailRes);
-
-    void signTaskStart(String signTaskId);
-
-
-    SignTaskActorGetUrlRes getActorUrl(String signTaskId, String actorId,String clientUserId);
-
+    SignTaskActorGetUrlRes getActorUrlBySignTaskId(String templateId,String signTaskId, String clientUserId);
 
     SignTaskDetailRes getAppDetail(String signTaskId);
 

@@ -687,6 +687,12 @@ public class DateUtils extends PropertyEditorSupport {
         return calendar.get(Calendar.YEAR);
     }
 
+    public static int getMonth() {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(getDate());
+        return calendar.get(Calendar.MONTH);
+    }
+
     /**
      * 将字符串转成时间
      * @param str

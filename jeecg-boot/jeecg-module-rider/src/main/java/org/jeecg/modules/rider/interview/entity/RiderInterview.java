@@ -158,4 +158,19 @@ public class RiderInterview implements Serializable {
     @Excel(name = "结算状态", width = 15)
     @ApiModelProperty(value = "结算状态")
     private java.lang.Integer settleStatus;
+
+    /**身份证号*/
+    @Excel(name = "身份证号", width = 15)
+    @ApiModelProperty(value = "身份证号")
+    private java.lang.String idCard;
+
+    /**付费价格*/
+    @Excel(name = "付费价格", width = 15)
+    @ApiModelProperty(value = "付费价格")
+    private java.math.BigDecimal price;
+
+    @ApiModelProperty(value = "签署任务")
+    private java.lang.String signTaskId;
+
+
 }
