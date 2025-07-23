@@ -432,7 +432,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         return docFieldValues;
     }
 
-    private Map<String,String> getFiledMap( RiderInterviewDTO riderInterview) {
+    private Map<String,String> getFiledMap(RiderInterviewDTO riderInterview) {
         Map<String,String> filedMap = new HashMap<>();
         filedMap.put("name",riderInterview.getName());
         filedMap.put("sex",riderInterview.getSex() == 1 ? "男":"女");

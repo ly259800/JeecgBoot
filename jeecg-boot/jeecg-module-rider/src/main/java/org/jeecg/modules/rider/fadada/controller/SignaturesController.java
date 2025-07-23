@@ -24,6 +24,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -121,6 +123,10 @@ public class SignaturesController{
         RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
         BeanUtils.copyProperties(interview, interviewDTO);
         interviewDTO.setContacts(post.getContacts());
+        //若价格为0，则取岗位的价格
+        if(Objects.isNull(interviewDTO.getPrice()) || interviewDTO.getPrice().compareTo(BigDecimal.ZERO)<=0){
+            interviewDTO.setPrice(post.getPrice());
+        }
         SignTaskActorGetUrlRes res = signaturesService.createWithTemplate(templateId, riderCustomer, interviewDTO);
         //更新报名记录的合同
         if(StringUtils.isNotEmpty(interviewDTO.getSignTaskId())){

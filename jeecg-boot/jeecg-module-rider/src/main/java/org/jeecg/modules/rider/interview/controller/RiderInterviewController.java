@@ -264,6 +264,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 riderInterview.setSource("报名申请");
 		 riderInterview.setReference(riderCustomer.getReference());
 		 riderInterview.setReferencePhone(riderCustomer.getReferencePhone());
+		 riderInterview.setIdCard(riderCustomer.getIdCard());
 		 riderInterviewService.save(riderInterview);
 		 //若用户身份为会员，则更新为娘家人
 		 if(Objects.nonNull(riderCustomer.getIdentity()) && Objects.equals(riderCustomer.getIdentity(), CustomerIdentityEnum.TOURIST.getCode())){
