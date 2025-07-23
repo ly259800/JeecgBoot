@@ -191,6 +191,8 @@ public class SignaturesServiceImpl implements SignaturesService {
             createWithTemplateReq.setAutoFillFinalize(true);
             //有必要的设置BusinessScene值
             createWithTemplateReq.setBusinessId(businessId);
+            //业务ID
+            createWithTemplateReq.setTransReferenceId(riderInterview.getId());
 
             //获取模版详情
             SignTemplateDetailRes signTemplateDetailRes = this.signTempalteDetail(accessToken , signTemplateId);
@@ -483,7 +485,7 @@ public class SignaturesServiceImpl implements SignaturesService {
             //应用系统中唯一确定登录用户身份的标识，如应用系统中该用户标识和法大大的账号存在映射关系，则可以实现免登进入签署页面进行签署
             signTaskActorGetUrlReq.setClientUserId(clientUserId);
             //重定向地址
-            signTaskActorGetUrlReq.setRedirectUrl(redirectUrl+"/signatures/callback/usersign");
+            //signTaskActorGetUrlReq.setRedirectUrl();
             //签署任务ID
             signTaskActorGetUrlReq.setSignTaskId(signTaskId);
             signTaskActorGetUrlReq.setAccessToken(accessToken);
