@@ -98,13 +98,19 @@ public class PostController extends JeecgController<Post, IPostService> {
 	 @GetMapping(value = "/listForApp")
 	 public Result<List<Post>> listForApp(Post post,
 											  HttpServletRequest req) {
-		 QueryWrapper<Post> queryWrapper = QueryGenerator.initQueryWrapper(post, req.getParameterMap());
+		 // 复制一份请求参数（避免修改原始参数）
+		 Map<String, String[]> parameterMap = new HashMap<>(req.getParameterMap());
+		 String categoryId = post.getCategoryId();
+		 // 移除 categoryId 参数
+		 parameterMap.remove("categoryId");
+		 post.setCategoryId( null);
+		 // 重新生成 QueryWrapper（此时不包含 categoryId 条件）
+		 QueryWrapper<Post> queryWrapper = QueryGenerator.initQueryWrapper(post, parameterMap);
 		 //	获取分类的下级
-		 if(StringUtils.isNotEmpty(post.getCategoryId())){
-
-
+		 if(StringUtils.isNotEmpty(categoryId)){
+			 List<String> categoryIds = sysCategoryService.queryAllChildIds(categoryId);
+			 queryWrapper.lambda().in(Post::getCategoryId, categoryIds);
 		 }
-
 		 //只查询已发布的岗位
 		 queryWrapper.lambda().eq(Post::getPublishStatus, 1);
 		 queryWrapper.lambda().orderByDesc(Post::getCreateTime);

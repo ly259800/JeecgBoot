@@ -98,4 +98,9 @@ public interface ISysCategoryService extends IService<SysCategory> {
 	 */
 	List<String> loadDictItemByNames(String names, boolean delNotExist);
 
+	/**
+	 * 查询所有子节点ID
+	 */
+	List<String> queryAllChildIds(String pid);
+
 }

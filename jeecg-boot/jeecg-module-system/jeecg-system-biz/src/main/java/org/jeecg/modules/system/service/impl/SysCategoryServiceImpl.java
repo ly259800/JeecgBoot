@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.constant.FillRuleConstant;
 import org.jeecg.common.constant.SymbolConstant;
 import org.jeecg.common.exception.JeecgBootException;
@@ -249,4 +250,12 @@ public class SysCategoryServiceImpl extends ServiceImpl<SysCategoryMapper, SysCa
 		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
+	@Override
+	public List<String> queryAllChildIds(String pid) {
+		String allIds = this.queryTreeChildIds(pid);
+		if(StringUtils.isNotBlank(allIds)){
+			return Arrays.stream(allIds.split(",")).collect(Collectors.toList());
+		}
+		return Arrays.asList(pid);
+	}
 }

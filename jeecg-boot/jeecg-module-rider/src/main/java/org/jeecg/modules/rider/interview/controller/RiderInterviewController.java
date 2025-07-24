@@ -211,10 +211,13 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 				 Post riderSite = riderSiteMap.get(x.getSiteId());
 				 interviewDTO.setSalaryRange(riderSite.getSalaryRange());
 				 interviewDTO.setPayType(riderSite.getPayType());
-				 interviewDTO.setPrice(riderSite.getPrice());
-				 //若岗位免费，则价格为0
-				 if(!Objects.equals(riderSite.getPayType(), 1)){
-					 interviewDTO.setPrice(BigDecimal.ZERO);
+				 //若价格小于0，则价格为岗位价格
+				 if(interviewDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0){
+					 interviewDTO.setPrice(riderSite.getPrice());
+					 //若岗位免费，则价格为0
+					 if(!Objects.equals(riderSite.getPayType(), 1)){
+						 interviewDTO.setPrice(BigDecimal.ZERO);
+					 }
 				 }
 			 }
 			 return interviewDTO;
