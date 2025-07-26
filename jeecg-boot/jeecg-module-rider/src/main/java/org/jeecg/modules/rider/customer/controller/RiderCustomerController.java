@@ -2,6 +2,7 @@ package org.jeecg.modules.rider.customer.controller;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -112,19 +113,55 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @ApiOperation(value="我的推广人查询列表", notes="我的推广人查询列表")
 	 @RequestMapping(value = "/listByReference", method = RequestMethod.GET)
-	 public Result<RiderReferenceDTO> listByReference(@RequestParam(name="customerId",required=false) String customerId) {
+	 public Result<RiderReferenceDTO> listByReference(@RequestParam(name="customerId",required=false) String customerId,@RequestParam(name="identity",required=false) Integer identity) {
 		 RiderReferenceDTO referenceDTO = new RiderReferenceDTO();
 		 referenceDTO.setListCount(0);
-		 referenceDTO.setCommissionCount(BigDecimal.ZERO);
 		 List<RiderCustomer> ls = new ArrayList<>();
 		 if(StringUtils.isNotEmpty(customerId)){
 			 //获取推广人信息
 			 LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
-			 query.eq(RiderCustomer::getReference, customerId)
-					 .eq(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
+			 query.eq(RiderCustomer::getReference, customerId);
+			 if(identity > 0){
+				 query.eq(RiderCustomer::getIdentity, identity);
+			 }
 			 ls = riderCustomerService.list(query);
 			 referenceDTO.setListCount(ls.size());
-			 referenceDTO.setCommissionCount(ls.stream().map(RiderCustomer::getReferenceCommission).reduce(BigDecimal.ZERO, BigDecimal::add));
+		 }
+		 referenceDTO.setList(ls);
+		 return Result.OK(referenceDTO);
+	 }
+
+
+	 /**
+	  * 我的推广人汇总
+	  * @return
+	  */
+	 @ApiOperation(value="我的推广人汇总", notes="我的推广人汇总")
+	 @RequestMapping(value = "/totalByReference", method = RequestMethod.GET)
+	 public Result<RiderReferenceDTO> totalByReference(@RequestParam(name="customerId",required=false) String customerId) {
+		 if(customerId == null){
+			 return Result.error("参数错误");
+		 }
+		 RiderReferenceDTO referenceDTO = new RiderReferenceDTO();
+		 referenceDTO.setListCount(0);
+		 referenceDTO.setOneListCount(0);
+		 referenceDTO.setTwoListCount(0);
+		 referenceDTO.setThreeListCount(0);
+		 List<RiderCustomer> ls = new ArrayList<>();
+		 if(StringUtils.isNotEmpty(customerId)){
+			 //获取推广人信息
+			 LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
+			 query.eq(RiderCustomer::getReference, customerId);
+			 ls = riderCustomerService.list(query);
+			 referenceDTO.setListCount(ls.size());
+			 Map<Integer, List<RiderCustomer>> map = ls.stream().collect(Collectors.groupingBy(RiderCustomer::getIdentity));
+			 if(map.containsKey(CustomerIdentityEnum.TOURIST.getCode())){
+			 	referenceDTO.setOneListCount(map.get(CustomerIdentityEnum.TOURIST.getCode()).size());
+			 } else if(map.containsKey(CustomerIdentityEnum.RIDER.getCode())){
+			 	referenceDTO.setTwoListCount(map.get(CustomerIdentityEnum.RIDER.getCode()).size());
+			 } else if(map.containsKey(CustomerIdentityEnum.PARTNER.getCode())){
+			 	referenceDTO.setThreeListCount(map.get(CustomerIdentityEnum.PARTNER.getCode()).size());
+			 }
 		 }
 		 referenceDTO.setList(ls);
 		 return Result.OK(referenceDTO);
@@ -323,6 +360,10 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			return Result.error("未找到对应数据");
 		}
 		RiderCustomerDTO riderCustomerDTO = riderCustomerService.convertTotal(riderCustomer);
+		RiderCustomer reference = riderCustomerService.getById(riderCustomer.getReference());
+		if(Objects.nonNull(reference)) {
+			riderCustomerDTO.setPromoterName(reference.getName());
+		}
 		return Result.OK(riderCustomerDTO);
 	}
 

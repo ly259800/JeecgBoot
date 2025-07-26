@@ -10,12 +10,18 @@ import java.util.List;
 @Data
 public class RiderReferenceDTO{
 
-    @ApiModelProperty(value = "推广人总数")
+    @ApiModelProperty(value = "全部推广人总数")
     private Integer listCount;
 
-    @ApiModelProperty(value = "佣金总数")
-    private BigDecimal commissionCount;
 
+    @ApiModelProperty(value = "会员推广人总数")
+    private Integer oneListCount;
+
+    @ApiModelProperty(value = "娘家人推广人总数")
+    private Integer twoListCount;
+
+    @ApiModelProperty(value = "主理人推广人总数")
+    private Integer threeListCount;
 
     //推广人列表
     List<RiderCustomer> list;

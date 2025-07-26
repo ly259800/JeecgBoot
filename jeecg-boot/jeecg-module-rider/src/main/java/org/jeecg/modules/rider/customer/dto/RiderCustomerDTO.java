@@ -3,6 +3,7 @@ package org.jeecg.modules.rider.customer.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecgframework.poi.excel.annotation.Excel;
 
 @Data
 public class RiderCustomerDTO extends RiderCustomer {
@@ -21,4 +22,8 @@ public class RiderCustomerDTO extends RiderCustomer {
 
     @ApiModelProperty(value = "已结算")
     private Integer settleCount;
+
+    @Excel(name = "推广人名称", width = 15)
+    @ApiModelProperty(value = "推广人名称")
+    private java.lang.String promoterName;
 }
