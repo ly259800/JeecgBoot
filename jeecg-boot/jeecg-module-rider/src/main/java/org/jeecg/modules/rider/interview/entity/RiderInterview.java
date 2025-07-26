@@ -79,11 +79,6 @@ public class RiderInterview implements Serializable {
     @ApiModelProperty(value = "报道城市")
     private java.lang.String city;
 
-    @Excel(name = "工作地点", width = 15)
-    @ApiModelProperty(value = "工作地点")
-    @Dict(dicCode = "job_position")
-    private java.lang.Integer jobPosition;
-
 	/**是否支付*/
 	@Excel(name = "是否支付", width = 15)
     @ApiModelProperty(value = "是否支付")
@@ -109,18 +104,18 @@ public class RiderInterview implements Serializable {
     @ApiModelProperty(value = "岗位ID")
     private java.lang.String siteId;
 
-	/**期望区域地址*/
-    @Excel(name = "期望区域地址", width = 15,exportConvert=true,importConvert = true )
+    @Excel(name = "期望区域地址", width = 15)
     @ApiModelProperty(value = "期望区域地址")
     private java.lang.String expectRegion;
 
-    public String convertisExpectRegion() {
-        return SpringContextUtils.getBean(ProvinceCityArea.class).getText(expectRegion);
-    }
+    @Excel(name = "工作地点", width = 15)
+    @ApiModelProperty(value = "工作地点")
+    private java.lang.String jobPosition;
 
-    public void convertsetExpectRegion(String text) {
-        this.expectRegion = SpringContextUtils.getBean(ProvinceCityArea.class).getCode(text);
-    }
+    @Excel(name = "操作人名称", width = 15)
+    @ApiModelProperty(value = "操作人名称")
+    private java.lang.String operatorName;
+
 	/**推广人*/
 	@Excel(name = "推广人", width = 15)
     @ApiModelProperty(value = "推广人")
@@ -150,10 +145,6 @@ public class RiderInterview implements Serializable {
     @Excel(name = "备注", width = 15)
     @ApiModelProperty(value = "备注")
     private java.lang.String memo;
-
-    @Excel(name = "面试时间", width = 15)
-    @ApiModelProperty(value = "面试时间")
-    private java.lang.String interviewDate;
 
     @Excel(name = "结算状态", width = 15)
     @ApiModelProperty(value = "结算状态")

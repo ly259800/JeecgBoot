@@ -104,3 +104,16 @@ alter table rider_interview add column `price` decimal(10,2) DEFAULT NULL COMMEN
 alter table rider_customer add column `sign_task_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '签署任务';
 
 
+alter table rider_interview
+    modify expect_region varchar(100) null comment '区域地址';
+
+alter table rider_interview
+    modify job_position varchar(100) null comment '工作地点';
+
+alter table rider_interview
+    change interview_date operator_name varchar(32) null comment '操作人名称';
+
+
+
+
+

@@ -14,6 +14,7 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.IdCardUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
@@ -426,8 +427,26 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 return Result.error("请选择报名记录!");
 		 }
 		 RiderParams train_order_template = riderParamsService.getByCode("train_order_template");
+		 String template = train_order_template.getParamValue();
+		 RiderInterview interview = riderInterviewService.getById(riderInterview.getId());
+		 if(Objects.isNull(interview)){
+			 return Result.error("报名记录不存在!");
+		 }
+		 Map<String, Object> data = new HashMap<>();
+		 data.put("name", interview.getName());
+		 data.put("phone", interview.getPhone());
+		 data.put("year", DateUtils.getYear());
+		 data.put("month", DateUtils.getMonth());
+		 data.put("day", DateUtils.getDay());
+		 data.put("area", interview.getExpectRegion());
+		 data.put("hotel", interview.getJobPosition());
+		 data.put("teacher", interview.getOperatorName());
+		 for (Map.Entry<String, Object> entry : data.entrySet()) {
+			 String placeholder = "${" + entry.getKey() + "}";
+			 template = template.replace(placeholder, Objects.nonNull(entry.getValue())?entry.getValue().toString():"");
+		 }
 		 InterviewOrderDTO dto = new InterviewOrderDTO();
-		 dto.setContent(train_order_template.getParamValue());
+		 dto.setContent(template);
 		 return Result.ok(dto);
 	 }
 
@@ -465,8 +484,29 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 return Result.error("请选择报名记录!");
 		 }
 		 RiderParams confirm_order_template = riderParamsService.getByCode("confirm_order_template");
+		 String template = confirm_order_template.getParamValue();
+		 RiderInterview interview = riderInterviewService.getById(riderInterview.getId());
+		 if(Objects.isNull(interview)){
+			 return Result.error("报名记录不存在!");
+		 }
+		 Map<String, Object> data = new HashMap<>();
+		 data.put("name", interview.getName());
+		 data.put("phone", interview.getPhone());
+		 data.put("year", DateUtils.getYear());
+		 data.put("month", DateUtils.getMonth());
+		 data.put("day", DateUtils.getDay());
+		 if(StringUtils.isNotBlank(interview.getReference())){
+			 RiderCustomer customer = riderCustomerService.getById(interview.getReference());
+			 data.put("teacher", Objects.nonNull( customer)?customer.getName():"");
+		 } else {
+			 data.put("teacher", "");
+		 }
+		 for (Map.Entry<String, Object> entry : data.entrySet()) {
+			 String placeholder = "${" + entry.getKey() + "}";
+			 template = template.replace(placeholder, Objects.nonNull(entry.getValue())?entry.getValue().toString():"");
+		 }
 		 InterviewOrderDTO dto = new InterviewOrderDTO();
-		 dto.setContent(confirm_order_template.getParamValue());
+		 dto.setContent(template);
 		 return Result.ok(dto);
 	 }
 
