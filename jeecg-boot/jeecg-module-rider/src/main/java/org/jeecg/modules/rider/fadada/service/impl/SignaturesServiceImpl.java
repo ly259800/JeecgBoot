@@ -42,6 +42,8 @@ import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
+import org.jeecg.modules.rider.params.entity.RiderParams;
+import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -70,6 +72,9 @@ public class SignaturesServiceImpl implements SignaturesService {
 
     @Autowired
     private OpenApiClient openApiClient;
+
+    @Autowired
+    private IRiderParamsService riderParamsService;
 
 
     @Override
@@ -337,9 +342,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         //（可选）签署权限参与方关联的签章控件列表。
         List<AddSignFieldInfo> signFields = new ArrayList<>();
         AddSignFieldInfo addSignFieldInfo = getAddSignFieldInfo(TemplateFieldDocId, "signature", "签名", null,true);
-        AddSignFieldInfo addSignFieldInfo1 = getAddSignFieldInfo(TemplateFieldDocId, "signDate", "签署日期", null,true);
         signFields.add(addSignFieldInfo);
-        signFields.add(addSignFieldInfo1);
 
         //（可选）签署权限参与方的签署配置信息
         TemplateSignConfigInfoReq signConfigInfo = new TemplateSignConfigInfoReq();
@@ -542,8 +545,15 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("postName",riderInterview.getSiteName());
         filedMap.put("price",riderInterview.getPrice().toString());
         filedMap.put("payType","微信支付");
+        filedMap.put("year", DateUtils.getYear()+"");
         filedMap.put("month", DateUtils.getMonth()+"");
-        filedMap.put("health","[true,false]");
+        filedMap.put("day", DateUtils.getDay()+"");
+        if(Objects.equals("客房",riderInterview.getSiteName())){
+            filedMap.put("serviceTime", "36个");
+        } else {
+            filedMap.put("serviceTime", "");
+        }
+        filedMap.put("health","[false,true]");
         filedMap.put("credit","[false,true]");
         filedMap.put("hobby","[false,true]");
         filedMap.put("source","小程序");
@@ -553,11 +563,28 @@ public class SignaturesServiceImpl implements SignaturesService {
 
 
     private Map<String,String> getFiledPartnerMap(RiderCustomer riderCustomer) {
+        RiderParams payment_num = riderParamsService.getByCode("payment_num");
+
         Map<String,String> filedMap = new HashMap<>();
         filedMap.put("name",riderCustomer.getName());
         filedMap.put("IDCard",riderCustomer.getIdCard());
         filedMap.put("phone",riderCustomer.getPhone());
+        filedMap.put("address","");
+        filedMap.put("IDCard1",riderCustomer.getIdCard());
+        filedMap.put("phone1",riderCustomer.getPhone());
+        filedMap.put("address1","");
+        filedMap.put("price",payment_num.getParamValue());
+        filedMap.put("ratio","40%");
+        filedMap.put("year", DateUtils.getYear()+"");
         filedMap.put("month", DateUtils.getMonth()+"");
+        filedMap.put("day", DateUtils.getDay()+"");
+        filedMap.put("startYear", DateUtils.getYear()+"");
+        filedMap.put("startMonth", DateUtils.getMonth()+"");
+        filedMap.put("startDay", DateUtils.getDay()+"");
+        //一年时间
+        filedMap.put("endYear", (DateUtils.getYear()+1)+"");
+        filedMap.put("endMonth", DateUtils.getMonth()+"");
+        filedMap.put("endDay", DateUtils.getDay()+"");
         return filedMap;
     }
 
@@ -739,7 +766,7 @@ public class SignaturesServiceImpl implements SignaturesService {
                     UserAuthScopeEnum.SEAL_INFO.getCode()
             }));
             //重定向地址
-            req.setRedirectMiniAppUrl("pages/index/workDetail?id="+postId);
+            req.setRedirectMiniAppUrl("/pages/index/workDetail?id="+postId);
             req.setAccessToken(accessToken);
 
             BaseRes<EUrlRes> res = userClient.getUserAuthUrl(req);

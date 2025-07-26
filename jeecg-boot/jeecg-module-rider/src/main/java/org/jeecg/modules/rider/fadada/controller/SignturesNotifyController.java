@@ -77,13 +77,15 @@ public class SignturesNotifyController {
             //生成签名后可以进行校验
             String signature =  FddCryptUtil.sign(sortParam, timestamp, appSecret);
             if(!signature.equals(sign)) {
-                if(Objects.equals(event,"user-authorize")){
-                    userAuth(JSONObject.parseObject(bizContent, UserAuthNotifyDto.class));
-                } else if(Objects.equals(event,"sign-task-finished")){
-                    usersign(JSONObject.parseObject(bizContent, UserSignNotifyDto.class));
-                }
+                log.error("法大大回调签名失败");
                 return "{\"msg\":\"success\"}";
             }
+            if(Objects.equals(event,"user-authorize")){
+                userAuth(JSONObject.parseObject(bizContent, UserAuthNotifyDto.class));
+            } else if(Objects.equals(event,"sign-task-finished")){
+                usersign(JSONObject.parseObject(bizContent, UserSignNotifyDto.class));
+            }
+            return "{\"msg\":\"success\"}";
         } catch (Exception e){
             log.error("法大大回调处理异常", e);
         }

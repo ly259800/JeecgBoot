@@ -99,6 +99,9 @@ public class SignaturesController{
             return Result.error("请注册用户！");
         }
         signaturesService.userUnbind(riderCustomer.getOpenUserId());
+        //更新用户的身份证号
+        riderCustomer.setIdCard("");
+        riderCustomerService.updateById(riderCustomer);
         return Result.ok();
     }
 
@@ -187,10 +190,10 @@ public class SignaturesController{
         }
         if(StringUtils.isNotEmpty(riderCustomer.getSignTaskId())){
             // 已经签署过合同，直接返回链接
-            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(templateId, riderCustomer.getSignTaskId(), riderCustomer.getId());
+            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(partnerTemplateId, riderCustomer.getSignTaskId(), riderCustomer.getId());
             return Result.OK(actorGetUrlRes);
         }
-        SignTaskActorGetUrlRes res = signaturesService.createWithPartnerTemplate(templateId, riderCustomer);
+        SignTaskActorGetUrlRes res = signaturesService.createWithPartnerTemplate(partnerTemplateId, riderCustomer);
         //更新报名记录的合同
         if(StringUtils.isNotEmpty(riderCustomer.getSignTaskId())){
             RiderCustomer update = new RiderCustomer();
