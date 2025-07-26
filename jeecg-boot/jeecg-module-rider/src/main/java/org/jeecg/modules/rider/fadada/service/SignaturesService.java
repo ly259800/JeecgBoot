@@ -21,6 +21,9 @@ public interface SignaturesService {
     //创建签署任务（基于签署模板）
     SignTaskActorGetUrlRes createWithTemplate(String signTemplateId, RiderCustomer riderCustomer, RiderInterviewDTO riderInterview);
 
+    SignTaskActorGetUrlRes createWithPartnerTemplate(String signTemplateId, RiderCustomer riderCustomer);
+
+
     SignTaskActorGetUrlRes getActorUrlBySignTaskId(String templateId,String signTaskId, String clientUserId);
 
     SignTaskDetailRes getAppDetail(String signTaskId);
@@ -28,7 +31,9 @@ public interface SignaturesService {
 
     OwnerDownloadUrlRes getOwnerDownloadUrl(String signTaskId);
 
-    EUrlRes getUserAuthUrl(RiderCustomer riderCustomer);
+    EUrlRes getUserAuthUrl(RiderCustomer riderCustomer,String postId);
+
+    void userUnbind(String openUserId);
 
     //获取用户实名信息
     UserIdentityInfoRes getIdentityInfo(String openUserId);

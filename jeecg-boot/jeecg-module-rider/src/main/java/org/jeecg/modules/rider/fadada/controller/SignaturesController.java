@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
@@ -56,13 +55,17 @@ public class SignaturesController{
     @Value("${fadada.templateId}")
     private String templateId;
 
+
+    @Value("${fadada.partnerTemplateId}")
+    private String partnerTemplateId;
+
     /**
     * 获取个人授权链接
     * @return
     */
    @ApiOperation(value="电子签管理-获取个人授权链接", notes="电子签管理-获取个人授权链接")
    @GetMapping(value = "/getCorpAuthUrl")
-   public Result<EUrlRes> getCorpAuthUrl() {
+   public Result<EUrlRes> getCorpAuthUrl(Post post) {
        //	获取当前用户
        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
        if (oConvertUtils.isEmpty(loginUser)) {
@@ -75,8 +78,29 @@ public class SignaturesController{
        if(StringUtils.isNotEmpty(riderCustomer.getIdCard())){
            return Result.error("用户已经实名成功！");
        }
-       return Result.ok(signaturesService.getUserAuthUrl(riderCustomer));
+       return Result.ok(signaturesService.getUserAuthUrl(riderCustomer,post.getId()));
    }
+
+
+    /**
+     * 个人授权解除绑定
+     * @return
+     */
+    @ApiOperation(value="电子签管理-个人授权解除绑定", notes="电子签管理-个人授权解除绑定")
+    @GetMapping(value = "/userUnbind")
+    public Result userUnbind() {
+        //	获取当前用户
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        if (oConvertUtils.isEmpty(loginUser)) {
+            return Result.error("请登录系统！");
+        }
+        RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+        if (oConvertUtils.isEmpty(riderCustomer)) {
+            return Result.error("请注册用户！");
+        }
+        signaturesService.userUnbind(riderCustomer.getOpenUserId());
+        return Result.ok();
+    }
 
 
     /**
@@ -137,5 +161,45 @@ public class SignaturesController{
         }
         return Result.OK(res);
     }
+
+
+    /**
+     *   创建主理人协议签署任务
+     */
+    @AutoLog(value = "创建主理人协议签署任务")
+    @ApiOperation(value="创建主理人协议签署任务", notes="创建主理人协议签署任务")
+    @PostMapping(value = "/createPartnerSginTask")
+    public Result<SignTaskActorGetUrlRes> createPartnerSginTask() {
+        //	获取当前用户
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        if (oConvertUtils.isEmpty(loginUser)) {
+            return Result.error("请登录系统！");
+        }
+        RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+        if (oConvertUtils.isEmpty(riderCustomer)) {
+            return Result.error("请注册用户！");
+        }
+        if(StringUtils.isEmpty(riderCustomer.getIdCard())){
+            Result result = new Result();
+            result.setCode(10080);
+            result.setMessage("用户未实名,请先实名认证!");
+            return result;
+        }
+        if(StringUtils.isNotEmpty(riderCustomer.getSignTaskId())){
+            // 已经签署过合同，直接返回链接
+            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(templateId, riderCustomer.getSignTaskId(), riderCustomer.getId());
+            return Result.OK(actorGetUrlRes);
+        }
+        SignTaskActorGetUrlRes res = signaturesService.createWithPartnerTemplate(templateId, riderCustomer);
+        //更新报名记录的合同
+        if(StringUtils.isNotEmpty(riderCustomer.getSignTaskId())){
+            RiderCustomer update = new RiderCustomer();
+            update.setSignTaskId(riderCustomer.getSignTaskId());
+            update.setId(riderCustomer.getId());
+            riderCustomerService.updateById(update);
+        }
+        return Result.OK(res);
+    }
+
 
 }

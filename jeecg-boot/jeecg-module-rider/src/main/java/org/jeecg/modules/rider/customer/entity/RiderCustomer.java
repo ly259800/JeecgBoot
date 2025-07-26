@@ -129,4 +129,8 @@ public class RiderCustomer implements Serializable {
     private java.lang.String idCard;
 
 
+    @ApiModelProperty(value = "签署任务")
+    private java.lang.String signTaskId;
+
+
 }

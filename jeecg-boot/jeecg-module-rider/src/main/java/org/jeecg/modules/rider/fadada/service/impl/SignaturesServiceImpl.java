@@ -23,6 +23,7 @@ import com.fasc.open.api.v5_1.req.template.SignTemplateDetailReq;
 import com.fasc.open.api.v5_1.req.user.GetUserAuthUrlReq;
 import com.fasc.open.api.v5_1.req.user.GetUserIdentityInfoReq;
 import com.fasc.open.api.v5_1.req.user.UserIdentInfoReq;
+import com.fasc.open.api.v5_1.req.user.UserUnbindReq;
 import com.fasc.open.api.v5_1.res.common.ECorpAuthUrlRes;
 import com.fasc.open.api.v5_1.res.common.EUrlRes;
 import com.fasc.open.api.v5_1.res.service.AccessTokenRes;
@@ -232,6 +233,79 @@ public class SignaturesServiceImpl implements SignaturesService {
 
     }
 
+    @Override
+    public SignTaskActorGetUrlRes createWithPartnerTemplate(String signTemplateId, RiderCustomer riderCustomer) {
+        try {
+            // 初始化业务客户端
+            ServiceClient serviceClient = new ServiceClient(openApiClient);
+            // 获取accessToken
+            BaseRes<AccessTokenRes> accessTokenRes = serviceClient.getAccessToken();
+            String accessToken = accessTokenRes.getData().getAccessToken();
+
+            SignTaskClient signTaskClient = new SignTaskClient(openApiClient);
+
+            CreateWithTemplateReq createWithTemplateReq = new CreateWithTemplateReq();
+            createWithTemplateReq.setAccessToken(accessToken);
+            //该签署任务的发起方。
+            createWithTemplateReq.setInitiator(OpenId.getInstance(IdTypeEnum.CORP.getCode(), openCorpId));
+            //签署任务主题。长度最大100个字符。
+            createWithTemplateReq.setSignTaskSubject("安置单签署");
+            //指定签署模板ID。 法大大平台将从该签署模板中复制预先设定的文档、控件和签署方，并对每个签署方指定具体的用户或企业。
+            createWithTemplateReq.setSignTemplateId(signTemplateId);
+            // 获取当前时间
+            LocalDateTime now = LocalDateTime.now();
+            // 添加一个月
+            LocalDateTime oneMonthLater = now.plusMonths(1);
+            // 转换为时间戳
+            ZonedDateTime zdt = oneMonthLater.atZone(ZoneId.systemDefault());
+            Long timestamp = zdt.toInstant().toEpochMilli();
+            //（可选）任务过期时间。
+            createWithTemplateReq.setExpiresTime(timestamp.toString());
+            //（可选）签署任务是否自动发起协作流程：false: 不自动发起 true: 自动发起 默认为false。
+            createWithTemplateReq.setAutoStart(false);
+            //（可选）全部必填控件填写完成后是否自动定稿：false: 不自动定稿 true: 自动定稿 默认为true。
+            createWithTemplateReq.setAutoFillFinalize(true);
+            //有必要的设置BusinessScene值
+            createWithTemplateReq.setBusinessId(businessId);
+            //业务ID
+            createWithTemplateReq.setTransReferenceId(riderCustomer.getId());
+
+            //获取模版详情
+            SignTemplateDetailRes signTemplateDetailRes = this.signTempalteDetail(accessToken , signTemplateId);
+
+            //（可选）参与方列表
+            createWithTemplateReq.setActors(getSignTemplateActors(signTemplateDetailRes, riderCustomer));
+
+            System.out.println(openApiClient.getJsonStrategy().toJson(createWithTemplateReq));
+            BaseRes<CreateSignTaskRes> res = signTaskClient.createWithTemplate(createWithTemplateReq);
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+            if (res.isSuccess()){
+                String signTaskId = res.getData().getSignTaskId();
+                this.fillField(accessToken ,signTaskId,signTemplateDetailRes, riderCustomer);
+                this.signTaskStart(accessToken , res.getData().getSignTaskId());
+                //获取参与方签署链接
+                List<SignTaskActorInfo> actors = signTemplateDetailRes.getActors();
+                SignTaskActorGetUrlRes actorUrl = null;
+                for (SignTaskActorInfo actor : actors) {
+                    //获取个人签署链接
+                    if(Objects.equals(actor.getActorInfo().getActorType(),IdTypeEnum.PERSON.getCode())){
+                        actorUrl = this.getActorUrl(accessToken,signTaskId, actor.getActorInfo().getActorId(), riderCustomer.getId());
+                        break;
+                    }
+                }
+                riderCustomer.setSignTaskId(signTaskId);
+                return actorUrl;
+            } else {
+                log.error("创建签署任务失败！");
+                throw new JeecgBootException("创建签署任务失败:"+res.getMsg());
+            }
+        }  catch (JeecgBootException e1){
+            throw e1;
+        }catch (Exception e) {
+            log.error("创建签署任务失败！",e);
+            throw new JeecgBootException("创建签署任务失败！");
+        }
+    }
 
     /**
      * 签署任务--签署模板的参与方列表
@@ -414,6 +488,33 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
 
+
+    private void fillField(String accessToken,String signTaskId,SignTemplateDetailRes signTemplateDetailRes ,RiderCustomer riderCustomer) {
+        try {
+            // 初始化业务客户端
+            SignTaskClient signTaskClient = new SignTaskClient(openApiClient);
+            FillFieldValuesReq fillFieldValuesReq = new FillFieldValuesReq();
+            fillFieldValuesReq.setAccessToken(accessToken);
+            //签署任务id，通过创建签署任务接口返回
+            fillFieldValuesReq.setSignTaskId(signTaskId);
+            String docId = signTemplateDetailRes.getDocs().get(0).getDocId().toString();
+            //填写类控件列表
+            fillFieldValuesReq.setDocFieldValues(getDocFieldValues(docId,getFiledPartnerMap(riderCustomer)));
+            BaseRes<Void> res = signTaskClient.fillFieldValues(fillFieldValuesReq);
+            if (!res.isSuccess()) {
+                log.error("填充属性值失败！");
+                throw new JeecgBootException("填充属性值失败！"+res.getMsg());
+            }
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+        }  catch (JeecgBootException e1){
+            throw e1;
+        }catch (Exception e) {
+            log.error("填充属性值失败！",e);
+            throw new JeecgBootException("填充属性值失败！");
+        }
+    }
+
+
     /**
      * 填写签署任务控件内容--填写控件列表
      */
@@ -447,6 +548,16 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("hobby","[false,true]");
         filedMap.put("source","小程序");
         filedMap.put("contacts",riderInterview.getContacts());
+        return filedMap;
+    }
+
+
+    private Map<String,String> getFiledPartnerMap(RiderCustomer riderCustomer) {
+        Map<String,String> filedMap = new HashMap<>();
+        filedMap.put("name",riderCustomer.getName());
+        filedMap.put("IDCard",riderCustomer.getIdCard());
+        filedMap.put("phone",riderCustomer.getPhone());
+        filedMap.put("month", DateUtils.getMonth()+"");
         return filedMap;
     }
 
@@ -485,7 +596,7 @@ public class SignaturesServiceImpl implements SignaturesService {
             //应用系统中唯一确定登录用户身份的标识，如应用系统中该用户标识和法大大的账号存在映射关系，则可以实现免登进入签署页面进行签署
             signTaskActorGetUrlReq.setClientUserId(clientUserId);
             //重定向地址
-            //signTaskActorGetUrlReq.setRedirectUrl();
+            signTaskActorGetUrlReq.setRedirectMiniAppUrl("/pages/user/application");
             //签署任务ID
             signTaskActorGetUrlReq.setSignTaskId(signTaskId);
             signTaskActorGetUrlReq.setAccessToken(accessToken);
@@ -584,7 +695,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
     @Override
-        public EUrlRes getUserAuthUrl(RiderCustomer riderCustomer) {
+    public EUrlRes getUserAuthUrl(RiderCustomer riderCustomer,String postId) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);
@@ -628,7 +739,7 @@ public class SignaturesServiceImpl implements SignaturesService {
                     UserAuthScopeEnum.SEAL_INFO.getCode()
             }));
             //重定向地址
-            req.setRedirectUrl(redirectUrl+"/signatures/callback/userauth");
+            req.setRedirectMiniAppUrl("pages/index/workDetail?id="+postId);
             req.setAccessToken(accessToken);
 
             BaseRes<EUrlRes> res = userClient.getUserAuthUrl(req);
@@ -637,6 +748,27 @@ public class SignaturesServiceImpl implements SignaturesService {
         } catch (Exception e) {
             log.error("获取个人授权链接失败！",e);
             throw new JeecgBootException("获取个人授权链接失败！");
+        }
+    }
+
+    @Override
+    public void userUnbind(String openUserId) {
+        try {
+            // 初始化业务客户端
+            ServiceClient serviceClient = new ServiceClient(openApiClient);
+            // 获取accessToken
+            BaseRes<AccessTokenRes> accessTokenRes = serviceClient.getAccessToken();
+            String accessToken = accessTokenRes.getData().getAccessToken();
+            UserClient userClient = new UserClient(openApiClient);
+            UserUnbindReq userUnbindReq = new UserUnbindReq();
+            userUnbindReq.setAccessToken(accessToken);
+            //法大大平台为该用户在该应用appId范围内分配的唯一标识。
+            userUnbindReq.setOpenUserId(openUserId);
+            BaseRes<Void> res = userClient.unbind(userUnbindReq);
+            ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+        } catch (Exception e) {
+            log.error("个人解除授权失败！",e);
+            throw new JeecgBootException("个人解除授权失败！");
         }
     }
 
