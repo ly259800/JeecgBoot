@@ -11,8 +11,8 @@ import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
-import org.jeecg.modules.rider.site.entity.RiderSite;
-import org.jeecg.modules.rider.site.service.IRiderSiteService;
+import org.jeecg.modules.rider.post.entity.Post;
+import org.jeecg.modules.rider.post.service.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper, RiderInterview> implements IRiderInterviewService {
 
     @Autowired
-    private IRiderSiteService riderSiteService;
+    private IPostService postService;
 
     @Autowired
     private IRiderCustomerService riderCustomerService;
@@ -72,12 +72,8 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
         }
         //获取站点信息
         List<String> siteIdList = riderInterviews.stream().map(x -> x.getSiteId()).collect(Collectors.toList());
-        List<RiderSite> riderSiteList = riderSiteService.listByIds(siteIdList);
-        Map<String,  RiderSite> riderSiteMap = riderSiteList.stream().collect(Collectors.toMap(RiderSite::getId, Function.identity(), (a, b) -> b));
-        //获取推广人信息
-        List<String> referenceList = riderInterviews.stream().map(x -> x.getReference()).collect(Collectors.toList());
-        List<RiderCustomer> riderCustomerList = riderCustomerService.listByIds(referenceList);
-        Map<String,  RiderCustomer> riderCustomerMap = riderCustomerList.stream().collect(Collectors.toMap(RiderCustomer::getId, Function.identity(), (a, b) -> b));
+        List<Post> riderSiteList = postService.listByIds(siteIdList);
+        Map<String,  Post> riderSiteMap = riderSiteList.stream().collect(Collectors.toMap(Post::getId, Function.identity(), (a, b) -> b));
         //更新为已结算
         LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
                 .lambda()
@@ -94,14 +90,8 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
             riderCommission.setInterviewPhone(x.getPhone());
             riderCommission.setAuditStatus(0);
             if(riderSiteMap.containsKey(x.getSiteId())){
-                RiderSite riderSite = riderSiteMap.get(x.getSiteId());
-                RiderCustomer riderCustomer = riderCustomerMap.get(x.getReference());
-                //若是渠道商，则获取单独的推广利润
-                if(Objects.nonNull(riderCustomer) && Objects.equals(riderCustomer.getSiteIdentity(), 1)){
-                    riderCommission.setCommission(riderSite.getCommission() * riderCustomer.getSiteProfit() / 100);
-                } else {
-                    riderCommission.setCommission(riderSite.getCommission() - riderSite.getProfit());
-                }
+                Post riderSite = riderSiteMap.get(x.getSiteId());
+                riderCommission.setCommission(riderSite.getCommission().intValue());
             }
             return riderCommission;
         }).collect(Collectors.toList());
@@ -120,15 +110,15 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
 
     @Override
     public void updateSite(RiderInterview riderInterview) {
-        RiderSite site = riderSiteService.getById(riderInterview.getSiteId());
+        Post site = postService.getById(riderInterview.getSiteId());
         if(Objects.isNull(site)){
-            throw new JeecgBootException("站点不存在!");
+            throw new JeecgBootException("岗位不存在!");
         }
         LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
                 .lambda()
                 .eq(RiderInterview::getId,riderInterview.getId())
                 .set(RiderInterview::getSiteId,riderInterview.getSiteId())
-                .set(RiderInterview::getSiteName,site.getName());
+                .set(RiderInterview::getSiteName,site.getPostName());
         this.update(updateWrapper);
     }
 }
