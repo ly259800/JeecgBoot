@@ -24,7 +24,7 @@ export const formSchema: FormSchema[] = [
   {
     label: '岗位详情',
     field: 'postDetail',
-    component: 'JEditor',
+    component: 'InputTextArea',
   },
   {
     label: '岗位ID',

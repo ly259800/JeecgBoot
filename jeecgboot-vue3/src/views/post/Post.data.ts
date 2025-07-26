@@ -25,6 +25,11 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'postName'
    },
+  {
+    title: '排序',
+    align:"center",
+    dataIndex: 'sort'
+  },
    {
     title: '时薪',
     align:"center",
@@ -101,7 +106,7 @@ export const searchFormSchema: FormSchema[] = [
 //表单数据
 export const formSchema: FormSchema[] = [
   {
-    label: '岗位类型ID',
+    label: '岗位类型',
     field: 'categoryId',
     component: 'JCategorySelect',
     componentProps:{
@@ -109,7 +114,7 @@ export const formSchema: FormSchema[] = [
     },
     dynamicRules: ({model,schema}) => {
           return [
-                 { required: true, message: '请输入岗位类型ID!'},
+                 { required: true, message: '请输入岗位类型!'},
           ];
      },
   },
@@ -137,6 +142,11 @@ export const formSchema: FormSchema[] = [
                  { required: true, message: '请输入岗位名称!'},
           ];
      },
+  },
+  {
+    label: '排序',
+    field: 'sort',
+    component: 'Input',
   },
   {
     label: '时薪',
