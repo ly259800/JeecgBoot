@@ -113,7 +113,7 @@ public class PostController extends JeecgController<Post, IPostService> {
 		 }
 		 //只查询已发布的岗位
 		 queryWrapper.lambda().eq(Post::getPublishStatus, 1);
-		 queryWrapper.lambda().orderByDesc(Post::getCreateTime);
+		 queryWrapper.lambda().orderByAsc(Post::getSort).orderByDesc(Post::getCreateTime);
 		 List<Post> postList = postService.list(queryWrapper);
 		 return Result.OK(postList);
 	 }

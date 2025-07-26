@@ -113,6 +113,7 @@ alter table rider_interview
 alter table rider_interview
     change interview_date operator_name varchar(32) null comment '操作人名称';
 
+alter table family_post add column `sort` int DEFAULT '0' comment '排序';
 
 
 

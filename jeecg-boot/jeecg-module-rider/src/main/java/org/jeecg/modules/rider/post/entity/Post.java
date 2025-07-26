@@ -137,4 +137,10 @@ public class Post implements Serializable {
     @Excel(name = "联系人", width = 15)
     @ApiModelProperty(value = "联系人")
     private java.lang.String contacts;
+
+    /**排序*/
+    @Excel(name = "排序", width = 15)
+    @ApiModelProperty(value = "排序")
+    private java.lang.Integer sort;
+
 }

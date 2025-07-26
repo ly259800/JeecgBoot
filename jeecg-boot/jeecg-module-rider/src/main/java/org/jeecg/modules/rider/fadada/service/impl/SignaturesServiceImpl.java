@@ -551,7 +551,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         if(Objects.equals("客房",riderInterview.getSiteName())){
             filedMap.put("serviceTime", "36个");
         } else {
-            filedMap.put("serviceTime", "    ");
+            filedMap.put("serviceTime", "0");
         }
         filedMap.put("health","[false,true]");
         filedMap.put("credit","[false,true]");

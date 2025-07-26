@@ -153,7 +153,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 BeanUtils.copyProperties(x, interviewDTO);
 			 if(Objects.nonNull(x.getSiteId()) && riderSiteMap.containsKey(x.getSiteId())){
 				 Post riderSite = riderSiteMap.get(x.getSiteId());
-				 //佣金为价格的一半
+				 //佣金
 				 interviewDTO.setSiteCommission(riderSite.getCommission().intValue());
 			 }
 			 return interviewDTO;
@@ -438,9 +438,12 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 data.put("year", DateUtils.getYear());
 		 data.put("month", DateUtils.getMonth());
 		 data.put("day", DateUtils.getDay());
-		 data.put("area", interview.getExpectRegion());
-		 data.put("hotel", interview.getJobPosition());
-		 data.put("teacher", interview.getOperatorName());
+		 if(StringUtils.isNotBlank(interview.getReference())){
+			 RiderCustomer customer = riderCustomerService.getById(interview.getReference());
+			 data.put("teacher", Objects.nonNull( customer)?customer.getName():"");
+		 } else {
+			 data.put("teacher", "");
+		 }
 		 for (Map.Entry<String, Object> entry : data.entrySet()) {
 			 String placeholder = "${" + entry.getKey() + "}";
 			 template = template.replace(placeholder, Objects.nonNull(entry.getValue())?entry.getValue().toString():"");
@@ -489,18 +492,18 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 if(Objects.isNull(interview)){
 			 return Result.error("报名记录不存在!");
 		 }
+		 if(StringUtils.isEmpty(interview.getOperatorName())){
+			 return Result.error("暂无分配岗位，请联系客服!");
+		 }
 		 Map<String, Object> data = new HashMap<>();
 		 data.put("name", interview.getName());
 		 data.put("phone", interview.getPhone());
 		 data.put("year", DateUtils.getYear());
 		 data.put("month", DateUtils.getMonth());
 		 data.put("day", DateUtils.getDay());
-		 if(StringUtils.isNotBlank(interview.getReference())){
-			 RiderCustomer customer = riderCustomerService.getById(interview.getReference());
-			 data.put("teacher", Objects.nonNull( customer)?customer.getName():"");
-		 } else {
-			 data.put("teacher", "");
-		 }
+		 data.put("area", interview.getExpectRegion());
+		 data.put("hotel", interview.getJobPosition());
+		 data.put("teacher", interview.getOperatorName());
 		 for (Map.Entry<String, Object> entry : data.entrySet()) {
 			 String placeholder = "${" + entry.getKey() + "}";
 			 template = template.replace(placeholder, Objects.nonNull(entry.getValue())?entry.getValue().toString():"");
