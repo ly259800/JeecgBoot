@@ -682,22 +682,15 @@ public class DateUtils extends PropertyEditorSupport {
     }
 
     public static int getYear() {
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(getDate());
-        return calendar.get(Calendar.YEAR);
+        return LocalDate.now().getYear();
     }
 
     public static int getMonth() {
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(getDate());
-        return calendar.get(Calendar.MONTH);
+        return LocalDate.now().getMonthValue();
     }
 
-
     public static int getDay() {
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(getDate());
-        return calendar.get(Calendar.DAY_OF_MONTH);
+        return LocalDate.now().getDayOfMonth();
     }
 
     /**
