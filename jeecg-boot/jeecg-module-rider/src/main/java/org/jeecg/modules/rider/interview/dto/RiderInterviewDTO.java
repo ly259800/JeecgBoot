@@ -26,10 +26,14 @@ public class RiderInterviewDTO extends RiderInterview {
     @ApiModelProperty(value = "薪资范围")
     private java.lang.String salaryRange;
 
-
     /**联系人*/
     @Excel(name = "联系人", width = 15)
     @ApiModelProperty(value = "联系人")
     private java.lang.String contacts;
+
+    /**是否显示岗位培训*/
+    @Excel(name = "是否显示岗位培训", width = 15)
+    @ApiModelProperty(value = "是否显示岗位培训")
+    private java.lang.Integer showTrainStatus;
 
 }

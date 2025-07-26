@@ -65,7 +65,7 @@ public class SignaturesController{
     */
    @ApiOperation(value="电子签管理-获取个人授权链接", notes="电子签管理-获取个人授权链接")
    @GetMapping(value = "/getCorpAuthUrl")
-   public Result<EUrlRes> getCorpAuthUrl(Post post) {
+   public Result<EUrlRes> getCorpAuthUrl(@RequestParam("url") String url) {
        //	获取当前用户
        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
        if (oConvertUtils.isEmpty(loginUser)) {
@@ -78,7 +78,7 @@ public class SignaturesController{
        if(StringUtils.isNotEmpty(riderCustomer.getIdCard())){
            return Result.error("用户已经实名成功！");
        }
-       return Result.ok(signaturesService.getUserAuthUrl(riderCustomer,post.getId()));
+       return Result.ok(signaturesService.getUserAuthUrl(riderCustomer,url));
    }
 
 
@@ -140,7 +140,7 @@ public class SignaturesController{
         }
         if(StringUtils.isNotEmpty(interview.getSignTaskId())){
             // 已经签署过合同，直接返回链接
-            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(templateId, interview.getSignTaskId(), riderCustomer.getId());
+            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(templateId, interview.getSignTaskId(), riderCustomer.getId(),false);
             return Result.OK(actorGetUrlRes);
         }
         Post post = postService.getById(interview.getSiteId());
@@ -190,7 +190,7 @@ public class SignaturesController{
         }
         if(StringUtils.isNotEmpty(riderCustomer.getSignTaskId())){
             // 已经签署过合同，直接返回链接
-            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(partnerTemplateId, riderCustomer.getSignTaskId(), riderCustomer.getId());
+            SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(partnerTemplateId, riderCustomer.getSignTaskId(), riderCustomer.getId(),true);
             return Result.OK(actorGetUrlRes);
         }
         SignTaskActorGetUrlRes res = signaturesService.createWithPartnerTemplate(partnerTemplateId, riderCustomer);

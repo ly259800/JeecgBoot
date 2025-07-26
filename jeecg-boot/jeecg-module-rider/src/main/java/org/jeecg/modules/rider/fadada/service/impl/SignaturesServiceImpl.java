@@ -219,7 +219,7 @@ public class SignaturesServiceImpl implements SignaturesService {
                 for (SignTaskActorInfo actor : actors) {
                     //获取个人签署链接
                     if(Objects.equals(actor.getActorInfo().getActorType(),IdTypeEnum.PERSON.getCode())){
-                        actorUrl = this.getActorUrl(accessToken,signTaskId, actor.getActorInfo().getActorId(), riderCustomer.getId());
+                        actorUrl = this.getActorUrl(accessToken,signTaskId, actor.getActorInfo().getActorId(), riderCustomer.getId(),false);
                         break;
                     }
                 }
@@ -294,7 +294,7 @@ public class SignaturesServiceImpl implements SignaturesService {
                 for (SignTaskActorInfo actor : actors) {
                     //获取个人签署链接
                     if(Objects.equals(actor.getActorInfo().getActorType(),IdTypeEnum.PERSON.getCode())){
-                        actorUrl = this.getActorUrl(accessToken,signTaskId, actor.getActorInfo().getActorId(), riderCustomer.getId());
+                        actorUrl = this.getActorUrl(accessToken,signTaskId, actor.getActorInfo().getActorId(), riderCustomer.getId(), true);
                         break;
                     }
                 }
@@ -551,7 +551,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         if(Objects.equals("客房",riderInterview.getSiteName())){
             filedMap.put("serviceTime", "36个");
         } else {
-            filedMap.put("serviceTime", "");
+            filedMap.put("serviceTime", "    ");
         }
         filedMap.put("health","[false,true]");
         filedMap.put("credit","[false,true]");
@@ -569,10 +569,10 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("name",riderCustomer.getName());
         filedMap.put("IDCard",riderCustomer.getIdCard());
         filedMap.put("phone",riderCustomer.getPhone());
-        filedMap.put("address","");
+        filedMap.put("address","上海市");
         filedMap.put("IDCard1",riderCustomer.getIdCard());
         filedMap.put("phone1",riderCustomer.getPhone());
-        filedMap.put("address1","");
+        filedMap.put("address1","上海市");
         filedMap.put("price",payment_num.getParamValue());
         filedMap.put("ratio","40%");
         filedMap.put("year", DateUtils.getYear()+"");
@@ -612,7 +612,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         }
     }
 
-    private SignTaskActorGetUrlRes getActorUrl(String accessToken,String signTaskId,String actorId,String clientUserId) {
+    private SignTaskActorGetUrlRes getActorUrl(String accessToken,String signTaskId,String actorId,String clientUserId, Boolean partner) {
         try {
             // 初始化业务客户端
             SignTaskClient signTaskClient = new SignTaskClient(openApiClient);
@@ -623,7 +623,7 @@ public class SignaturesServiceImpl implements SignaturesService {
             //应用系统中唯一确定登录用户身份的标识，如应用系统中该用户标识和法大大的账号存在映射关系，则可以实现免登进入签署页面进行签署
             signTaskActorGetUrlReq.setClientUserId(clientUserId);
             //重定向地址
-            signTaskActorGetUrlReq.setRedirectMiniAppUrl("/pages/user/application");
+            signTaskActorGetUrlReq.setRedirectMiniAppUrl(partner ? "/pages/partner/index" : "/pages/user/application");
             //签署任务ID
             signTaskActorGetUrlReq.setSignTaskId(signTaskId);
             signTaskActorGetUrlReq.setAccessToken(accessToken);
@@ -643,7 +643,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
     @Override
-    public SignTaskActorGetUrlRes getActorUrlBySignTaskId(String templateId,String signTaskId, String clientUserId) {
+    public SignTaskActorGetUrlRes getActorUrlBySignTaskId(String templateId,String signTaskId, String clientUserId, Boolean partner ) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);
@@ -658,7 +658,7 @@ public class SignaturesServiceImpl implements SignaturesService {
             for (SignTaskActorInfo actor : actors) {
                 //获取个人签署链接
                 if(Objects.equals(actor.getActorInfo().getActorType(),IdTypeEnum.PERSON.getCode())){
-                    actorUrl = this.getActorUrl(accessToken,signTaskId, actor.getActorInfo().getActorId(), clientUserId);
+                    actorUrl = this.getActorUrl(accessToken,signTaskId, actor.getActorInfo().getActorId(), clientUserId, partner);
                     break;
                 }
             }
@@ -722,7 +722,7 @@ public class SignaturesServiceImpl implements SignaturesService {
     }
 
     @Override
-    public EUrlRes getUserAuthUrl(RiderCustomer riderCustomer,String postId) {
+    public EUrlRes getUserAuthUrl(RiderCustomer riderCustomer,String url) {
         try {
             // 初始化业务客户端
             ServiceClient serviceClient = new ServiceClient(openApiClient);
@@ -766,7 +766,7 @@ public class SignaturesServiceImpl implements SignaturesService {
                     UserAuthScopeEnum.SEAL_INFO.getCode()
             }));
             //重定向地址
-            req.setRedirectMiniAppUrl("/pages/index/workDetail?id="+postId);
+            req.setRedirectMiniAppUrl(url);
             req.setAccessToken(accessToken);
 
             BaseRes<EUrlRes> res = userClient.getUserAuthUrl(req);

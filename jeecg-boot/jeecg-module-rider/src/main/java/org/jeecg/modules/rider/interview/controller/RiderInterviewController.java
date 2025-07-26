@@ -219,6 +219,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 						 interviewDTO.setPrice(BigDecimal.ZERO);
 					 }
 				 }
+				 interviewDTO.setShowTrainStatus(riderSite.getTrainingStatus());
 			 }
 			 return interviewDTO;
 		 }).collect(Collectors.toList());

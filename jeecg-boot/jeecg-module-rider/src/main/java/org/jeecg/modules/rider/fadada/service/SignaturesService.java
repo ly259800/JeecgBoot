@@ -24,14 +24,14 @@ public interface SignaturesService {
     SignTaskActorGetUrlRes createWithPartnerTemplate(String signTemplateId, RiderCustomer riderCustomer);
 
 
-    SignTaskActorGetUrlRes getActorUrlBySignTaskId(String templateId,String signTaskId, String clientUserId);
+    SignTaskActorGetUrlRes getActorUrlBySignTaskId(String templateId,String signTaskId, String clientUserId, Boolean partner);
 
     SignTaskDetailRes getAppDetail(String signTaskId);
 
 
     OwnerDownloadUrlRes getOwnerDownloadUrl(String signTaskId);
 
-    EUrlRes getUserAuthUrl(RiderCustomer riderCustomer,String postId);
+    EUrlRes getUserAuthUrl(RiderCustomer riderCustomer,String url);
 
     void userUnbind(String openUserId);
 
