@@ -36,4 +36,10 @@ public class RiderInterviewDTO extends RiderInterview {
     @ApiModelProperty(value = "是否显示岗位培训")
     private java.lang.Integer showTrainStatus;
 
+
+    /**岗位类型*/
+    @Excel(name = "岗位类型", width = 15)
+    @ApiModelProperty(value = "岗位类型")
+    private java.lang.String categoryName;
+
 }

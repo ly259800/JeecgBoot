@@ -150,6 +150,7 @@ public class SignaturesController{
         RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
         BeanUtils.copyProperties(interview, interviewDTO);
         interviewDTO.setContacts(post.getContacts());
+        interviewDTO.setCategoryName(post.getCategoryName());
         //若价格为0，则取岗位的价格
         if(Objects.isNull(interviewDTO.getPrice()) || interviewDTO.getPrice().compareTo(BigDecimal.ZERO)<=0){
             interviewDTO.setPrice(post.getPrice());

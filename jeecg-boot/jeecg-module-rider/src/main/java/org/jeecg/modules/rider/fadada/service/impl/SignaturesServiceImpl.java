@@ -548,7 +548,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("year", DateUtils.getYear()+"");
         filedMap.put("month", DateUtils.getMonth()+"");
         filedMap.put("day", DateUtils.getDay()+"");
-        if(Objects.equals("客房",riderInterview.getSiteName())){
+        if(Objects.equals("客房",riderInterview.getCategoryName())){
             filedMap.put("serviceTime", "36个");
         } else {
             filedMap.put("serviceTime", "0");
