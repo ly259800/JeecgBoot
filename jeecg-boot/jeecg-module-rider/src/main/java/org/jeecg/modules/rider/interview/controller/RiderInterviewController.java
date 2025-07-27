@@ -295,8 +295,10 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 	@RequiresPermissions("interview:rider_interview:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody RiderInterview riderInterview) {
-		if(StringUtils.isNotEmpty(riderInterview.getMemo())){
+		if(StringUtils.isNotEmpty(riderInterview.getExpectRegion()) && StringUtils.isNotEmpty(riderInterview.getJobPosition())){
 			riderInterviewService.handle(riderInterview);
+		} else {
+			return Result.OK("请输入必填项!");
 		}
 		if(StringUtils.isNotEmpty(riderInterview.getSiteId())){
 			riderInterviewService.updateSite(riderInterview);
@@ -305,17 +307,16 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 	}
 
 	 /**
-	  *  跟踪维护
-	  * @param riderInterview
+	  *  设置支付金额
 	  * @return
 	  */
-	 @AutoLog(value = "面试管理-跟踪维护")
-	 @ApiOperation(value="面试管理-跟踪维护", notes="面试管理-跟踪维护")
-	 @RequiresPermissions("interview:rider_interview:handle")
-	 @RequestMapping(value = "/handle", method = {RequestMethod.POST})
-	 public Result<String> handle(@RequestBody RiderInterview riderInterview) {
-		 riderInterviewService.handle(riderInterview);
-		 return Result.OK("维护成功!");
+	 @AutoLog(value = "面试管理-设置支付金额")
+	 @ApiOperation(value="面试管理-设置支付金额", notes="面试管理-设置支付金额")
+	 @RequiresPermissions("interview:rider_interview:updatePriceBatch")
+	 @RequestMapping(value = "/updatePriceBatch", method = {RequestMethod.POST})
+	 public Result<String> updatePriceBatch(@RequestParam(name="ids",required=true) String ids,@RequestParam(name="price",required=true) BigDecimal price) {
+		 riderInterviewService.updatePriceBatch(ids, price);
+		 return Result.OK("设置成功!");
 	 }
 
 	 /**

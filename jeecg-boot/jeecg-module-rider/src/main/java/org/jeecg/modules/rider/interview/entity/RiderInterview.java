@@ -104,12 +104,12 @@ public class RiderInterview implements Serializable {
     @ApiModelProperty(value = "岗位ID")
     private java.lang.String siteId;
 
-    @Excel(name = "期望区域地址", width = 15)
-    @ApiModelProperty(value = "期望区域地址")
+    @Excel(name = "分配区域", width = 15)
+    @ApiModelProperty(value = "分配区域")
     private java.lang.String expectRegion;
 
-    @Excel(name = "工作地点", width = 15)
-    @ApiModelProperty(value = "工作地点")
+    @Excel(name = "酒店名称", width = 15)
+    @ApiModelProperty(value = "酒店名称")
     private java.lang.String jobPosition;
 
     @Excel(name = "操作人名称", width = 15)

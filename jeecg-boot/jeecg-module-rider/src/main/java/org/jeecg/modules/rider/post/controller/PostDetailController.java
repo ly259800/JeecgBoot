@@ -104,6 +104,7 @@ public class PostDetailController extends JeecgController<PostDetail, IPostDetai
 		PostDetail oldPostDetail = postDetailService.getByPostId(postDetail.getPostId());
 		if(oldPostDetail != null){
 			oldPostDetail.setPostDetail(postDetail.getPostDetail());
+			oldPostDetail.setEnvironment(postDetail.getEnvironment());
 			postDetailService.updateById(oldPostDetail);
 		} else {
 			postDetailService.save(postDetail);

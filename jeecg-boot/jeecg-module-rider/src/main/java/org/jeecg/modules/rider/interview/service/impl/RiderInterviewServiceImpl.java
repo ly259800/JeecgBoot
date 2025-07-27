@@ -3,10 +3,11 @@ package org.jeecg.modules.rider.interview.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.exception.JeecgBootException;
+import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.modules.rider.commission.entity.RiderCommission;
 import org.jeecg.modules.rider.commission.service.IRiderCommissionService;
-import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -99,12 +101,42 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
     }
 
     @Override
-    public void handle(RiderInterview riderInterview) {
+    public void updatePriceBatch(String ids, BigDecimal price) {
+        List<String> idList = Arrays.asList(ids.split(","));
+        RiderInterview riderInterview = this.getById(idList.get(0));
+        if (riderInterview == null){
+            throw new JeecgBootException("报名记录不存在！");
+        }
+        if(riderInterview.getPayStatus() == 1){
+            throw new JeecgBootException("该报名记录已支付，不能修改价格！");
+        }
+        //获取岗位信息
+        Post post = postService.getById(riderInterview.getSiteId());
+        if(post == null){
+            throw new JeecgBootException("岗位不存在！");
+        }
+        if (post.getPayType() == 1){
+            throw new JeecgBootException("岗位为付费类型，不能修改价格！");
+        }
+        //更新支付金额
         LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
                 .lambda()
                 .eq(RiderInterview::getId, riderInterview.getId())
-                .set(RiderInterview::getMemo,riderInterview.getMemo())
-                .set(RiderInterview::getStatus,"1");
+                .set(RiderInterview::getPrice,price);
+        this.update(updateWrapper);
+    }
+
+    @Override
+    public void handle(RiderInterview riderInterview) {
+        //获取当前用户
+        LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
+                .lambda()
+                .eq(RiderInterview::getId, riderInterview.getId())
+                .set(RiderInterview::getJobPosition,riderInterview.getJobPosition())
+                .set(RiderInterview::getExpectRegion,riderInterview.getExpectRegion())
+                .set(RiderInterview::getOperatorName,sysUser.getRealname())
+                .set(RiderInterview::getMemo,riderInterview.getMemo());
         this.update(updateWrapper);
     }
 

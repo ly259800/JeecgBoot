@@ -3,6 +3,8 @@ package org.jeecg.modules.rider.interview.service;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.math.BigDecimal;
+
 /**
  * @Description: 面试管理
  * @Author: jeecg-boot
@@ -14,6 +16,9 @@ public interface IRiderInterviewService extends IService<RiderInterview> {
     void passBatch(String ids);
 
     void settleBatch(String ids);
+
+
+    void updatePriceBatch(String ids, BigDecimal price);
 
     void handle(RiderInterview riderInterview);
 

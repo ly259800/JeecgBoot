@@ -25,6 +25,13 @@ export const formSchema: FormSchema[] = [
     label: '岗位详情',
     field: 'postDetail',
     component: 'InputTextArea',
+  },{
+    label: '工作环境',
+    field: 'environment',
+    component: 'JImageUpload',
+    componentProps:{
+      fileMax:4
+    },
   },
   {
     label: '岗位ID',
