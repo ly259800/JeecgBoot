@@ -12,14 +12,6 @@ export const columns: BasicColumn[] = [
     dataIndex: 'source'
   },
   {
-    title: '处理状态',
-    align:"center",
-    dataIndex: 'status',
-    customRender: ({ text }) => {
-      return render.renderDict(text, 'yn');
-    },
-  },
-  {
     title: '入职状态',
     align:"center",
     dataIndex: 'passStatus',
@@ -57,17 +49,60 @@ export const columns: BasicColumn[] = [
     title: '手机号码',
     align:"center",
     dataIndex: 'phone'
-   },
-  {
-    title: '跟踪维护',
-    align:"center",
-    dataIndex: 'memo'
-  },
-   {
+   },{
     title: '岗位',
     align:"center",
     dataIndex: 'siteName'
-   }
+  },{
+    title: '付费价格',
+    align:"center",
+    dataIndex: 'price'
+  },
+  {
+    title: '是否支付',
+    align:"center",
+    dataIndex: 'payStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
+    title: '是否签署',
+    align:"center",
+    dataIndex: 'signStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
+    title: '是否培训',
+    align:"center",
+    dataIndex: 'trainingStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },
+  {
+    title: '是否岗位确认',
+    align:"center",
+    dataIndex: 'confirmStatus',
+    customRender: ({ text }) => {
+      return render.renderDict(text, 'yn');
+    },
+  },{
+    title: '分配区域',
+    align:"center",
+    dataIndex: 'expectRegion'
+  },{
+    title: '酒店名称',
+    align:"center",
+    dataIndex: 'jobPosition'
+  },
+  {
+    title: '备注',
+    align:"center",
+    dataIndex: 'memo'
+  }
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [
@@ -120,6 +155,26 @@ export const searchFormSchema: FormSchema[] = [
 //表单数据
 export const formSchema: FormSchema[] = [
   {
+    label: '分配区域',
+    field: 'expectRegion',
+    component: 'Input',
+    dynamicRules: ({model,schema}) => {
+      return [
+        { required: true, message: '请输入分配区域!'},
+      ];
+    },
+  },
+  {
+    label: '酒店名称',
+    field: 'jobPosition',
+    component: 'Input',
+    dynamicRules: ({model,schema}) => {
+      return [
+        { required: true, message: '请输入酒店名称!'},
+      ];
+    },
+  },
+  {
     label: '备注',
     field: 'memo',
     component: 'Input',
@@ -139,7 +194,6 @@ export const superQuerySchema = {
   sex: {title: '性别',order: 1,view: 'number', type: 'number',dictCode: 'sex',},
   age: {title: '年龄',order: 2,view: 'number', type: 'number',},
   phone: {title: '手机号码',order: 3,view: 'text', type: 'string',},
-  siteName: {title: '报道站点',order: 8,view: 'text', type: 'string',},
   reference: {title: '推广人',order: 10,view: 'text', type: 'string',},
   source: {title: '数据来源',order: 11,view: 'text', type: 'string',},
   status: {title: '处理状态',order: 12,view: 'number', type: 'number',dictCode: 'yn',},

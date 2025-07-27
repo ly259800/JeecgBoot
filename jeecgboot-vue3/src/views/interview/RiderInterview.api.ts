@@ -15,6 +15,9 @@ enum Api {
   importExcel = '/interview/riderInterview/importExcel',
   exportXls = '/interview/riderInterview/exportXls',
   allSiteList = '/site/riderSite/queryList',
+
+  updatePriceBatch = '/interview/riderInterview/updatePriceBatch',
+
 }
 /**
  * 导出api
@@ -113,6 +116,25 @@ export const saveOrUpdate = (params, isUpdate) => {
   return defHttp.post({url: url, params});
 }
 
+
+/**
+ * 批量更新价格
+ * @param params
+ */
+export const updatePrice = (params, handleSuccess) => {
+  createConfirm({
+    iconType: 'warning',
+    title: '确认更新',
+    content: '是否更新选中数据',
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      return defHttp.post({url: Api.updatePriceBatch, data: params}, {joinParamsToUrl: true}).then(() => {
+        handleSuccess();
+      });
+    }
+  });
+}
 
 /**
  * 获取全部站点
