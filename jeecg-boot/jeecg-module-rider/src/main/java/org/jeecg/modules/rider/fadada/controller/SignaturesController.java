@@ -135,9 +135,6 @@ public class SignaturesController{
         if(Objects.isNull(interview)){
             return Result.error("该报名记录不存在！");
         }
-        if(Objects.equals(interview.getSignStatus() , 1)){
-            return Result.error("该报名记录已签署！");
-        }
         if(StringUtils.isNotEmpty(interview.getSignTaskId())){
             // 已经签署过合同，直接返回链接
             SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(templateId, interview.getSignTaskId(), riderCustomer.getId(),false);
@@ -164,6 +161,43 @@ public class SignaturesController{
             riderInterviewService.updateById(update);
         }
         return Result.OK(res);
+    }
+
+    /**
+     *   获取签署合同
+     */
+    @AutoLog(value = "查询签署合同")
+    @ApiOperation(value="查询签署合同", notes="查询签署合同")
+    @PostMapping(value = "/querySignTask")
+    public Result<SignTaskActorGetUrlRes> querySignTask(@RequestBody RiderInterview riderInterview) {
+        //	获取当前用户
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        if (oConvertUtils.isEmpty(loginUser)) {
+            return Result.error("请登录系统！");
+        }
+        RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+        if (oConvertUtils.isEmpty(riderCustomer)) {
+            return Result.error("请注册用户！");
+        }
+        if(StringUtils.isEmpty(riderCustomer.getIdCard())){
+            Result result = new Result();
+            result.setCode(10080);
+            result.setMessage("用户未实名,请先实名认证!");
+            return result;
+        }
+        if(StringUtils.isEmpty(riderInterview.getId())){
+            return Result.error("请选择报名记录！");
+        }
+        RiderInterview interview = riderInterviewService.getById(riderInterview.getId());
+        if(Objects.isNull(interview)){
+            return Result.error("该报名记录不存在！");
+        }
+        if(StringUtils.isEmpty(interview.getSignTaskId())){
+            return Result.error("该报名记录未签署！");
+        }
+        // 已经签署过合同，直接返回链接
+        SignTaskActorGetUrlRes actorGetUrlRes = signaturesService.getActorUrlBySignTaskId(templateId, interview.getSignTaskId(), riderCustomer.getId(),false);
+        return Result.OK(actorGetUrlRes);
     }
 
 

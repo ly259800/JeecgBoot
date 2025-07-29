@@ -36,6 +36,7 @@ import com.fasc.open.api.v5_1.res.template.SignTaskActorInfo;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
 import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
@@ -48,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -349,13 +351,13 @@ public class SignaturesServiceImpl implements SignaturesService {
         //(可选）参与方签署序号
         signConfigInfo.setOrderNo(1);
         //（可选）个人参与方或企业参与方经办人的签署方式
-        signConfigInfo.setSignerSignMethod(null);
+        signConfigInfo.setSignerSignMethod("ai_hand_write");
         //（可选）是否要求该参与方将所有文档（不包含附件）阅读至末页才可签署
         signConfigInfo.setReadingToEnd(null);
         //（可选）要求该参与方的最少阅读时间，单位为秒
         signConfigInfo.setReadingTime(null);
         //（可选）允许该参与方使用的身份和意愿确认方式
-        signConfigInfo.setVerifyMethods(null);
+        signConfigInfo.setVerifyMethods(Arrays.asList("sms", "face"));
         //（可选）企业参与方成员能否通过链接打开签署任务
         signConfigInfo.setJoinByLink(null);
         //（可选）是否暂时阻塞
@@ -550,14 +552,14 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("day", DateUtils.getDay()+"");
         if(Objects.equals("客房",riderInterview.getCategoryName())){
             filedMap.put("serviceTime", "36个");
-        } else {
-            filedMap.put("serviceTime", "0");
         }
         filedMap.put("health","[false,true]");
         filedMap.put("credit","[false,true]");
         filedMap.put("hobby","[false,true]");
         filedMap.put("source","小程序");
-        filedMap.put("contacts",riderInterview.getContacts());
+        if(StringUtils.isNotEmpty(riderInterview.getContacts())){
+            filedMap.put("contacts",riderInterview.getContacts());
+        }
         return filedMap;
     }
 
@@ -569,10 +571,10 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("name",riderCustomer.getName());
         filedMap.put("IDCard",riderCustomer.getIdCard());
         filedMap.put("phone",riderCustomer.getPhone());
-        filedMap.put("address","上海市");
+        //filedMap.put("address","上海市");
         filedMap.put("IDCard1",riderCustomer.getIdCard());
         filedMap.put("phone1",riderCustomer.getPhone());
-        filedMap.put("address1","上海市");
+        //filedMap.put("address1","上海市");
         filedMap.put("price",payment_num.getParamValue());
         filedMap.put("ratio","40%");
         filedMap.put("year", DateUtils.getYear()+"");
@@ -766,7 +768,7 @@ public class SignaturesServiceImpl implements SignaturesService {
                     UserAuthScopeEnum.SEAL_INFO.getCode()
             }));
             //重定向地址
-            req.setRedirectMiniAppUrl(url);
+            req.setRedirectMiniAppUrl(URLEncoder.encode(url, "UTF-8"));
             req.setAccessToken(accessToken);
 
             BaseRes<EUrlRes> res = userClient.getUserAuthUrl(req);
