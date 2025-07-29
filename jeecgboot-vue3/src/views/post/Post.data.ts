@@ -46,7 +46,7 @@ export const columns: BasicColumn[] = [
     dataIndex: 'contactPhone'
   },
    {
-    title: '详细地址',
+    title: '区域',
     align:"center",
     dataIndex: 'address'
    },
@@ -157,19 +157,29 @@ export const formSchema: FormSchema[] = [
     label: '联系人',
     field: 'contacts',
     component: 'Input',
+    dynamicRules: ({model,schema}) => {
+      return [
+        { required: true, message: '请输入联系人!'},
+      ];
+    },
   },
   {
     label: '联系电话',
     field: 'contactPhone',
     component: 'InputNumber',
+    dynamicRules: ({model,schema}) => {
+      return [
+        { required: true, message: '请输入联系电话!'},
+      ];
+    },
   },
   {
-    label: '详细地址',
+    label: '区域',
     field: 'address',
     component: 'Input',
     dynamicRules: ({model,schema}) => {
           return [
-                 { required: true, message: '请输入详细地址!'},
+                 { required: true, message: '请输入区域!'},
           ];
      },
   },
@@ -182,6 +192,11 @@ export const formSchema: FormSchema[] = [
     label: '城市',
     field: 'city',
     component: 'Input',
+    dynamicRules: ({model,schema}) => {
+      return [
+        { required: true, message: '请输入城市!'},
+      ];
+    },
   },
   {
     label: '福利',
