@@ -4,6 +4,7 @@ import { rules} from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { getWeekMonthQuarterYear } from '/@/utils';
 import {getAllSiteList} from "@/views/interview/RiderInterview.api";
+import {h} from "vue";
 //列表数据
 export const columns: BasicColumn[] = [
   {
@@ -97,6 +98,20 @@ export const columns: BasicColumn[] = [
     title: '酒店名称',
     align:"center",
     dataIndex: 'jobPosition'
+  },{
+    title: '安置单',
+    align:"center",
+    dataIndex: 'signTaskUrl',
+    customRender: ({ text }) => {
+      if (!text) {
+        return '';
+      }
+      return h('a', {
+        href: text,
+        target: '_blank',
+        rel: 'noopener noreferrer'
+      }, '查看安置单');
+    },
   },
   {
     title: '备注',

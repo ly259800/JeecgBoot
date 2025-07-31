@@ -4,6 +4,7 @@ import { rules} from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 import { getWeekMonthQuarterYear } from '/@/utils';
 import {UploadTypeEnum} from "@/components/Form/src/jeecg/components/JUpload";
+import {h} from "vue";
 //列表数据
 export const columns: BasicColumn[] = [
    {
@@ -16,11 +17,21 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'referencePhone'
   },
+  {
+    title: '姓名',
+    align:"center",
+    dataIndex: 'name'
+  },
    {
     title: '手机号',
     align:"center",
     dataIndex: 'phone'
    },
+  {
+    title: '身份证号',
+    align:"center",
+    dataIndex: 'idCard'
+  },
    {
     title: '头像',
     align:"center",
@@ -42,6 +53,20 @@ export const columns: BasicColumn[] = [
       }
       return render.renderImage({text});
     },
+  },{
+    title: '主理人协议',
+    align:"center",
+    dataIndex: 'signTaskUrl',
+    customRender: ({ text }) => {
+      if (!text) {
+        return '';
+      }
+      return h('a', {
+        href: text,
+        target: '_blank',
+        rel: 'noopener noreferrer'
+      }, '查看主理人协议');
+    },
   },
   {
     title: '我的佣金',
@@ -52,25 +77,7 @@ export const columns: BasicColumn[] = [
     title: '已提现佣金',
     align:"center",
     dataIndex: 'settleCommission'
-  },
-  {
-    title: '是否渠道商',
-    align:"center",
-    dataIndex: 'siteIdentity',
-    customRender: ({ text }) => {
-      return render.renderDict(text, 'yn');
-    },
-  },
-  {
-    title: '站点利润',
-    align:"center",
-    dataIndex: 'siteProfit'
-  },
-  {
-    title: '推广金额',
-    align:"center",
-    dataIndex: 'siteReference'
-  },
+  }
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [
