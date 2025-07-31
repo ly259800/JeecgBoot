@@ -1,6 +1,5 @@
 package org.jeecg.modules.rider.customer.controller;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -27,13 +26,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
-import org.jeecg.modules.rider.interview.entity.RiderInterview;
-import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +58,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 
 	@Autowired
 	private IRiderParamsService riderParamsService;
+
 
 	/**
 	 * 分页列表查询
@@ -238,7 +235,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	@RequiresPermissions("customer:rider_customer:delete")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
-		riderCustomerService.removeById(id);
+		riderCustomerService.deleteBatch( id);
 		return Result.OK("删除成功!");
 	}
 	
@@ -253,7 +250,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	@RequiresPermissions("customer:rider_customer:deleteBatch")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		this.riderCustomerService.removeByIds(Arrays.asList(ids.split(",")));
+		riderCustomerService.deleteBatch(ids);
 		return Result.OK("批量删除成功!");
 	}
 

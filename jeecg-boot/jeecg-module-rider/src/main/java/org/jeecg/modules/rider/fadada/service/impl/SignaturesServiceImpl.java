@@ -550,8 +550,10 @@ public class SignaturesServiceImpl implements SignaturesService {
         filedMap.put("year", DateUtils.getYear()+"");
         filedMap.put("month", DateUtils.getMonth()+"");
         filedMap.put("day", DateUtils.getDay()+"");
-        if(Objects.equals("客房",riderInterview.getCategoryName())){
+        if(Objects.equals("客房保洁",riderInterview.getCategoryName())){
             filedMap.put("serviceTime", "36个");
+        } else {
+            filedMap.put("serviceTime", "1个");
         }
         filedMap.put("health","[false,true]");
         filedMap.put("credit","[false,true]");
@@ -713,7 +715,7 @@ public class SignaturesServiceImpl implements SignaturesService {
             //（可选）文档类型FileTypeEnum：doc：签署任务中的文档 。 attach：签署任务中的附件。
             req.setFileType(FileTypeEnum.DOC.getCode());
             //（可选）指定签署任务中的文档序号docId或附件序号attachId。
-            req.setId("1");
+            //req.setId("1");
             BaseRes<OwnerDownloadUrlRes> res = signTaskClient.getOwnerDownloadUrl(req);
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
             return res.getData();
@@ -749,9 +751,8 @@ public class SignaturesServiceImpl implements SignaturesService {
             userIdentInfoReq.setBankAccountNo("");
             //用户实名认证方式 参考枚举类型 UserIdentMethodEnum,暂不支持人工审核方式
             userIdentInfoReq.setIdentMethod(Arrays.asList(new String[]{
-                    UserIdentMethodEnum.FACE.getCode(),
-                    UserIdentMethodEnum.BANK.getCode(),
-                    UserIdentMethodEnum.MOBILE.getCode()
+                    UserIdentMethodEnum.MOBILE.getCode(),
+                    UserIdentMethodEnum.FACE.getCode()
             }));
 
             req.setUserIdentInfo(userIdentInfoReq);

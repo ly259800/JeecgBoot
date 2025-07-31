@@ -3,13 +3,17 @@ package org.jeecg.modules.rider.customer.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.mapper.RiderCustomerMapper;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper;
+import org.jeecg.modules.system.entity.SysUser;
+import org.jeecg.modules.system.service.ISysUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,13 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
 
     @Autowired
     private RiderInterviewMapper riderInterviewMapper;
+
+
+    @Autowired
+    private ISysUserService sysUserService;
+
+    @Autowired
+    private SignaturesService signaturesService;
 
 
     @Override
@@ -122,5 +133,27 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
         riderCustomerDTO.setPassCount(passCount);
         riderCustomerDTO.setSettleCount(settleCount);
         return riderCustomerDTO;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteBatch(String ids) {
+        List<String> idList = Arrays.asList(ids.split(","));
+        for (String id : idList) {
+            RiderCustomer riderCustomer = this.getById(id);
+            if(Objects.isNull(riderCustomer)){
+                continue;
+            }
+            //删除用户
+            SysUser userByName = sysUserService.getUserByName(riderCustomer.getPhone());
+            if(Objects.nonNull(userByName)){
+                sysUserService.removeById(userByName.getId());
+            }
+            //若已经实名，则取消实名
+            if(StringUtils.isNotBlank(riderCustomer.getOpenUserId())){
+                signaturesService.userUnbind(riderCustomer.getOpenUserId());
+            }
+            this.removeById(id);
+        }
     }
 }

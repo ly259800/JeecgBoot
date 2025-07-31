@@ -117,4 +117,6 @@ alter table family_post add column `sort` int DEFAULT '0' comment '排序';
 
 
 
+alter table rider_customer add column `sign_task_url` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '签署文件链接';
 
+alter table rider_interview add column `sign_task_url` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '签署文件链接';

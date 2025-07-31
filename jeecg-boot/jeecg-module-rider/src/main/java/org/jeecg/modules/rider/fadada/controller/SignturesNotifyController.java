@@ -3,6 +3,7 @@ package org.jeecg.modules.rider.fadada.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fasc.open.api.utils.crypt.FddCryptUtil;
+import com.fasc.open.api.v5_1.res.signtask.OwnerDownloadUrlRes;
 import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -125,13 +126,28 @@ public class SignturesNotifyController {
     private void usersign(UserSignNotifyDto dto) {
         //签署任务已完成
         if(Objects.equals("task_finished", dto.getSignTaskStatus())){
+            //获取签署文件
+            OwnerDownloadUrlRes ownerDownloadUrl = signaturesService.getOwnerDownloadUrl(dto.getSignTaskId());
             RiderInterview interview = riderInterviewService.getById(dto.getTransReferenceId());
             //更新签署成功状态
             if(Objects.nonNull(interview) ){
+                log.info("安置单签署成功回调");
                 RiderInterview updateInterview = new RiderInterview();
                 updateInterview.setId(interview.getId());
                 updateInterview.setSignStatus(1);
+                if(Objects.nonNull(ownerDownloadUrl)){
+                    updateInterview.setSignTaskUrl(ownerDownloadUrl.getDownloadUrl());
+                }
                 riderInterviewService.updateById(updateInterview);
+            } else {
+                RiderCustomer riderCustomer = riderCustomerService.getById(dto.getTransReferenceId());
+                if(Objects.nonNull(riderCustomer)){
+                    RiderCustomer update = new RiderCustomer();
+                    update.setId(riderCustomer.getId());
+                    update.setSignTaskUrl(ownerDownloadUrl.getDownloadUrl());
+                    riderCustomerService.updateById(update);
+                }
+                log.info("主理人协议签署成功回调");
             }
         } else {
             log.info("用户签署失败");

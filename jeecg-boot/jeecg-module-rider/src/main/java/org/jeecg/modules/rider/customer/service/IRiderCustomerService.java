@@ -37,4 +37,6 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
 
     RiderCustomerDTO convertTotal(RiderCustomer entity);
 
+    void deleteBatch(String ids);
+
 }

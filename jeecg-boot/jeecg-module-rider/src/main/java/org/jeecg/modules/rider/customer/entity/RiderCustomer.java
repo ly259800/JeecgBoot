@@ -133,4 +133,8 @@ public class RiderCustomer implements Serializable {
     private java.lang.String signTaskId;
 
 
+    @ApiModelProperty(value = "签署文件链接")
+    private java.lang.String signTaskUrl;
+
+
 }
