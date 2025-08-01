@@ -247,6 +247,7 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
             RiderInterview riderInterview = new RiderInterview();
             riderInterview.setPayStatus(1);
             riderInterview.setId(riderUserOrder.getInterviewId());
+            riderInterview.setPrice(payAmount);
             riderInterviewService.updateById(riderInterview);
         }
     }
