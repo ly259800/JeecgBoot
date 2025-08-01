@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.DateUtils;
+import org.jeecg.common.util.FileDownloadUtils;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
@@ -49,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -65,12 +67,16 @@ public class SignaturesServiceImpl implements SignaturesService {
     @Value("${fadada.mobile}")
     private String mobile;
 
-    @Value("${fadada.redirectUrl}")
-    private String redirectUrl;
-
-
     @Value("${fadada.businessId}")
     private String businessId;
+
+    @Value("${jeecg.path.upload}")
+    private String upLoadPath;
+
+
+    @Value("${jeecg.path.prefix}")
+    private String upLoadPrefix;
+
 
     @Autowired
     private OpenApiClient openApiClient;
@@ -718,11 +724,16 @@ public class SignaturesServiceImpl implements SignaturesService {
             //req.setId("1");
             BaseRes<OwnerDownloadUrlRes> res = signTaskClient.getOwnerDownloadUrl(req);
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
+            //下载合同文件
+            String fileName = "pdf"+ File.separator + UUID.randomUUID().toString().replace("-", "") + ".pdf";
+            FileDownloadUtils.download2DiskFromNet(res.getData().getDownloadUrl(), upLoadPath + File.separator +fileName);
+            res.getData().setDownloadUrl(upLoadPrefix + fileName);
             return res.getData();
         } catch (Exception e) {
             log.error("获取签署文档下载地址失败！",e);
-            throw new JeecgBootException("获取签署文档下载地址失败！");
+            //throw new JeecgBootException("获取签署文档下载地址失败！");
         }
+        return null;
     }
 
     @Override

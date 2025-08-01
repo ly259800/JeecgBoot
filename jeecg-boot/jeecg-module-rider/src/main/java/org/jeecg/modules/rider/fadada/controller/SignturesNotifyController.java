@@ -141,7 +141,7 @@ public class SignturesNotifyController {
                 riderInterviewService.updateById(updateInterview);
             } else {
                 RiderCustomer riderCustomer = riderCustomerService.getById(dto.getTransReferenceId());
-                if(Objects.nonNull(riderCustomer)){
+                if(Objects.nonNull(riderCustomer) && Objects.nonNull(ownerDownloadUrl)){
                     RiderCustomer update = new RiderCustomer();
                     update.setId(riderCustomer.getId());
                     update.setSignTaskUrl(ownerDownloadUrl.getDownloadUrl());

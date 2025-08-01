@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +55,7 @@ public class CommonUtils {
 
     public static String uploadOnlineImage(byte[] data,String basePath,String bizPath,String uploadType){
         String dbPath = null;
-        String fileName = "image" + Math.round(Math.random() * 100000000000L);
+        String fileName = UUID.randomUUID().toString().replace("-", "");
         fileName += "." + PoiPublicUtil.getFileExtendName(data);
         try {
             if(CommonConstant.UPLOAD_TYPE_LOCAL.equals(uploadType)){

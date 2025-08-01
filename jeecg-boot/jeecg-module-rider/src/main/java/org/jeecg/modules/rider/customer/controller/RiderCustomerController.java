@@ -31,6 +31,7 @@ import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -58,6 +59,9 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 
 	@Autowired
 	private IRiderParamsService riderParamsService;
+
+	 @Value("${jeecg.path.prefix}")
+	 private String upLoadPrefix;
 
 
 	/**
@@ -387,12 +391,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 riderCustomer.setQrcode(riderQrcode.getUrl());
 			 riderCustomerService.updateById(riderCustomer);
 		 }
-		 String qrcode = riderCustomer.getQrcode();
-		 //获取图片路径前缀
-		 RiderParams file_path_prefix = riderParamsService.getByCode("file_path_prefix");
-		 if(Objects.nonNull(file_path_prefix)){
-			 qrcode = file_path_prefix.getParamValue() + qrcode;
-		 }
+		 String qrcode = upLoadPrefix + riderCustomer.getQrcode();
 		 return Result.OK(qrcode);
 	 }
 
