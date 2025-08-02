@@ -319,6 +319,23 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 return Result.OK("设置成功!");
 	 }
 
+
+	 /**
+	  *  确认培训
+	  * @return
+	  */
+	 @AutoLog(value = "面试管理-确认培训")
+	 @ApiOperation(value="面试管理-确认培训", notes="面试管理-确认培训")
+	 @RequiresPermissions("interview:rider_interview:confirmTraining")
+	 @RequestMapping(value = "/confirmTraining", method = {RequestMethod.POST})
+	 public Result<String> confirmTraining(@RequestParam(name="ids",required=true) String ids,@RequestParam(name="trainingTeacher",required=true) String trainingTeacher) {
+		 if(StringUtils.isEmpty(trainingTeacher)){
+			 throw new JeecgBootException("请输入招聘老师！");
+		 }
+		 riderInterviewService.confirmTraining(ids, trainingTeacher);
+		 return Result.OK("确认培训成功!");
+	 }
+
 	 /**
 	  *  站点维护
 	  * @param riderInterview
@@ -433,18 +450,16 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 if(Objects.isNull(interview)){
 			 return Result.error("报名记录不存在!");
 		 }
+		 if(StringUtils.isEmpty(interview.getTrainingTeacher())){
+			 return Result.error("暂未进行培训，请联系客服!");
+		 }
 		 Map<String, Object> data = new HashMap<>();
 		 data.put("name", interview.getName());
 		 data.put("phone", interview.getPhone());
 		 data.put("year", DateUtils.getYear());
 		 data.put("month", DateUtils.getMonth());
 		 data.put("day", DateUtils.getDay());
-		 if(StringUtils.isNotBlank(interview.getReference())){
-			 RiderCustomer customer = riderCustomerService.getById(interview.getReference());
-			 data.put("teacher", Objects.nonNull( customer)?customer.getName():"");
-		 } else {
-			 data.put("teacher", "");
-		 }
+	 	 data.put("teacher", interview.getTrainingTeacher());
 		 for (Map.Entry<String, Object> entry : data.entrySet()) {
 			 String placeholder = "${" + entry.getKey() + "}";
 			 template = template.replace(placeholder, Objects.nonNull(entry.getValue())?entry.getValue().toString():"");
@@ -459,8 +474,8 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 	  * @param riderInterview
 	  * @return
 	  */
-	 @AutoLog(value = "岗位培训确认")
-	 @ApiOperation(value="岗位培训确认", notes="岗位培训确认")
+	 @AutoLog(value = "岗位培训单确认")
+	 @ApiOperation(value="岗位培训单确认", notes="岗位培训单确认")
 	 @RequestMapping(value = "/sumbitTrainOrder", method = {RequestMethod.POST})
 	 public Result sumbitTrainOrder(@RequestBody RiderInterview riderInterview) {
 		 if(Objects.isNull(riderInterview.getId())){

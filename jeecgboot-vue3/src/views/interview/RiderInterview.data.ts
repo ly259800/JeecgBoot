@@ -91,6 +91,10 @@ export const columns: BasicColumn[] = [
       return render.renderDict(text, 'yn');
     },
   },{
+    title: '招聘老师',
+    align:"center",
+    dataIndex: 'trainingTeacher'
+  },{
     title: '分配区域',
     align:"center",
     dataIndex: 'expectRegion'
@@ -111,6 +115,20 @@ export const columns: BasicColumn[] = [
         target: '_blank',
         rel: 'noopener noreferrer'
       }, '查看安置单');
+    },
+  },{
+    title: '视频',
+    align:"center",
+    dataIndex: 'videoUrl',
+    customRender: ({ text }) => {
+      if (!text) {
+        return '';
+      }
+      return h('a', {
+        href: text,
+        target: '_blank',
+        rel: 'noopener noreferrer'
+      }, '查看视频');
     },
   },
   {
@@ -187,6 +205,14 @@ export const formSchema: FormSchema[] = [
       return [
         { required: true, message: '请输入酒店名称!'},
       ];
+    },
+  },
+  {
+    label: '视频文件',
+    field: 'videoUrl',
+    component: 'JUpload',
+    componentProps:{
+      maxCount:1
     },
   },
   {

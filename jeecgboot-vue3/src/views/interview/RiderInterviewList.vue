@@ -5,11 +5,11 @@
      <!--插槽:table标题-->
       <template #tableTitle>
 <!--          <a-button type="primary" v-auth="'interview:rider_interview:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>-->
-          <a-button type="primary" v-auth="'interview:rider_interview:passBatch'" @click="handlePassStatus" preIcon="ant-design:plus-outlined">确认入职</a-button>
-          <a-button type="primary" v-auth="'interview:rider_interview:settleBatch'" @click="handleSettleStatus" preIcon="ant-design:plus-outlined">确认结算</a-button>
+        <a-button type="primary" v-auth="'interview:rider_interview:passBatch'" @click="handlePassStatus" preIcon="ant-design:plus-outlined">确认入职</a-button>
+        <a-button type="primary" v-auth="'interview:rider_interview:settleBatch'" @click="handleSettleStatus" preIcon="ant-design:plus-outlined">确认结算</a-button>
         <a-button type="primary" v-auth="'interview:rider_interview:updatePriceBatch'" @click="openProfitBatchModal" preIcon="ant-design:plus-outlined">设置支付金额</a-button>
+        <a-button type="primary" v-auth="'interview:rider_interview:confirmTraining'" @click="openConfirmTraininfModal" preIcon="ant-design:plus-outlined">确认培训</a-button>
         <a-button  type="primary" v-auth="'interview:rider_interview:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-<!--          <j-upload-button type="primary" v-auth="'interview:rider_interview:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>-->
           <a-dropdown v-if="selectedRowKeys.length > 0">
               <template #overlay>
                 <a-menu>
@@ -61,6 +61,24 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- 确认培训 -->
+    <a-modal
+      v-model:visible="showConfirmTrainingModal"
+      title="确认培训"
+      @ok="confirmTrainingSubmit"
+      @cancel="showConfirmTrainingModal = false"
+    >
+      <a-form layout="vertical">
+        <a-form-item label="招聘老师">
+          <a-input
+            v-model:value="trainingTeacher"
+            style="width: 100%"
+            placeholder="请输入招聘老师"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -77,12 +95,13 @@
     batchDelete,
     getImportUrl,
     getExportUrl,
-    batchPass, batchSettle, updatePrice
+    batchPass, batchSettle, updatePrice, confirmTraining
   } from './RiderInterview.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   import { getAreaTextByCode } from '/@/components/Form/src/utils/Area';
   import {useMessage} from "@/hooks/web/useMessage";
+  import {defHttp} from "@/utils/http/axios";
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -135,6 +154,10 @@
   const showBatchProfitModal = ref(false);
   const batchProfitValue = ref<number>(0);
 
+  const showConfirmTrainingModal = ref(false);
+  const trainingTeacher = ref<string>('');
+
+
   // 打开批量设置利润弹框
   function openProfitBatchModal() {
     if (selectedRowKeys.value.length != 1) {
@@ -148,16 +171,30 @@
 
   // 批量设置利润提交
   async function handleBatchProfitSubmit() {
-    try {
       await updatePrice({
         ids: selectedRowKeys.value,
         price: batchProfitValue.value
       }, handleSuccess);
       showBatchProfitModal.value = false;
-    } catch (error) {
-      console.error('设置支付金额失败', error);
-      createMessage.error('设置支付金额失败');
+  }
+
+  // 打开确认培训弹框
+  function openConfirmTraininfModal() {
+    if (selectedRowKeys.value.length != 1) {
+      createMessage.warning('请选择一条记录');
+      return;
     }
+    trainingTeacher.value = '';
+    showConfirmTrainingModal.value = true;
+  }
+
+  // 设置招聘老师
+  async function confirmTrainingSubmit() {
+    await confirmTraining({
+      ids: selectedRowKeys.value,
+      trainingTeacher: trainingTeacher.value
+    }, handleSuccess);
+    showConfirmTrainingModal.value = false;
   }
 
   /**
@@ -188,6 +225,7 @@
        showFooter: true,
      });
    }
+
    /**
     * 详情
    */
@@ -242,6 +280,11 @@
            label: '岗位确认',
            onClick: handleEdit.bind(null, record),
            auth: 'interview:rider_interview:edit'
+         },
+         {
+           label: '上传视频',
+           onClick: handleEdit.bind(null, record),
+           auth: 'interview:rider_interview:uploadVideo'
          }
        ]
    }

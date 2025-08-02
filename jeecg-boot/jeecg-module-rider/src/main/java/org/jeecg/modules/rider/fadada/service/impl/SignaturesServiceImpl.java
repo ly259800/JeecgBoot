@@ -780,7 +780,8 @@ public class SignaturesServiceImpl implements SignaturesService {
                     UserAuthScopeEnum.SEAL_INFO.getCode()
             }));
             //重定向地址
-            req.setRedirectMiniAppUrl(URLEncoder.encode(url, "UTF-8"));
+            log.info("用户实名重定向地址redirectUrl:"+url);
+            req.setRedirectMiniAppUrl(url);
             req.setAccessToken(accessToken);
 
             BaseRes<EUrlRes> res = userClient.getUserAuthUrl(req);

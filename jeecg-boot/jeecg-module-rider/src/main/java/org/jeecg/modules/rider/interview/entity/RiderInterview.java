@@ -167,4 +167,12 @@ public class RiderInterview implements Serializable {
     private java.lang.String signTaskUrl;
 
 
+    @ApiModelProperty(value = "招聘老师")
+    private java.lang.String trainingTeacher;
+
+
+    @ApiModelProperty(value = "视频文件链接")
+    private java.lang.String videoUrl;
+
+
 }

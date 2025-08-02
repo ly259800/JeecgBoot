@@ -20,6 +20,8 @@ public interface IRiderInterviewService extends IService<RiderInterview> {
 
     void updatePriceBatch(String ids, BigDecimal price);
 
+    void confirmTraining(String ids, String trainingTeacher);
+
     void handle(RiderInterview riderInterview);
 
     void updateSite(RiderInterview riderInterview);

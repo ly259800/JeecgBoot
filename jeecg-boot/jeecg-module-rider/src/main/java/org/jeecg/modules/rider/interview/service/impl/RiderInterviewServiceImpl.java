@@ -127,6 +127,24 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
     }
 
     @Override
+    public void confirmTraining(String ids, String trainingTeacher) {
+        List<String> idList = Arrays.asList(ids.split(","));
+        RiderInterview riderInterview = this.getById(idList.get(0));
+        if (riderInterview == null){
+            throw new JeecgBootException("报名记录不存在！");
+        }
+        if(riderInterview.getTrainingStatus() == 1){
+            throw new JeecgBootException("该报名记录已培训！");
+        }
+        //更新支付金额
+        LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
+                .lambda()
+                .eq(RiderInterview::getId, riderInterview.getId())
+                .set(RiderInterview::getTrainingTeacher,trainingTeacher);
+        this.update(updateWrapper);
+    }
+
+    @Override
     public void handle(RiderInterview riderInterview) {
         //获取当前用户
         LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
