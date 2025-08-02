@@ -15,8 +15,8 @@ enum Api {
   importExcel = '/interview/riderInterview/importExcel',
   exportXls = '/interview/riderInterview/exportXls',
   allSiteList = '/site/riderSite/queryList',
-
   updatePriceBatch = '/interview/riderInterview/updatePriceBatch',
+  confirmTraining = '/interview/riderInterview/confirmTraining',
 
 }
 /**
@@ -122,17 +122,19 @@ export const saveOrUpdate = (params, isUpdate) => {
  * @param params
  */
 export const updatePrice = (params, handleSuccess) => {
-  createConfirm({
-    iconType: 'warning',
-    title: '确认更新',
-    content: '是否更新选中数据',
-    okText: '确认',
-    cancelText: '取消',
-    onOk: () => {
-      return defHttp.post({url: Api.updatePriceBatch, data: params}, {joinParamsToUrl: true}).then(() => {
-        handleSuccess();
-      });
-    }
+  return defHttp.post({url: Api.updatePriceBatch, data: params}, {joinParamsToUrl: true}).then(() => {
+    handleSuccess();
+  });
+}
+
+
+/**
+ * 设置招聘老师
+ * @param params
+ */
+export const confirmTraining = (params, handleSuccess) => {
+  return defHttp.post({url: Api.confirmTraining, data: params}, {joinParamsToUrl: true}).then(() => {
+    handleSuccess();
   });
 }
 
