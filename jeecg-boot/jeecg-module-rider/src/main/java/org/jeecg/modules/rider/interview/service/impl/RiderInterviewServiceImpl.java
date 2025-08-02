@@ -153,6 +153,7 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
                 .eq(RiderInterview::getId, riderInterview.getId())
                 .set(RiderInterview::getJobPosition,riderInterview.getJobPosition())
                 .set(RiderInterview::getExpectRegion,riderInterview.getExpectRegion())
+                .set(RiderInterview::getVideoUrl,riderInterview.getVideoUrl())
                 .set(RiderInterview::getOperatorName,sysUser.getRealname())
                 .set(RiderInterview::getMemo,riderInterview.getMemo());
         this.update(updateWrapper);

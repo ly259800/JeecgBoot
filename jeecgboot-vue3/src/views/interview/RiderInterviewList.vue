@@ -280,11 +280,6 @@
            label: '岗位确认',
            onClick: handleEdit.bind(null, record),
            auth: 'interview:rider_interview:edit'
-         },
-         {
-           label: '上传视频',
-           onClick: handleEdit.bind(null, record),
-           auth: 'interview:rider_interview:uploadVideo'
          }
        ]
    }
