@@ -132,6 +132,12 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
         riderCustomerDTO.setFailCount(failCount);
         riderCustomerDTO.setPassCount(passCount);
         riderCustomerDTO.setSettleCount(settleCount);
+        if(StringUtils.isNotBlank(riderCustomer.getReference())){
+            RiderCustomer reference = this.getById(riderCustomer.getReference());
+            if(Objects.nonNull(reference)) {
+                riderCustomerDTO.setPromoterName(reference.getName());
+            }
+        }
         return riderCustomerDTO;
     }
 

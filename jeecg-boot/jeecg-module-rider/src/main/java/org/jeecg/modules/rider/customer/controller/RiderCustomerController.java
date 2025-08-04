@@ -361,10 +361,6 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			return Result.error("未找到对应数据");
 		}
 		RiderCustomerDTO riderCustomerDTO = riderCustomerService.convertTotal(riderCustomer);
-		RiderCustomer reference = riderCustomerService.getById(riderCustomer.getReference());
-		if(Objects.nonNull(reference)) {
-			riderCustomerDTO.setPromoterName(reference.getName());
-		}
 		return Result.OK(riderCustomerDTO);
 	}
 
