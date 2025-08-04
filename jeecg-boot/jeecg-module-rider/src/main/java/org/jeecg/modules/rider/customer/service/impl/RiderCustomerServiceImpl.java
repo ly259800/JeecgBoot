@@ -147,7 +147,9 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
             //删除用户
             SysUser userByName = sysUserService.getUserByName(riderCustomer.getPhone());
             if(Objects.nonNull(userByName)){
-                sysUserService.removeById(userByName.getId());
+                //逻辑删除同时物理删除
+                sysUserService.deleteUser(userByName.getId());
+                sysUserService.removeLogicDeleted(Arrays.asList(userByName.getId()));
             }
             //若已经实名，则取消实名
             if(StringUtils.isNotBlank(riderCustomer.getOpenUserId())){
