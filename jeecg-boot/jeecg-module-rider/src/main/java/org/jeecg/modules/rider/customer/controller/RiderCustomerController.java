@@ -158,9 +158,11 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 Map<Integer, List<RiderCustomer>> map = ls.stream().collect(Collectors.groupingBy(RiderCustomer::getIdentity));
 			 if(map.containsKey(CustomerIdentityEnum.TOURIST.getCode())){
 			 	referenceDTO.setOneListCount(map.get(CustomerIdentityEnum.TOURIST.getCode()).size());
-			 } else if(map.containsKey(CustomerIdentityEnum.RIDER.getCode())){
+			 }
+			 if(map.containsKey(CustomerIdentityEnum.RIDER.getCode())){
 			 	referenceDTO.setTwoListCount(map.get(CustomerIdentityEnum.RIDER.getCode()).size());
-			 } else if(map.containsKey(CustomerIdentityEnum.PARTNER.getCode())){
+			 }
+			 if(map.containsKey(CustomerIdentityEnum.PARTNER.getCode())){
 			 	referenceDTO.setThreeListCount(map.get(CustomerIdentityEnum.PARTNER.getCode()).size());
 			 }
 		 }
