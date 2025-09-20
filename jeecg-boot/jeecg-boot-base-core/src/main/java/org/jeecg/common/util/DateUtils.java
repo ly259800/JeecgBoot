@@ -1,5 +1,6 @@
 package org.jeecg.common.util;
 
+import lombok.SneakyThrows;
 import org.jeecg.common.constant.SymbolConstant;
 import org.springframework.util.StringUtils;
 
@@ -818,6 +819,17 @@ public class DateUtils extends PropertyEditorSupport {
         Calendar calendar2 = Calendar.getInstance();
         calendar2.setTime(date2);
         return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR);
+    }
+
+    //获取指定日期后N天
+    @SneakyThrows
+    public static Date getAfterDate(String strDate, int day) {
+        Date date = yyyyMMdd.get().parse(strDate);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, day);//得到后N天
+        Date newDate = calendar.getTime();
+        return newDate;
     }
 
 }

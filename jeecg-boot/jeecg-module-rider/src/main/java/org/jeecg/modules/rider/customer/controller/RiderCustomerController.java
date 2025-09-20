@@ -13,6 +13,7 @@ import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.dto.RiderReferenceDTO;
@@ -131,6 +132,37 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 referenceDTO.setList(ls);
 		 return Result.OK(referenceDTO);
 	 }
+
+
+	 /**
+	  * 简历库查询列表
+	  * @return
+	  */
+	 @ApiOperation(value="简历库查询列表", notes="简历库查询列表")
+	 @RequestMapping(value = "/listByResume", method = RequestMethod.GET)
+	 public Result<IPage<RiderCustomer>> listByResume(RiderCustomer riderCustomer,
+													  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+													  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+													  HttpServletRequest req) {
+
+		 RiderParams resume_before_date = riderParamsService.getByCode("RESUME_BEFORE_DATE");
+		 int before_date = 7;
+		 if(Objects.nonNull(resume_before_date) && StringUtils.isNotBlank(resume_before_date.getParamValue())){
+			 before_date = Integer.parseInt(resume_before_date.getParamValue());
+		 }
+		 // 自定义查询规则
+		 Map<String, QueryRuleEnum> customeRuleMap = new HashMap<>();
+		 QueryWrapper<RiderCustomer> queryWrapper = QueryGenerator.initQueryWrapper(riderCustomer, req.getParameterMap(),customeRuleMap);
+		 queryWrapper.lambda().eq(RiderCustomer::getIdentity,CustomerIdentityEnum.TOURIST.getCode())
+				 .le(RiderCustomer::getCreateTime, DateUtils.getAfterDate(DateUtils.date2Str(DateUtils.getDate(), DateUtils.yyyyMMdd.get()),0-before_date))
+				 .isNotNull(RiderCustomer::getIdCard)
+				 .ne(RiderCustomer::getIdCard,"")
+				 .orderByDesc(RiderCustomer::getCreateTime);
+		 Page<RiderCustomer> page = new Page<RiderCustomer>(pageNo, pageSize);
+		 IPage<RiderCustomer> pageList = riderCustomerService.page(page, queryWrapper);
+		 return Result.OK(pageList);
+	 }
+
 
 
 	 /**

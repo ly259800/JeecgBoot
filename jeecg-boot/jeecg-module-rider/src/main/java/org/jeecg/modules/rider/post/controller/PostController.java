@@ -12,6 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.shiro.SecurityUtils;
+import org.jeecg.common.system.vo.LoginUser;
+import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
+import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.system.entity.SysCategory;
 import org.jeecg.modules.system.service.ISysCategoryService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
@@ -60,6 +65,9 @@ public class PostController extends JeecgController<Post, IPostService> {
 
 	@Autowired
 	private IPostDetailService postDetailService;
+
+	 @Autowired
+	 private IRiderCustomerService riderCustomerService;
 
 	
 	/**
@@ -248,6 +256,17 @@ public class PostController extends JeecgController<Post, IPostService> {
 		BeanUtils.copyProperties(post, postDTO);
 		PostDetail postDetail = postDetailService.getByPostId(post.getId());
 		postDTO.setPostDetail(postDetail);
+		//获取当前用户
+		LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		if (oConvertUtils.isEmpty(loginUser)) {
+			return Result.error("请登录系统！");
+		}
+		//获取登录用户信息
+		RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+		//若存在推广人手机号，则联系人设置为推广人手机号
+		if(StringUtils.isNotBlank(riderCustomer.getReferencePhone())){
+			postDTO.setContactPhone(riderCustomer.getReferencePhone());
+		}
 		return Result.OK(postDTO);
 	}
 

@@ -90,4 +90,10 @@ public class VideoCourse implements Serializable {
 	@Excel(name = "排序", width = 15)
     @ApiModelProperty(value = "排序")
     private java.lang.Integer sort;
+
+    /**视频类型*/
+    @Excel(name = "视频类型", width = 15)
+    @ApiModelProperty(value = "视频类型")
+    private java.lang.Integer videoType;
+
 }

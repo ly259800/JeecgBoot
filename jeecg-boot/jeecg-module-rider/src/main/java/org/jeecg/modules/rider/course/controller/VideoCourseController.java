@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
@@ -127,9 +128,9 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 	@RequiresPermissions("course:video_course:add")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody VideoCourse videoCourse) {
-		if(videoCourse.getPayType() == 1 && videoCourse.getPrice() == null){
+		/*if(videoCourse.getPayType() == 1 && videoCourse.getPrice() == null){
 			return Result.error("付费课程必须设置付费价格");
-		}
+		}*/
 		if(videoCourse.getClassification()!=null){
 			SysCategory category = sysCategoryService.getById(videoCourse.getClassification());
 			videoCourse.setClassificationName(category.getName());
@@ -149,9 +150,9 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 	@RequiresPermissions("course:video_course:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody VideoCourse videoCourse) {
-		if(videoCourse.getPayType() == 1 && videoCourse.getPrice() == null){
+		/*if(videoCourse.getPayType() == 1 && videoCourse.getPrice() == null){
 			return Result.error("付费课程必须设置付费价格");
-		}
+		}*/
 		if(videoCourse.getClassification()!=null){
 			SysCategory category = sysCategoryService.getById(videoCourse.getClassification());
 			videoCourse.setClassificationName(category.getName());
@@ -242,6 +243,46 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 		 } else {
 			 return Result.error("请先解锁该课程");
 		 }*/
+	 }
+
+	 /**
+	  * 校验视频权限
+	  * @param id
+	  * @return
+	  */
+	 //@AutoLog(value = "课程管理-通过id查询")
+	 @ApiOperation(value="课程管理-校验视频权限", notes="课程管理-校验视频权限")
+	 @GetMapping(value = "/checkVideoById")
+	 public Result<VideoCourse> checkVideoById(@RequestParam(name="id",required=true) String id) {
+		 //获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if (oConvertUtils.isEmpty(loginUser)) {
+			 return Result.error("请登录系统！");
+		 }
+		 VideoCourse videoCourse = videoCourseService.getById(id);
+		 if(videoCourse==null) {
+			 return Result.error("未找到对应数据");
+		 }
+		 //获取登录用户信息
+		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+		 //免费
+		 if(videoCourse.getVideoType() == 0) {
+			 return Result.OK(videoCourse);
+		 //实名
+		 } else if(videoCourse.getVideoType() == 1){
+			 if(StringUtils.isNotBlank(riderCustomer.getIdCard())){
+				 return Result.OK(videoCourse);
+			 }
+			 return Result.error("请先进行实名认证");
+		 //主理人
+		 } else if(videoCourse.getVideoType() == 2){
+			 if(Objects.equals(riderCustomer.getIdentity() , CustomerIdentityEnum.PARTNER.getCode())){
+				 return Result.OK(videoCourse);
+			 }
+			 return Result.error("请先升级为主理人");
+		 } else {
+			 return Result.error("未知类型的视频");
+		 }
 	 }
 
     /**
