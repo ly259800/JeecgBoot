@@ -32,6 +32,10 @@ public class SysCategory implements Serializable,Comparable<SysCategory>{
 	/**类型编码*/
 	@Excel(name = "类型编码", width = 15)
 	private java.lang.String code;
+
+	@Excel(name = "图片", width = 15)
+	private java.lang.String image;
+
 	/**创建人*/
 	private java.lang.String createBy;
 	/**创建日期*/

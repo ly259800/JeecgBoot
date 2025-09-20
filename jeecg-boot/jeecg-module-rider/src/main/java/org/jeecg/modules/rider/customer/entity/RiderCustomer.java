@@ -142,6 +142,9 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "领取状态")
     private java.lang.Integer receiveStatus;
 
+    @ApiModelProperty(value = "申请状态")
+    private java.lang.Integer applyStatus;
+
     /**
      * 常用标签
      */

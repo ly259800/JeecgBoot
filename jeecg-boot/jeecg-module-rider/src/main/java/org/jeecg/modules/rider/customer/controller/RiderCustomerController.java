@@ -206,13 +206,44 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if (oConvertUtils.isEmpty(r)) {
 			 return Result.error("请注册用户！");
 		 }
-		 riderCustomer.setTag(receiveDTO.getTag());
-		 riderCustomer.setIntention(receiveDTO.getIntention());
-		 riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
+		 //riderCustomer.setTag(receiveDTO.getTag());
+		 //riderCustomer.setIntention(receiveDTO.getIntention());
+		 //riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
 		 riderCustomer.setReceiver(r.getId());
 		 riderCustomer.setReceiveStatus(1);
 		 riderCustomerService.updateById(riderCustomer);
 		 return Result.OK("领取客户成功!");
+	 }
+
+	 /**
+	  *  打标签
+	  *
+	  * @param receiveDTO
+	  * @return
+	  */
+	 @AutoLog(value = "打标签")
+	 @ApiOperation(value="打标签", notes="打标签")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/setTag", method = {RequestMethod.POST})
+	 public Result<String> setTag(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
+		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
+		 if(Objects.isNull(riderCustomer)){
+			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 //	获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if (oConvertUtils.isEmpty(loginUser)) {
+			 return Result.error("请登录系统！");
+		 }
+		 RiderCustomer r = riderCustomerService.getByPhone(loginUser.getPhone());
+		 if (oConvertUtils.isEmpty(r)) {
+			 return Result.error("请注册用户！");
+		 }
+		 riderCustomer.setTag(receiveDTO.getTag());
+		 riderCustomer.setIntention(receiveDTO.getIntention());
+		 riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("设置标签成功!");
 	 }
 
 	 /**
@@ -236,6 +267,30 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 return Result.OK("移除客户成功!");
 	 }
 
+
+
+	 /**
+	  *  申请通过
+	  *
+	  * @param receiveDTO
+	  * @return
+	  */
+	 @AutoLog(value = "申请通过")
+	 @ApiOperation(value="申请通过", notes="申请通过")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/applyPass", method = {RequestMethod.POST})
+	 public Result<String> applyPass(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
+		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
+		 if(Objects.isNull(riderCustomer)){
+			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 if(riderCustomer.getApplyStatus() == 1){
+			 throw new JeecgBootException("该用户已申请，不能重复申请!");
+		 }
+		 riderCustomer.setApplyStatus(1);
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("申请通过成功!");
+	 }
 
 
 	 /**

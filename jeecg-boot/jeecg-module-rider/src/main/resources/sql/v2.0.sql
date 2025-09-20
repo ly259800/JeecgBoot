@@ -127,3 +127,14 @@ alter table rider_interview add column `video_url` varchar(100) COLLATE utf8mb4_
 
 
 alter table video_course add column `video_type` int DEFAULT null comment '视频类型';
+
+
+alter table rider_customer add column `tag` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '常用标签';
+alter table rider_customer add column `intention` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '意向阶段';
+alter table rider_customer add column `post_requirement` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '岗位需求';
+alter table rider_customer add column `receiver` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '领取人';
+alter table rider_customer add column `receive_status` int DEFAULT 0 comment '领取状态';
+alter table rider_customer add column `apply_status` int DEFAULT 0 comment '申请状态';
+
+
+alter table sys_category add column `image` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '图片';
