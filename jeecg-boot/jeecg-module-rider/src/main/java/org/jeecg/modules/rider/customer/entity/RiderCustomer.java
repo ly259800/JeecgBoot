@@ -136,5 +136,30 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "签署文件链接")
     private java.lang.String signTaskUrl;
 
+    @ApiModelProperty(value = "领取人")
+    private java.lang.String receiver;
+
+    @ApiModelProperty(value = "领取状态")
+    private java.lang.Integer receiveStatus;
+
+    /**
+     * 常用标签
+     */
+    @ApiModelProperty(value = "常用标签")
+    private java.lang.String tag;
+
+    /**
+     * 意向阶段
+     */
+    @ApiModelProperty(value = "意向阶段")
+    private java.lang.String intention;
+
+    /**
+     * 岗位需求
+     */
+    @ApiModelProperty(value = "岗位需求")
+    private java.lang.String postRequirement;
+
+
 
 }

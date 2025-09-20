@@ -16,6 +16,7 @@ import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
+import org.jeecg.modules.rider.customer.dto.RiderCustomerReceiveDTO;
 import org.jeecg.modules.rider.customer.dto.RiderReferenceDTO;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
@@ -139,7 +140,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  * @return
 	  */
 	 @ApiOperation(value="简历库查询列表", notes="简历库查询列表")
-	 @RequestMapping(value = "/listByResume", method = RequestMethod.GET)
+	 @RequestMapping(value = "/listByAllResume", method = RequestMethod.GET)
 	 public Result<IPage<RiderCustomer>> listByResume(RiderCustomer riderCustomer,
 													  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 													  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
@@ -157,10 +158,82 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 				 .le(RiderCustomer::getCreateTime, DateUtils.getAfterDate(DateUtils.date2Str(DateUtils.getDate(), DateUtils.yyyyMMdd.get()),0-before_date))
 				 .isNotNull(RiderCustomer::getIdCard)
 				 .ne(RiderCustomer::getIdCard,"")
+				 .eq(RiderCustomer::getReceiveStatus,0)
 				 .orderByDesc(RiderCustomer::getCreateTime);
 		 Page<RiderCustomer> page = new Page<RiderCustomer>(pageNo, pageSize);
 		 IPage<RiderCustomer> pageList = riderCustomerService.page(page, queryWrapper);
 		 return Result.OK(pageList);
+	 }
+
+	 /**
+	  * 我的领取列表
+	  * @return
+	  */
+	 @ApiOperation(value="我的领取列表", notes="我的领取列表")
+	 @RequestMapping(value = "/listByMyResume", method = RequestMethod.GET)
+	 public Result<List<RiderCustomer>> listByMyResume(@RequestParam(name="customerId",required=false) String customerId) {
+		 if(StringUtils.isNotEmpty(customerId)){
+			 QueryWrapper<RiderCustomer> queryWrapper = new QueryWrapper<>();
+			 queryWrapper.lambda().eq(RiderCustomer::getReceiver,customerId)
+					 .orderByDesc(RiderCustomer::getCreateTime);
+			 List<RiderCustomer> list = riderCustomerService.list(queryWrapper);
+			 return Result.OK(list);
+		 }
+		 return Result.OK();
+	 }
+
+	 /**
+	  *  领取客户
+	  *
+	  * @param receiveDTO
+	  * @return
+	  */
+	 @AutoLog(value = "领取客户")
+	 @ApiOperation(value="领取客户", notes="领取客户")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/receiveCustomer", method = {RequestMethod.POST})
+	 public Result<String> receiveCustomer(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
+		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
+		 if(Objects.isNull(riderCustomer)){
+			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 //	获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if (oConvertUtils.isEmpty(loginUser)) {
+			 return Result.error("请登录系统！");
+		 }
+		 RiderCustomer r = riderCustomerService.getByPhone(loginUser.getPhone());
+		 if (oConvertUtils.isEmpty(r)) {
+			 return Result.error("请注册用户！");
+		 }
+		 riderCustomer.setTag(receiveDTO.getTag());
+		 riderCustomer.setIntention(receiveDTO.getIntention());
+		 riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
+		 riderCustomer.setReceiver(r.getId());
+		 riderCustomer.setReceiveStatus(1);
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("领取客户成功!");
+	 }
+
+	 /**
+	  *  移除客户
+	  *
+	  * @param receiveDTO
+	  * @return
+	  */
+	 @AutoLog(value = "移除客户")
+	 @ApiOperation(value="移除客户", notes="移除客户")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/removeCustomer", method = {RequestMethod.POST})
+	 public Result<String> removeCustomer(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
+		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
+		 if(Objects.isNull(riderCustomer)){
+			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 riderCustomer.setReceiver("");
+		 riderCustomer.setReceiveStatus(0);
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("移除客户成功!");
 	 }
 
 
