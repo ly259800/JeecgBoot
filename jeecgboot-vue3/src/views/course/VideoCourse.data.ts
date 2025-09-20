@@ -15,7 +15,7 @@ export const columns: BasicColumn[] = [
     align:"center",
     dataIndex: 'name'
    },
-   {
+   /*{
     title: '付费类型',
     align:"center",
     dataIndex: 'payType',
@@ -33,13 +33,27 @@ export const columns: BasicColumn[] = [
     title: '付费价格',
     align:"center",
     dataIndex: 'price'
-   },
+   },*/
    {
     title: '封面',
     align:"center",
     dataIndex: 'cover',
     customRender:render.renderImage,
    },
+  {
+    title: '视频类型',
+    align:"center",
+    dataIndex: 'videoType',
+    customRender: ({ text }) => {
+      if (text === 0) {
+        return '免费';
+      } else if (text === 1) {
+        return '实名';
+      } else if (text === 2) {
+        return '主理人';
+      }
+    },
+  },
    {
     title: '视频链接',
     align:"center",
@@ -102,7 +116,7 @@ export const formSchema: FormSchema[] = [
           ];
      },
   },
-  {
+  /*{
     label: '付费类型',
     field: 'payType',
     component: 'RadioGroup',
@@ -116,30 +130,37 @@ export const formSchema: FormSchema[] = [
       };
     },
   },
-  /*{
-    label: '付费类型',
-    field: 'payType',
-    component: 'JDictSelectTag',
-    componentProps:{
-        dictCode:"pay_type"
-     },
-    dynamicRules: ({model,schema}) => {
-          return [
-                 { required: true, message: '请输入付费类型!'},
-          ];
-     },
-  },*/
   {
     label: '付费价格',
     field: 'price',
     component: 'InputNumber',
     dynamicRules: ({model,schema}) => {
+      return [
+        { required: false},
+        { pattern: /^(0|[1-9]\d*)$/, message: '请输入正确的金额!'},
+      ];
+    },
+  },*/
+  {
+    label: '视频类型',
+    field: 'videoType',
+    component: 'JDictSelectTag',
+    componentProps: ({ formModel }) => {
+      return {
+        options: [
+          { label: '免费', value: 0, key: '0' },
+          { label: '实名', value: 1, key: '1' },
+          { label: '主理人', value: 2, key: '2' },
+        ],
+      };
+    },
+    dynamicRules: ({model,schema}) => {
           return [
-                 { required: false},
-                 { pattern: /^(0|[1-9]\d*)$/, message: '请输入正确的金额!'},
+                 { required: true, message: '请选择视频类型!'},
           ];
      },
   },
+
   {
     label: '封面',
     field: 'cover',
