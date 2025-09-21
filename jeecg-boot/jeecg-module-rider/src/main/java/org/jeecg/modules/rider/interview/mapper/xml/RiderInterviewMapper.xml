@@ -2,4 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper">
 
+    <select id="queryListByCategory" resultType="org.jeecg.modules.rider.interview.entity.RiderInterview">
+        select ri.* from rider_interview ri
+        inner join family_post fp on ri.site_id = fp.id
+        where ri.phone = #{phone} and fp.category_id in
+        <foreach item="item" index="index" collection="categoryIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
 </mapper>

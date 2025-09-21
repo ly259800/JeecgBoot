@@ -4,6 +4,7 @@ import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Description: 面试管理
@@ -25,5 +26,7 @@ public interface IRiderInterviewService extends IService<RiderInterview> {
     void handle(RiderInterview riderInterview);
 
     void updateSite(RiderInterview riderInterview);
+
+    List<RiderInterview> queryListByCategory(String phone,List<String> categoryIds);
 
 }

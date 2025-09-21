@@ -64,7 +64,7 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
             throw new JeecgBootException("推广人为空，不能结算！");
         }
         if(riderInterviews.stream().anyMatch(s-> StringUtils.isEmpty(s.getSiteId()))){
-            throw new JeecgBootException("站点为空，不能结算！");
+            throw new JeecgBootException("岗位为空，不能结算！");
         }
         if(riderInterviews.stream().anyMatch(s-> Objects.equals(s.getPassStatus() , 0))){
             throw new JeecgBootException("不能选择未入职的记录！");
@@ -171,5 +171,10 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
                 .set(RiderInterview::getSiteId,riderInterview.getSiteId())
                 .set(RiderInterview::getSiteName,site.getPostName());
         this.update(updateWrapper);
+    }
+
+    @Override
+    public List<RiderInterview> queryListByCategory(String phone , List<String> categoryIds) {
+        return this.baseMapper.queryListByCategory(phone,categoryIds);
     }
 }

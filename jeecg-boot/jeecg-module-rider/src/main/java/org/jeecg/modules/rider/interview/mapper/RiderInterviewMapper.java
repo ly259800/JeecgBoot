@@ -14,4 +14,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface RiderInterviewMapper extends BaseMapper<RiderInterview> {
 
+    List<RiderInterview> queryListByCategory(@Param("phone") String phone , @Param("categoryIds") List<String> categoryIds);
+
 }

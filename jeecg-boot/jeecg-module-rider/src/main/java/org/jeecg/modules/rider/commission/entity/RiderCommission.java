@@ -57,25 +57,25 @@ public class RiderCommission implements Serializable {
 	/**所属部门*/
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
-	/**推广人ID*/
-	@Excel(name = "推广人ID", width = 15)
-    @ApiModelProperty(value = "推广人ID")
+	/**主理人ID*/
+	@Excel(name = "主理人ID", width = 15)
+    @ApiModelProperty(value = "主理人ID")
     private java.lang.String customerId;
-	/**推广人手机*/
-	@Excel(name = "推广人手机", width = 15)
-    @ApiModelProperty(value = "推广人手机")
+	/**主理人手机*/
+	@Excel(name = "主理人手机", width = 15)
+    @ApiModelProperty(value = "主理人手机")
     private java.lang.String customerPhone;
-	/**面试人ID*/
-	@Excel(name = "面试人ID", width = 15)
-    @ApiModelProperty(value = "面试人ID")
+	/**娘家人ID*/
+	@Excel(name = "娘家人ID", width = 15)
+    @ApiModelProperty(value = "娘家人ID")
     private java.lang.String interviewId;
-	/**面试人手机号*/
-	@Excel(name = "面试人手机号", width = 15)
-    @ApiModelProperty(value = "面试人手机号")
+	/**娘家人手机号*/
+	@Excel(name = "娘家人手机号", width = 15)
+    @ApiModelProperty(value = "娘家人手机号")
     private java.lang.String interviewPhone;
-	/**面试人名称*/
-	@Excel(name = "面试人名称", width = 15)
-    @ApiModelProperty(value = "面试人名称")
+	/**娘家人名称*/
+	@Excel(name = "娘家人名称", width = 15)
+    @ApiModelProperty(value = "娘家人名称")
     private java.lang.String interviewName;
 	/**佣金*/
 	@Excel(name = "佣金", width = 15)

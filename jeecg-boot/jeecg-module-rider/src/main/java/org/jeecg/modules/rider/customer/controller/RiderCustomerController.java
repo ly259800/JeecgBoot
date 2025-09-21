@@ -28,10 +28,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.jeecg.modules.rider.interview.entity.RiderInterview;
+import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
+import org.jeecg.modules.system.service.ISysCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
@@ -61,6 +64,13 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 
 	@Autowired
 	private IRiderParamsService riderParamsService;
+
+	 @Autowired
+	 private IRiderInterviewService riderInterviewService;
+
+
+	 @Autowired
+	 private ISysCategoryService sysCategoryService;
 
 	 @Value("${jeecg.path.prefix}")
 	 private String upLoadPrefix;
@@ -283,6 +293,24 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
 		 if(Objects.isNull(riderCustomer)){
 			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 if(riderCustomer.getIdentity() == CustomerIdentityEnum.TOURIST.getCode()){
+			 throw new JeecgBootException("该用户未报名，不允许申请!");
+		 }
+		 //判断是否存在已支付的岗位
+		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>()
+				.eq("pay_status", 1)
+				 .eq("phone", riderCustomer.getPhone())
+				 .last(" limit 1 "));
+		 if(one == null) {
+			 //判断是否存在工厂岗位
+			 String pid = "1946598810814877697";
+			 List<String> categoryIds = sysCategoryService.queryAllChildIds(pid);
+			 //判断是否存在报名工厂的岗位
+			 List<RiderInterview> riderInterviews = riderInterviewService.queryListByCategory(riderCustomer.getPhone(), categoryIds);
+			 if(CollectionUtils.isEmpty(riderInterviews)) {
+				 return Result.error("该用户报名未支付，不允许申请！");
+			 }
 		 }
 		 if(riderCustomer.getApplyStatus() == 1){
 			 throw new JeecgBootException("该用户已申请，不能重复申请!");
