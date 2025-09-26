@@ -216,6 +216,17 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if (oConvertUtils.isEmpty(r)) {
 			 return Result.error("请注册用户！");
 		 }
+		 int receive_num = 20;
+		 RiderParams receive_customer_num = riderParamsService.getByCode("RECEIVE_CUSTOMER_NUM");
+		 if(Objects.nonNull(receive_customer_num) && StringUtils.isNotBlank(receive_customer_num.getParamValue())){
+			 receive_num = Integer.parseInt(receive_customer_num.getParamValue());
+		 }
+		 QueryWrapper<RiderCustomer> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.lambda().eq(RiderCustomer::getReceiver,r.getId());
+		 long count = riderCustomerService.count(queryWrapper);
+		 if(count >= receive_num){
+			 throw new JeecgBootException("已超过领取客户数量限制!");
+		 }
 		 //riderCustomer.setTag(receiveDTO.getTag());
 		 //riderCustomer.setIntention(receiveDTO.getIntention());
 		 //riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());

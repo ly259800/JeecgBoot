@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -21,11 +23,13 @@ import org.jeecg.config.mybatis.MybatisPlusSaasConfig;
 import org.jeecg.modules.system.entity.SysCategory;
 import org.jeecg.modules.system.model.TreeSelectModel;
 import org.jeecg.modules.system.service.ISysCategoryService;
+import org.jeecg.modules.system.vo.SysCategoryVo;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,6 +51,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/sys/category")
 @Slf4j
+@Api(tags="分类管理")
 public class SysCategoryController {
 	@Autowired
 	private ISysCategoryService sysCategoryService;
@@ -98,7 +103,8 @@ public class SysCategoryController {
 		result.setResult(pageList);
 		return result;
 	}
-	
+
+	 @ApiOperation(value="分类管理-查询子节点", notes="分类管理-查询子节点")
 	@GetMapping(value = "/childList")
 	public Result<List<SysCategory>> queryPageList(SysCategory sysCategory,HttpServletRequest req) {
 		//------------------------------------------------------------------------------------------------
@@ -114,6 +120,31 @@ public class SysCategoryController {
 		result.setResult(list);
 		return result;
 	}
+
+	 @ApiOperation(value="分类管理-查询树型结构", notes="分类管理-查询树型结构")
+	 @GetMapping(value = "/childTree")
+	 public Result<List<SysCategoryVo>> queryChildTree(SysCategory sysCategory, HttpServletRequest req) {
+		 //------------------------------------------------------------------------------------------------
+		 //是否开启系统管理模块的多租户数据隔离【SAAS多租户模式】
+		 if(MybatisPlusSaasConfig.OPEN_SYSTEM_TENANT_CONTROL){
+			 sysCategory.setTenantId(oConvertUtils.getInt(TenantContext.getTenant(), 0));
+		 }
+		 //------------------------------------------------------------------------------------------------
+		 Result<List<SysCategoryVo>> result = new Result<List<SysCategoryVo>>();
+		 QueryWrapper<SysCategory> queryWrapper = QueryGenerator.initQueryWrapper(sysCategory, req.getParameterMap());
+		 List<SysCategory> list = sysCategoryService.list(queryWrapper);
+		 List<SysCategoryVo> categoryVoList = list.stream().map(item -> {
+			 SysCategoryVo vo = new SysCategoryVo();
+			 BeanUtils.copyProperties(item, vo);
+			 QueryWrapper<SysCategory> childQueryWrapper = new QueryWrapper<>();
+			 childQueryWrapper.lambda().eq(SysCategory::getPid, item.getId());
+			 vo.setChildren(sysCategoryService.list(childQueryWrapper));
+			 return vo;
+		 }).collect(Collectors.toList());
+		 result.setSuccess(true);
+		 result.setResult(categoryVoList);
+		 return result;
+	 }
 	
 	
 	/**
