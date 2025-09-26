@@ -136,5 +136,6 @@ alter table rider_customer add column `receiver` varchar(100) COLLATE utf8mb4_un
 alter table rider_customer add column `receive_status` int DEFAULT 0 comment '领取状态';
 alter table rider_customer add column `apply_status` int DEFAULT 0 comment '申请状态';
 
+alter table rider_customer add column `receive_time` datetime DEFAULT NULL COMMENT '领取日期';
 
 alter table sys_category add column `image` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '图片';

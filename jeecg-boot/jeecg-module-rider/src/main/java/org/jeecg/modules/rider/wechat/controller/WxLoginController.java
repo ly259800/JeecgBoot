@@ -189,6 +189,12 @@ public class WxLoginController {
                     //新增客户信息
                     RiderCustomer riderCustomer = new RiderCustomer();
                     BeanUtils.copyProperties(dto,riderCustomer);
+                    if(StringUtils.isNotBlank(dto.getShareUserId())){
+                        riderCustomer.setReference(dto.getShareUserId());
+                    }
+                    if(StringUtils.isNotBlank(dto.getShareUserPhone())){
+                        riderCustomer.setReferencePhone(dto.getShareUserPhone());
+                    }
                     riderCustomerService.save(riderCustomer);
                     //新增用户信息
                     SysUser user = new SysUser();

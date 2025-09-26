@@ -142,6 +142,12 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "领取状态")
     private java.lang.Integer receiveStatus;
 
+    /**领取日期*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "领取日期")
+    private java.util.Date receiveTime;
+
     @ApiModelProperty(value = "申请状态")
     private java.lang.Integer applyStatus;
 

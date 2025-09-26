@@ -23,7 +23,16 @@ public class RiderCustomerDTO extends RiderCustomer {
     @ApiModelProperty(value = "已结算")
     private Integer settleCount;
 
-    @Excel(name = "推广人名称", width = 15)
     @ApiModelProperty(value = "推广人名称")
     private java.lang.String promoterName;
+
+    @ApiModelProperty(value = "自动移除剩余时间")
+    private java.lang.String remainTime;
+
+    //分享人用户id
+    private java.lang.String shareUserId;
+
+    //分享人用户手机号
+    private java.lang.String shareUserPhone;
+
 }

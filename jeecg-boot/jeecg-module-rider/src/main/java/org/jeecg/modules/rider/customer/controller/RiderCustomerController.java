@@ -1,6 +1,7 @@
 package org.jeecg.modules.rider.customer.controller;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +36,7 @@ import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
 import org.jeecg.modules.system.service.ISysCategoryService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
@@ -151,11 +153,10 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @ApiOperation(value="简历库查询列表", notes="简历库查询列表")
 	 @RequestMapping(value = "/listByAllResume", method = RequestMethod.GET)
-	 public Result<IPage<RiderCustomer>> listByResume(RiderCustomer riderCustomer,
+	 public Result<IPage<RiderCustomerDTO>> listByResume(RiderCustomerDTO riderCustomer,
 													  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 													  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 													  HttpServletRequest req) {
-
 		 RiderParams resume_before_date = riderParamsService.getByCode("RESUME_BEFORE_DATE");
 		 int before_date = 7;
 		 if(Objects.nonNull(resume_before_date) && StringUtils.isNotBlank(resume_before_date.getParamValue())){
@@ -163,7 +164,14 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 }
 		 // 自定义查询规则
 		 Map<String, QueryRuleEnum> customeRuleMap = new HashMap<>();
-		 QueryWrapper<RiderCustomer> queryWrapper = QueryGenerator.initQueryWrapper(riderCustomer, req.getParameterMap(),customeRuleMap);
+		 String promoterName = riderCustomer.getPromoterName();
+		 // 复制一份请求参数（避免修改原始参数）
+		 Map<String, String[]> parameterMap = new HashMap<>(req.getParameterMap());
+		 if(StringUtils.isNotBlank(riderCustomer.getPromoterName())){
+			 riderCustomer.setPromoterName(null);
+			 parameterMap.remove("promoterName");
+		 }
+		 QueryWrapper<RiderCustomer> queryWrapper = QueryGenerator.initQueryWrapper(riderCustomer, parameterMap,customeRuleMap);
 		 queryWrapper.lambda().eq(RiderCustomer::getIdentity,CustomerIdentityEnum.TOURIST.getCode())
 				 .le(RiderCustomer::getCreateTime, DateUtils.getAfterDate(DateUtils.date2Str(DateUtils.getDate(), DateUtils.yyyyMMdd.get()),0-before_date))
 				 .isNotNull(RiderCustomer::getIdCard)
@@ -171,8 +179,30 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 				 .eq(RiderCustomer::getReceiveStatus,0)
 				 .orderByDesc(RiderCustomer::getCreateTime);
 		 Page<RiderCustomer> page = new Page<RiderCustomer>(pageNo, pageSize);
+		 if(StringUtils.isNotBlank(promoterName)){
+			 QueryWrapper<RiderCustomer> query = new QueryWrapper<>();
+			 query.lambda().like(RiderCustomer::getName,promoterName);
+			 List<RiderCustomer> list = riderCustomerService.list(query);
+			 List<String> ids = list.stream().map(x -> x.getId()).collect(Collectors.toList());
+			 if(ids.size() > 0){
+				 queryWrapper.lambda().in(RiderCustomer::getReference,ids);
+			 }
+		 }
 		 IPage<RiderCustomer> pageList = riderCustomerService.page(page, queryWrapper);
-		 return Result.OK(pageList);
+		 List<RiderCustomer> list = pageList.getRecords();
+		 List<String> ids = list.stream().filter(s -> StringUtils.isNotBlank(s.getReference())).map(x -> x.getReference()).collect(Collectors.toList());
+		 List<RiderCustomer> referenceList = ids.size()> 0 ? riderCustomerService.listByIds(ids) : new ArrayList<>();
+		 Map<String, RiderCustomer> referenceMap = referenceList.stream().collect(Collectors.toMap(RiderCustomer::getId, Function.identity(), (a, b) -> b));
+		 IPage<RiderCustomerDTO> dtoPage = pageList.convert(x -> {
+			 RiderCustomerDTO customerDTO = new RiderCustomerDTO();
+			 BeanUtils.copyProperties(x, customerDTO);
+			 RiderCustomer r = referenceMap.get(x.getReference());
+			 if (r != null) {
+				 customerDTO.setPromoterName(r.getName());
+			 }
+			 return customerDTO;
+		 });
+		 return Result.OK(dtoPage);
 	 }
 
 	 /**
@@ -181,13 +211,37 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @ApiOperation(value="我的领取列表", notes="我的领取列表")
 	 @RequestMapping(value = "/listByMyResume", method = RequestMethod.GET)
-	 public Result<List<RiderCustomer>> listByMyResume(@RequestParam(name="customerId",required=false) String customerId) {
+	 public Result<List<RiderCustomerDTO>> listByMyResume(@RequestParam(name="customerId",required=false) String customerId) {
 		 if(StringUtils.isNotEmpty(customerId)){
+			 RiderParams remove_resume_date = riderParamsService.getByCode("REMOVE_RESUME_DATE");
+			 long remove_date = 7L;
+			 if(Objects.nonNull(remove_resume_date) && StringUtils.isNotBlank(remove_resume_date.getParamValue())){
+				 remove_date = Long.parseLong(remove_resume_date.getParamValue());
+			 }
 			 QueryWrapper<RiderCustomer> queryWrapper = new QueryWrapper<>();
 			 queryWrapper.lambda().eq(RiderCustomer::getReceiver,customerId)
 					 .orderByDesc(RiderCustomer::getCreateTime);
 			 List<RiderCustomer> list = riderCustomerService.list(queryWrapper);
-			 return Result.OK(list);
+			 List<String> ids = list.stream().filter(s -> StringUtils.isNotBlank(s.getReference())).map(x -> x.getReference()).collect(Collectors.toList());
+			 List<RiderCustomer> referenceList = ids.size()> 0 ? riderCustomerService.listByIds(ids) : new ArrayList<>();
+			 Map<String, RiderCustomer> referenceMap = referenceList.stream().collect(Collectors.toMap(RiderCustomer::getId, Function.identity(), (a, b) -> b));
+			 final long final_remove_date = remove_date;
+			 List<RiderCustomerDTO> customerDTOList = list.stream().map(x -> {
+				 RiderCustomerDTO customerDTO = new RiderCustomerDTO();
+				 BeanUtils.copyProperties(x, customerDTO);
+				 RiderCustomer riderCustomer = referenceMap.get(x.getReference());
+				 if(riderCustomer != null){
+					 customerDTO.setPromoterName(riderCustomer.getName());
+				 }
+				 if(Objects.equals(0,customerDTO.getApplyStatus()) && Objects.nonNull(customerDTO.getReceiveTime())){
+					 // 与当前时间差
+					 long differenceInDays = DateUtils.calculateDaysDifference(customerDTO.getReceiveTime());
+					 //剩余时间
+					 customerDTO.setRemainTime((final_remove_date + differenceInDays)+"天");
+				 }
+				 return customerDTO;
+			 }).collect(Collectors.toList());
+			 return Result.OK(customerDTOList);
 		 }
 		 return Result.OK();
 	 }
@@ -232,6 +286,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 //riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
 		 riderCustomer.setReceiver(r.getId());
 		 riderCustomer.setReceiveStatus(1);
+		 riderCustomer.setReceiveTime(new Date());
 		 riderCustomerService.updateById(riderCustomer);
 		 return Result.OK("领取客户成功!");
 	 }
