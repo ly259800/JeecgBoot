@@ -174,8 +174,6 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 QueryWrapper<RiderCustomer> queryWrapper = QueryGenerator.initQueryWrapper(riderCustomer, parameterMap,customeRuleMap);
 		 queryWrapper.lambda().eq(RiderCustomer::getIdentity,CustomerIdentityEnum.TOURIST.getCode())
 				 .le(RiderCustomer::getCreateTime, DateUtils.getAfterDate(DateUtils.date2Str(DateUtils.getDate(), DateUtils.yyyyMMdd.get()),0-before_date))
-				 .isNotNull(RiderCustomer::getIdCard)
-				 .ne(RiderCustomer::getIdCard,"")
 				 .eq(RiderCustomer::getReceiveStatus,0)
 				 .orderByDesc(RiderCustomer::getCreateTime);
 		 Page<RiderCustomer> page = new Page<RiderCustomer>(pageNo, pageSize);
@@ -184,9 +182,11 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 query.lambda().like(RiderCustomer::getName,promoterName);
 			 List<RiderCustomer> list = riderCustomerService.list(query);
 			 List<String> ids = list.stream().map(x -> x.getId()).collect(Collectors.toList());
-			 if(ids.size() > 0){
-				 queryWrapper.lambda().in(RiderCustomer::getReference,ids);
-			 }
+			 queryWrapper.lambda().and(wrapper1 -> wrapper1
+					 .like( RiderCustomer::getName, promoterName)
+					 .or()
+					 .in(ids.size() > 0, RiderCustomer::getReference,ids)
+			 );
 		 }
 		 IPage<RiderCustomer> pageList = riderCustomerService.page(page, queryWrapper);
 		 List<RiderCustomer> list = pageList.getRecords();
@@ -199,6 +199,9 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 RiderCustomer r = referenceMap.get(x.getReference());
 			 if (r != null) {
 				 customerDTO.setPromoterName(r.getName());
+			 }
+			 if(StringUtils.isEmpty(x.getIdCard())){
+				 customerDTO.setName("未实名");
 			 }
 			 return customerDTO;
 		 });

@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.util.JwtUtil;
@@ -165,6 +166,7 @@ public class WxLoginController {
     @PostMapping("user/register")
     @ApiOperation(value = "用户注册")
     @Transactional(rollbackFor = Exception.class)
+    @AutoLog(value = "用户注册")
     public Result registerUser(@RequestBody @Valid RiderCustomerDTO dto) {
         if (StringUtils.isEmpty(dto.getSessionKey())) {
             throw new JeecgBootException("sessionKey已失效,请重新授权!");
