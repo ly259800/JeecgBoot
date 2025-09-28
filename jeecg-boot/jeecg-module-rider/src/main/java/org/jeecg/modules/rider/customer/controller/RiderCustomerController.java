@@ -1,12 +1,16 @@
 package org.jeecg.modules.rider.customer.controller;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
@@ -33,9 +37,11 @@ import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
+import org.jeecg.modules.rider.params.service.impl.RiderParamsServiceImpl;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
 import org.jeecg.modules.system.service.ISysCategoryService;
+import org.jeecgframework.core.util.ApplicationContextUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,6 +83,41 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 @Value("${jeecg.path.prefix}")
 	 private String upLoadPrefix;
 
+	 private static final ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
+
+
+	 static {
+		 pool.scheduleWithFixedDelay(() -> {
+			 try {
+				log.info("定时移出主理人领取列表开始");
+				 IRiderParamsService paramsService = (IRiderParamsService) ApplicationContextUtil.getContext().getBean("riderParamsServiceImpl");
+				 RiderParams remove_resume_date = paramsService.getByCode("REMOVE_RESUME_DATE");
+				 int remove_date = 7;
+				 if(Objects.nonNull(remove_resume_date) && StringUtils.isNotBlank(remove_resume_date.getParamValue())){
+					 remove_date = Integer.parseInt(remove_resume_date.getParamValue());
+				 }
+				 IRiderCustomerService customerService = (IRiderCustomerService) ApplicationContextUtil.getContext().getBean("riderCustomerServiceImpl");
+				 QueryWrapper<RiderCustomer> queryWrapper = new QueryWrapper<>();
+				 queryWrapper.lambda().eq(RiderCustomer::getApplyStatus,0)
+						 .eq(RiderCustomer::getReceiveStatus,1)
+						 .le(RiderCustomer::getReceiveTime, DateUtils.getAfterDate(DateUtils.date2Str(DateUtils.getDate(), DateUtils.yyyyMMdd.get()),0-remove_date))
+						 .orderByDesc(RiderCustomer::getCreateTime);
+				 List<RiderCustomer> list = customerService.list(queryWrapper);
+				 if(!CollectionUtils.isEmpty(list)){
+					 List<String> idList = list.stream().map(x -> x.getId()).collect(Collectors.toList());
+					 UpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper();
+					 updateWrapper.lambda().set(RiderCustomer::getReceiveStatus,0)
+							 .set(RiderCustomer::getReceiver,null)
+							 .set(RiderCustomer::getReceiveTime,null)
+							 .in(RiderCustomer::getId,idList);
+					 customerService.update(updateWrapper);
+				 }
+				 log.info("定时移出主理人领取列表完成");
+			 } catch (Exception e) {
+				 log.error("定时移出主理人领取列表异常：",e);
+			 }
+		 }, 0, 1, TimeUnit.HOURS);
+	 }
 
 	/**
 	 * 分页列表查询
@@ -183,7 +224,9 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 List<RiderCustomer> list = riderCustomerService.list(query);
 			 List<String> ids = list.stream().map(x -> x.getId()).collect(Collectors.toList());
 			 queryWrapper.lambda().and(wrapper1 -> wrapper1
-					 .like( RiderCustomer::getName, promoterName)
+					 .like(RiderCustomer::getName, promoterName)
+					 .or()
+					 .like(RiderCustomer::getPhone,promoterName)
 					 .or()
 					 .in(ids.size() > 0, RiderCustomer::getReference,ids)
 			 );
