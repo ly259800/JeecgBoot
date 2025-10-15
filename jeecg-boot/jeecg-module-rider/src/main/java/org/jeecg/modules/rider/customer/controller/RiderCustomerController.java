@@ -244,7 +244,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 				 customerDTO.setPromoterName(r.getName());
 			 }
 			 if(StringUtils.isEmpty(x.getIdCard())){
-				 customerDTO.setName("未实名");
+				 customerDTO.setName("***");
 			 }
 			 return customerDTO;
 		 });
@@ -469,7 +469,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 referenceDTO.setList(ls);
 		 return Result.OK(referenceDTO);
 	 }
-	
+
 	/**
 	 *   添加
 	 *
@@ -484,7 +484,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		riderCustomerService.save(riderCustomer);
 		return Result.OK("添加成功！");
 	}
-	
+
 	/**
 	 *  编辑
 	 *
@@ -529,7 +529,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 riderCustomerService.updateById(riderCustomer);
 		 return Result.OK("更新成功!");
 	 }
-	
+
 	/**
 	 *   通过id删除
 	 *
@@ -544,7 +544,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		riderCustomerService.deleteBatch( id);
 		return Result.OK("删除成功!");
 	}
-	
+
 	/**
 	 *  批量删除
 	 *
@@ -647,7 +647,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 this.riderCustomerService.upgradeSite(ids, profit,commission);
 		 return Result.OK("批量更新成功!");
 	 }
-	
+
 	/**
 	 * 通过id查询
 	 *
@@ -689,7 +689,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 riderCustomer.setQrcode(riderQrcode.getUrl());
 			 riderCustomerService.updateById(riderCustomer);
 		 }
-		 String qrcode = upLoadPrefix + riderCustomer.getQrcode();
+		 String qrcode = riderCustomer.getQrcode();
 		 return Result.OK(qrcode);
 	 }
 

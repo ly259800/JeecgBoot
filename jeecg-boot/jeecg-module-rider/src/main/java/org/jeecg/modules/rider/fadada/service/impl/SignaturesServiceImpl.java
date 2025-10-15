@@ -36,21 +36,24 @@ import com.fasc.open.api.v5_1.res.template.SignTaskActorInfo;
 import com.fasc.open.api.v5_1.res.template.SignTemplateDetailRes;
 import com.fasc.open.api.v5_1.res.user.UserIdentityInfoRes;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.util.DateUtils;
-import org.jeecg.common.util.FileDownloadUtils;
+import org.jeecg.common.util.oss.OssBootUtil;
 import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
-import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -726,8 +729,17 @@ public class SignaturesServiceImpl implements SignaturesService {
             ResultUtil.printLog(res, openApiClient.getJsonStrategy());
             //下载合同文件
             String fileName = "pdf"+ File.separator + UUID.randomUUID().toString().replace("-", "") + ".pdf";
-            FileDownloadUtils.download2DiskFromNet(res.getData().getDownloadUrl(), upLoadPath + File.separator +fileName);
-            res.getData().setDownloadUrl(upLoadPrefix + fileName);
+            //FileDownloadUtils.download2DiskFromNet(res.getData().getDownloadUrl(), upLoadPath + File.separator +fileName);
+            try {
+                URL url = new URL(res.getData().getDownloadUrl());
+                byte[] data = IOUtils.toByteArray(url);
+                InputStream in = new ByteArrayInputStream(data);
+                String relativePath = fileName;
+                String savePath  = OssBootUtil.upload(in,relativePath);
+                res.getData().setDownloadUrl(savePath);
+            } catch (Exception e) {
+                log.error(res.getData().getDownloadUrl() + "上传阿里云服务器失败",e);
+            }
             return res.getData();
         } catch (Exception e) {
             log.error("获取签署文档下载地址失败！",e);

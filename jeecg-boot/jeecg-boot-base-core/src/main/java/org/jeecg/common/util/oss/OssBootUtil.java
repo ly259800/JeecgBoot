@@ -119,9 +119,10 @@ public class OssBootUtil {
               orgName=file.getName();
             }
             orgName = CommonUtils.getFileName(orgName);
-            String fileName = orgName.indexOf(".")==-1
+            /*String fileName = orgName.indexOf(".")==-1
                               ?orgName + "_" + System.currentTimeMillis()
-                              :orgName.substring(0, orgName.lastIndexOf(".")) + "_" + System.currentTimeMillis() + orgName.substring(orgName.lastIndexOf("."));
+                              :orgName.substring(0, orgName.lastIndexOf(".")) + "_" + System.currentTimeMillis() + orgName.substring(orgName.lastIndexOf("."));*/
+            String fileName = orgName;
             if (!fileDir.endsWith(SymbolConstant.SINGLE_SLASH)) {
                 fileDir = fileDir.concat(SymbolConstant.SINGLE_SLASH);
             }

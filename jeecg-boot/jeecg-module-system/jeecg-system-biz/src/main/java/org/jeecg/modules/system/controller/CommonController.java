@@ -142,7 +142,7 @@ public class CommonController {
     private String uploadLocal(MultipartFile mf,String bizPath){
         try {
             String ctxPath = uploadpath;
-            String fileName = null;
+
             File file = new File(ctxPath + File.separator + bizPath + File.separator );
             if (!file.exists()) {
                 // 创建文件根目录
@@ -151,11 +151,12 @@ public class CommonController {
             // 获取文件名
             String orgName = mf.getOriginalFilename();
             orgName = CommonUtils.getFileName(orgName);
-            if(orgName.indexOf(SymbolConstant.SPOT)!=-1){
+            String fileName = orgName;
+            /*if(orgName.indexOf(SymbolConstant.SPOT)!=-1){
                 fileName = orgName.substring(0, orgName.lastIndexOf(".")) + "_" + System.currentTimeMillis() + orgName.substring(orgName.lastIndexOf("."));
             }else{
                 fileName = orgName+ "_" + System.currentTimeMillis();
-            }
+            }*/
             String savePath = file.getPath() + File.separator + fileName;
             File savefile = new File(savePath);
             FileCopyUtils.copy(mf.getBytes(), savefile);
