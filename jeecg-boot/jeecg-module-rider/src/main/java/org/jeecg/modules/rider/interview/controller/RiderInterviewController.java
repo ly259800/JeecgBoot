@@ -460,6 +460,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 data.put("month", DateUtils.getMonth());
 		 data.put("day", DateUtils.getDay());
 	 	 data.put("teacher", interview.getTrainingTeacher());
+		 data.put("signName", interview.getName());
 		 for (Map.Entry<String, Object> entry : data.entrySet()) {
 			 String placeholder = "${" + entry.getKey() + "}";
 			 template = template.replace(placeholder, Objects.nonNull(entry.getValue())?entry.getValue().toString():"");
@@ -520,6 +521,7 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 data.put("area", interview.getExpectRegion());
 		 data.put("hotel", interview.getJobPosition());
 		 data.put("teacher", interview.getOperatorName());
+		 data.put("signName", interview.getName());
 		 for (Map.Entry<String, Object> entry : data.entrySet()) {
 			 String placeholder = "${" + entry.getKey() + "}";
 			 template = template.replace(placeholder, Objects.nonNull(entry.getValue())?entry.getValue().toString():"");

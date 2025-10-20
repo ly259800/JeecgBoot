@@ -253,30 +253,26 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 	 //@AutoLog(value = "课程管理-通过id查询")
 	 @ApiOperation(value="课程管理-校验视频权限", notes="课程管理-校验视频权限")
 	 @GetMapping(value = "/checkVideoById")
-	 public Result<VideoCourse> checkVideoById(@RequestParam(name="id",required=true) String id) {
-		 //获取当前用户
-		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-		 if (oConvertUtils.isEmpty(loginUser)) {
-			 return Result.error("请登录系统！");
-		 }
+	 public Result<VideoCourse> checkVideoById(@RequestParam(name="id",required=true) String id,
+											   @RequestParam(name="customerId",required=true) String customerId) {
 		 VideoCourse videoCourse = videoCourseService.getById(id);
 		 if(videoCourse==null) {
 			 return Result.error("未找到对应数据");
 		 }
 		 //获取登录用户信息
-		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(loginUser.getPhone());
+		 RiderCustomer riderCustomer = riderCustomerService.getById(customerId);
 		 //免费
 		 if(videoCourse.getVideoType() == 0) {
 			 return Result.OK(videoCourse);
 		 //实名
 		 } else if(videoCourse.getVideoType() == 1){
-			 if(StringUtils.isNotBlank(riderCustomer.getIdCard())){
+			 if(Objects.nonNull(riderCustomer) && StringUtils.isNotBlank(riderCustomer.getIdCard())){
 				 return Result.OK(videoCourse);
 			 }
 			 return Result.error("请先进行实名认证");
 		 //主理人
 		 } else if(videoCourse.getVideoType() == 2){
-			 if(Objects.equals(riderCustomer.getIdentity() , CustomerIdentityEnum.PARTNER.getCode())){
+			 if(Objects.nonNull(riderCustomer) && Objects.equals(riderCustomer.getIdentity() , CustomerIdentityEnum.PARTNER.getCode())){
 				 return Result.OK(videoCourse);
 			 }
 			 return Result.error("请先升级为主理人");

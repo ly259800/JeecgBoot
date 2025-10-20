@@ -169,6 +169,9 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "岗位需求")
     private java.lang.String postRequirement;
 
+    @ApiModelProperty(value = "移入状态")
+    private java.lang.Integer moveStatus;
+
 
 
 }

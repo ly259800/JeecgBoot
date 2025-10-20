@@ -40,6 +40,9 @@ import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.params.service.impl.RiderParamsServiceImpl;
 import org.jeecg.modules.rider.qrcode.entity.RiderQrcode;
 import org.jeecg.modules.rider.qrcode.service.IRiderQrcodeService;
+import org.jeecg.modules.rider.talentpool.dto.FamilyTalentPoolDTO;
+import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
+import org.jeecg.modules.rider.talentpool.service.IFamilyTalentPoolService;
 import org.jeecg.modules.system.service.ISysCategoryService;
 import org.jeecgframework.core.util.ApplicationContextUtil;
 import org.springframework.beans.BeanUtils;
@@ -80,44 +83,8 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 @Autowired
 	 private ISysCategoryService sysCategoryService;
 
-	 @Value("${jeecg.path.prefix}")
-	 private String upLoadPrefix;
-
-	 private static final ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
-
-
-	 static {
-		 pool.scheduleWithFixedDelay(() -> {
-			 try {
-				log.info("定时移出主理人领取列表开始");
-				 IRiderParamsService paramsService = (IRiderParamsService) ApplicationContextUtil.getContext().getBean("riderParamsServiceImpl");
-				 RiderParams remove_resume_date = paramsService.getByCode("REMOVE_RESUME_DATE");
-				 int remove_date = 7;
-				 if(Objects.nonNull(remove_resume_date) && StringUtils.isNotBlank(remove_resume_date.getParamValue())){
-					 remove_date = Integer.parseInt(remove_resume_date.getParamValue());
-				 }
-				 IRiderCustomerService customerService = (IRiderCustomerService) ApplicationContextUtil.getContext().getBean("riderCustomerServiceImpl");
-				 QueryWrapper<RiderCustomer> queryWrapper = new QueryWrapper<>();
-				 queryWrapper.lambda().eq(RiderCustomer::getApplyStatus,0)
-						 .eq(RiderCustomer::getReceiveStatus,1)
-						 .le(RiderCustomer::getReceiveTime, DateUtils.getAfterDate(DateUtils.date2Str(DateUtils.getDate(), DateUtils.yyyyMMdd.get()),0-remove_date))
-						 .orderByDesc(RiderCustomer::getCreateTime);
-				 List<RiderCustomer> list = customerService.list(queryWrapper);
-				 if(!CollectionUtils.isEmpty(list)){
-					 List<String> idList = list.stream().map(x -> x.getId()).collect(Collectors.toList());
-					 UpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper();
-					 updateWrapper.lambda().set(RiderCustomer::getReceiveStatus,0)
-							 .set(RiderCustomer::getReceiver,null)
-							 .set(RiderCustomer::getReceiveTime,null)
-							 .in(RiderCustomer::getId,idList);
-					 customerService.update(updateWrapper);
-				 }
-				 log.info("定时移出主理人领取列表完成");
-			 } catch (Exception e) {
-				 log.error("定时移出主理人领取列表异常：",e);
-			 }
-		 }, 0, 1, TimeUnit.HOURS);
-	 }
+	 @Autowired
+	 private IFamilyTalentPoolService familyTalentPoolService;
 
 	/**
 	 * 分页列表查询
@@ -194,61 +161,35 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @ApiOperation(value="简历库查询列表", notes="简历库查询列表")
 	 @RequestMapping(value = "/listByAllResume", method = RequestMethod.GET)
-	 public Result<IPage<RiderCustomerDTO>> listByResume(RiderCustomerDTO riderCustomer,
-													  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-													  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-													  HttpServletRequest req) {
-		 RiderParams resume_before_date = riderParamsService.getByCode("RESUME_BEFORE_DATE");
-		 int before_date = 7;
-		 if(Objects.nonNull(resume_before_date) && StringUtils.isNotBlank(resume_before_date.getParamValue())){
-			 before_date = Integer.parseInt(resume_before_date.getParamValue());
-		 }
+	 public Result<IPage<FamilyTalentPoolDTO>> listByResume(FamilyTalentPoolDTO talentPoolDTO,
+															@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+															@RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+															HttpServletRequest req) {
 		 // 自定义查询规则
-		 Map<String, QueryRuleEnum> customeRuleMap = new HashMap<>();
-		 String promoterName = riderCustomer.getPromoterName();
-		 // 复制一份请求参数（避免修改原始参数）
-		 Map<String, String[]> parameterMap = new HashMap<>(req.getParameterMap());
-		 if(StringUtils.isNotBlank(riderCustomer.getPromoterName())){
-			 riderCustomer.setPromoterName(null);
-			 parameterMap.remove("promoterName");
-		 }
-		 QueryWrapper<RiderCustomer> queryWrapper = QueryGenerator.initQueryWrapper(riderCustomer, parameterMap,customeRuleMap);
-		 queryWrapper.lambda().eq(RiderCustomer::getIdentity,CustomerIdentityEnum.TOURIST.getCode())
-				 .le(RiderCustomer::getCreateTime, DateUtils.getAfterDate(DateUtils.date2Str(DateUtils.getDate(), DateUtils.yyyyMMdd.get()),0-before_date))
-				 .eq(RiderCustomer::getReceiveStatus,0)
-				 .orderByDesc(RiderCustomer::getCreateTime);
-		 Page<RiderCustomer> page = new Page<RiderCustomer>(pageNo, pageSize);
-		 if(StringUtils.isNotBlank(promoterName)){
+		 QueryWrapper<FamilyTalentPool> queryWrapper = new QueryWrapper<>();
+		 Page<FamilyTalentPool> page = new Page<FamilyTalentPool>(pageNo, pageSize);
+		 queryWrapper.eq("tp.receive_status",0)
+				 .orderByDesc("tp.create_time");
+		 if(StringUtils.isNotBlank(talentPoolDTO.getPromoterName())){
 			 QueryWrapper<RiderCustomer> query = new QueryWrapper<>();
-			 query.lambda().like(RiderCustomer::getName,promoterName);
+			 query.lambda().like(RiderCustomer::getName,talentPoolDTO.getPromoterName());
 			 List<RiderCustomer> list = riderCustomerService.list(query);
 			 List<String> ids = list.stream().map(x -> x.getId()).collect(Collectors.toList());
-			 queryWrapper.lambda().and(wrapper1 -> wrapper1
-					 .like(RiderCustomer::getName, promoterName)
+			 queryWrapper.and(wrapper1 -> wrapper1
+					 .like("ifnull(rc.name,tp.name)", talentPoolDTO.getPromoterName())
 					 .or()
-					 .like(RiderCustomer::getPhone,promoterName)
+					 .like("tp.phone",talentPoolDTO.getPromoterName())
 					 .or()
-					 .in(ids.size() > 0, RiderCustomer::getReference,ids)
+					 .in(ids.size() > 0,"rc.reference",ids)
 			 );
 		 }
-		 IPage<RiderCustomer> pageList = riderCustomerService.page(page, queryWrapper);
-		 List<RiderCustomer> list = pageList.getRecords();
-		 List<String> ids = list.stream().filter(s -> StringUtils.isNotBlank(s.getReference())).map(x -> x.getReference()).collect(Collectors.toList());
-		 List<RiderCustomer> referenceList = ids.size()> 0 ? riderCustomerService.listByIds(ids) : new ArrayList<>();
-		 Map<String, RiderCustomer> referenceMap = referenceList.stream().collect(Collectors.toMap(RiderCustomer::getId, Function.identity(), (a, b) -> b));
-		 IPage<RiderCustomerDTO> dtoPage = pageList.convert(x -> {
-			 RiderCustomerDTO customerDTO = new RiderCustomerDTO();
-			 BeanUtils.copyProperties(x, customerDTO);
-			 RiderCustomer r = referenceMap.get(x.getReference());
-			 if (r != null) {
-				 customerDTO.setPromoterName(r.getName());
+		 IPage<FamilyTalentPoolDTO> pageList = familyTalentPoolService.pageList(page, queryWrapper);
+		 pageList.getRecords().forEach(x -> {
+			 if(StringUtils.isEmpty(x.getName())){
+				 x.setName("未实名");
 			 }
-			 if(StringUtils.isEmpty(x.getIdCard())){
-				 customerDTO.setName("***");
-			 }
-			 return customerDTO;
 		 });
-		 return Result.OK(dtoPage);
+		 return Result.OK(pageList);
 	 }
 
 	 /**
@@ -257,35 +198,29 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @ApiOperation(value="我的领取列表", notes="我的领取列表")
 	 @RequestMapping(value = "/listByMyResume", method = RequestMethod.GET)
-	 public Result<List<RiderCustomerDTO>> listByMyResume(@RequestParam(name="customerId",required=false) String customerId) {
+	 public Result<List<FamilyTalentPoolDTO>> listByMyResume(@RequestParam(name="customerId",required=false) String customerId) {
 		 if(StringUtils.isNotEmpty(customerId)){
 			 RiderParams remove_resume_date = riderParamsService.getByCode("REMOVE_RESUME_DATE");
 			 long remove_date = 7L;
 			 if(Objects.nonNull(remove_resume_date) && StringUtils.isNotBlank(remove_resume_date.getParamValue())){
 				 remove_date = Long.parseLong(remove_resume_date.getParamValue());
 			 }
-			 QueryWrapper<RiderCustomer> queryWrapper = new QueryWrapper<>();
-			 queryWrapper.lambda().eq(RiderCustomer::getReceiver,customerId)
-					 .orderByDesc(RiderCustomer::getCreateTime);
-			 List<RiderCustomer> list = riderCustomerService.list(queryWrapper);
-			 List<String> ids = list.stream().filter(s -> StringUtils.isNotBlank(s.getReference())).map(x -> x.getReference()).collect(Collectors.toList());
-			 List<RiderCustomer> referenceList = ids.size()> 0 ? riderCustomerService.listByIds(ids) : new ArrayList<>();
-			 Map<String, RiderCustomer> referenceMap = referenceList.stream().collect(Collectors.toMap(RiderCustomer::getId, Function.identity(), (a, b) -> b));
+			 QueryWrapper<FamilyTalentPool> queryWrapper = new QueryWrapper<>();
+			 queryWrapper.eq("tp.receiver",customerId)
+					 .orderByDesc("tp.create_time");
+			 List<FamilyTalentPoolDTO> list = familyTalentPoolService.queryList(queryWrapper);
 			 final long final_remove_date = remove_date;
-			 List<RiderCustomerDTO> customerDTOList = list.stream().map(x -> {
-				 RiderCustomerDTO customerDTO = new RiderCustomerDTO();
-				 BeanUtils.copyProperties(x, customerDTO);
-				 RiderCustomer riderCustomer = referenceMap.get(x.getReference());
-				 if(riderCustomer != null){
-					 customerDTO.setPromoterName(riderCustomer.getName());
+			 List<FamilyTalentPoolDTO> customerDTOList = list.stream().map(x -> {
+				 if(StringUtils.isEmpty(x.getName())){
+					 x.setName("未实名");
 				 }
-				 if(Objects.equals(0,customerDTO.getApplyStatus()) && Objects.nonNull(customerDTO.getReceiveTime())){
+				 if(Objects.equals(0,x.getApplyStatus()) && Objects.nonNull(x.getReceiveTime())){
 					 // 与当前时间差
-					 long differenceInDays = DateUtils.calculateDaysDifference(customerDTO.getReceiveTime());
+					 long differenceInDays = DateUtils.calculateDaysDifference(x.getReceiveTime());
 					 //剩余时间
-					 customerDTO.setRemainTime((final_remove_date + differenceInDays)+"天");
+					 x.setRemainTime((final_remove_date + differenceInDays)+"天");
 				 }
-				 return customerDTO;
+				 return x;
 			 }).collect(Collectors.toList());
 			 return Result.OK(customerDTOList);
 		 }
@@ -303,8 +238,8 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 @RequiresPermissions("customer:rider_customer:edit")
 	 @RequestMapping(value = "/receiveCustomer", method = {RequestMethod.POST})
 	 public Result<String> receiveCustomer(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
-		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
-		 if(Objects.isNull(riderCustomer)){
+		 FamilyTalentPool familyTalentPool = familyTalentPoolService.getById(receiveDTO.getId());
+		 if(Objects.isNull(familyTalentPool)){
 			 throw new JeecgBootException("该用户不存在!");
 		 }
 		 //	获取当前用户
@@ -321,19 +256,16 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if(Objects.nonNull(receive_customer_num) && StringUtils.isNotBlank(receive_customer_num.getParamValue())){
 			 receive_num = Integer.parseInt(receive_customer_num.getParamValue());
 		 }
-		 QueryWrapper<RiderCustomer> queryWrapper = new QueryWrapper<>();
-		 queryWrapper.lambda().eq(RiderCustomer::getReceiver,r.getId());
-		 long count = riderCustomerService.count(queryWrapper);
+		 QueryWrapper<FamilyTalentPool> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.lambda().eq(FamilyTalentPool::getReceiver,r.getId());
+		 long count = familyTalentPoolService.count(queryWrapper);
 		 if(count >= receive_num){
 			 throw new JeecgBootException("已超过领取客户数量限制!");
 		 }
-		 //riderCustomer.setTag(receiveDTO.getTag());
-		 //riderCustomer.setIntention(receiveDTO.getIntention());
-		 //riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
-		 riderCustomer.setReceiver(r.getId());
-		 riderCustomer.setReceiveStatus(1);
-		 riderCustomer.setReceiveTime(new Date());
-		 riderCustomerService.updateById(riderCustomer);
+		 familyTalentPool.setReceiver(r.getId());
+		 familyTalentPool.setReceiveStatus(1);
+		 familyTalentPool.setReceiveTime(new Date());
+		 familyTalentPoolService.updateById(familyTalentPool);
 		 return Result.OK("领取客户成功!");
 	 }
 
@@ -348,8 +280,8 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 @RequiresPermissions("customer:rider_customer:edit")
 	 @RequestMapping(value = "/setTag", method = {RequestMethod.POST})
 	 public Result<String> setTag(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
-		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
-		 if(Objects.isNull(riderCustomer)){
+		 FamilyTalentPool familyTalentPool = familyTalentPoolService.getById(receiveDTO.getId());
+		 if(Objects.isNull(familyTalentPool)){
 			 throw new JeecgBootException("该用户不存在!");
 		 }
 		 //	获取当前用户
@@ -361,10 +293,10 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if (oConvertUtils.isEmpty(r)) {
 			 return Result.error("请注册用户！");
 		 }
-		 riderCustomer.setTag(receiveDTO.getTag());
-		 riderCustomer.setIntention(receiveDTO.getIntention());
-		 riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
-		 riderCustomerService.updateById(riderCustomer);
+		 familyTalentPool.setTag(receiveDTO.getTag());
+		 familyTalentPool.setIntention(receiveDTO.getIntention());
+		 familyTalentPool.setPostRequirement(receiveDTO.getPostRequirement());
+		 familyTalentPoolService.updateById(familyTalentPool);
 		 return Result.OK("设置标签成功!");
 	 }
 
@@ -379,17 +311,15 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 @RequiresPermissions("customer:rider_customer:edit")
 	 @RequestMapping(value = "/removeCustomer", method = {RequestMethod.POST})
 	 public Result<String> removeCustomer(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
-		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
-		 if(Objects.isNull(riderCustomer)){
+		 FamilyTalentPool familyTalentPool = familyTalentPoolService.getById(receiveDTO.getId());
+		 if(Objects.isNull(familyTalentPool)){
 			 throw new JeecgBootException("该用户不存在!");
 		 }
-		 riderCustomer.setReceiver("");
-		 riderCustomer.setReceiveStatus(0);
-		 riderCustomerService.updateById(riderCustomer);
+		 familyTalentPool.setReceiver("");
+		 familyTalentPool.setReceiveStatus(0);
+		 familyTalentPoolService.updateById(familyTalentPool);
 		 return Result.OK("移除客户成功!");
 	 }
-
-
 
 	 /**
 	  *  申请通过
@@ -402,16 +332,23 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 @RequiresPermissions("customer:rider_customer:edit")
 	 @RequestMapping(value = "/applyPass", method = {RequestMethod.POST})
 	 public Result<String> applyPass(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
-		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
-		 if(Objects.isNull(riderCustomer)){
+		 FamilyTalentPool familyTalentPool = familyTalentPoolService.getById(receiveDTO.getId());
+		 if(Objects.isNull(familyTalentPool)){
 			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 if(familyTalentPool.getApplyStatus() == 1){
+			 throw new JeecgBootException("该用户已申请，不能重复申请!");
+		 }
+		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(familyTalentPool.getPhone());
+		 if(Objects.isNull(riderCustomer)){
+			 throw new JeecgBootException("该用户未注册!");
 		 }
 		 if(riderCustomer.getIdentity() == CustomerIdentityEnum.TOURIST.getCode()){
 			 throw new JeecgBootException("该用户未报名，不允许申请!");
 		 }
 		 //判断是否存在已支付的岗位
 		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>()
-				.eq("pay_status", 1)
+				 .eq("pay_status", 1)
 				 .eq("phone", riderCustomer.getPhone())
 				 .last(" limit 1 "));
 		 if(one == null) {
@@ -424,12 +361,41 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 				 return Result.error("该用户报名未支付，不允许申请！");
 			 }
 		 }
-		 if(riderCustomer.getApplyStatus() == 1){
-			 throw new JeecgBootException("该用户已申请，不能重复申请!");
-		 }
-		 riderCustomer.setApplyStatus(1);
-		 riderCustomerService.updateById(riderCustomer);
+		 familyTalentPool.setApplyStatus(1);
+		 familyTalentPoolService.updateById(familyTalentPool);
 		 return Result.OK("申请通过成功!");
+	 }
+
+	 /**
+	  *  移入人才库
+	  *
+	  * @param receiveDTO
+	  * @return
+	  */
+	 @AutoLog(value = "移入人才库")
+	 @ApiOperation(value="移入人才库", notes="移入人才库")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/moveCustomer", method = {RequestMethod.POST})
+	 public Result<String> moveCustomer(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
+		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
+		 if(Objects.isNull(riderCustomer)){
+			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 //判断用户是否存在人才库
+		 QueryWrapper<FamilyTalentPool> poolQueryWrapper = new QueryWrapper<>();
+		 poolQueryWrapper.lambda().eq(FamilyTalentPool::getPhone,riderCustomer.getPhone());
+		 long count = familyTalentPoolService.count(poolQueryWrapper);
+		 if(count > 0){
+			 throw new JeecgBootException("该用户已存在人才库!");
+		 }
+		 FamilyTalentPool talentPool = new FamilyTalentPool();
+		 talentPool.setName(riderCustomer.getName());
+		 talentPool.setPhone(riderCustomer.getPhone());
+		 talentPool.setCustomerId(riderCustomer.getId());
+		 familyTalentPoolService.save(talentPool);
+		 riderCustomer.setMoveStatus(1);
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("移入人才库成功!");
 	 }
 
 
