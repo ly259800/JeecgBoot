@@ -95,6 +95,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/params/riderParams/queryByCode", "anon"); //获取系统参数接口排除
         filterChainDefinitionMap.put("/post/post/listForApp", "anon"); //获取视频接口排除
         filterChainDefinitionMap.put("/customer/riderCustomer/listByAllResume", "anon"); //人才库接口排除
+        filterChainDefinitionMap.put("/customer/riderCustomer/listByMyResume", "anon"); //人才库接口排除
         filterChainDefinitionMap.put("/course/videoCourse/listForApp", "anon"); //获取岗位接口排除
         filterChainDefinitionMap.put("/sys/category/childList", "anon"); //获取分类列表排除
         filterChainDefinitionMap.put("/sys/category/childTree", "anon"); //获取分类树排除

@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.customer.controller;
 
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -251,16 +252,31 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if (oConvertUtils.isEmpty(r)) {
 			 return Result.error("请注册用户！");
 		 }
+		 //当天领取数量，领取数量总数
+		 int today_num = 5;
 		 int receive_num = 20;
 		 RiderParams receive_customer_num = riderParamsService.getByCode("RECEIVE_CUSTOMER_NUM");
 		 if(Objects.nonNull(receive_customer_num) && StringUtils.isNotBlank(receive_customer_num.getParamValue())){
-			 receive_num = Integer.parseInt(receive_customer_num.getParamValue());
+			 String[] split = receive_customer_num.getParamValue().split(",");
+			 if(split.length > 1){
+				 today_num = Integer.parseInt(split[0]);
+				 receive_num = Integer.parseInt(split[1]);
+			 }
 		 }
+		 //当前时间
+		 Date date = Date.from(DateUtils.getLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
 		 QueryWrapper<FamilyTalentPool> queryWrapper = new QueryWrapper<>();
-		 queryWrapper.lambda().eq(FamilyTalentPool::getReceiver,r.getId());
+		 queryWrapper.lambda().eq(FamilyTalentPool::getReceiver,r.getId())
+				 .gt(FamilyTalentPool::getReceiveTime, date);
 		 long count = familyTalentPoolService.count(queryWrapper);
+		 if(count >= today_num){
+			 throw new JeecgBootException("已超过当日领取客户数量!");
+		 }
+		 queryWrapper.clear();
+		 queryWrapper.lambda().eq(FamilyTalentPool::getReceiver,r.getId());
+		 count = familyTalentPoolService.count(queryWrapper);
 		 if(count >= receive_num){
-			 throw new JeecgBootException("已超过领取客户数量限制!");
+			 throw new JeecgBootException("已超过领取客户数量总数限制!");
 		 }
 		 familyTalentPool.setReceiver(r.getId());
 		 familyTalentPool.setReceiveStatus(1);

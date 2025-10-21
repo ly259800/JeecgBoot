@@ -140,3 +140,28 @@ alter table rider_customer add column `receive_time` datetime DEFAULT NULL COMME
 
 alter table sys_category add column `image` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '图片';
 alter table rider_customer add column `move_status` int DEFAULT 0 comment '移入人才库状态';
+
+
+-- auto-generated definition
+create table family_talent_pool
+(
+    id               varchar(36)   not null
+        primary key,
+    create_by        varchar(50)   null comment '创建人',
+    create_time      datetime      null comment '创建日期',
+    update_by        varchar(50)   null comment '更新人',
+    update_time      datetime      null comment '更新日期',
+    sys_org_code     varchar(64)   null comment '所属部门',
+    name             varchar(32)   null comment '名称',
+    phone            varchar(32)   null comment '手机号',
+    tag              varchar(200)  null comment '常用标签',
+    intention        varchar(200)  null comment '意向阶段',
+    post_requirement varchar(200)  null comment '岗位需求',
+    receiver         varchar(32)   null comment '领取人',
+    receive_status   int default 0 null comment '领取状态',
+    apply_status     int default 0 null comment '申请状态',
+    receive_time     datetime      null comment '领取日期',
+    customer_id      varchar(32)   null comment '客户ID'
+)
+    collate = utf8mb4_unicode_ci;
+

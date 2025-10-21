@@ -93,7 +93,7 @@ public class FamilyTalentPoolController extends JeecgController<FamilyTalentPool
 			 } catch (Exception e) {
 				 log.error("定时移出主理人领取列表异常：",e);
 			 }
-		 }, 0, 10, TimeUnit.SECONDS);
+		 }, 0, 1, TimeUnit.HOURS);
 
 		 pool.scheduleWithFixedDelay(() -> {
 			 try {
@@ -142,7 +142,7 @@ public class FamilyTalentPoolController extends JeecgController<FamilyTalentPool
 			 } catch (Exception e) {
 				 log.error("定时移入简历库列表异常：",e);
 			 }
-		 }, 0, 10, TimeUnit.SECONDS);
+		 }, 0, 1, TimeUnit.HOURS);
 	 }
 
 
