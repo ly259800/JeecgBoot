@@ -617,6 +617,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @AutoLog(value = "客户管理-升级为合伙人")
 	 @ApiOperation(value="客户管理-升级为合伙人", notes="客户管理-升级为合伙人")
+	 @RequiresPermissions("customer:rider_customer:upgradePartner")
 	 @PostMapping(value = "/upgradePartner")
 	 public Result<String> upgradePartner(@RequestParam(name="ids",required=true) String ids) {
 		 if(StringUtils.isEmpty(ids)){
@@ -657,6 +658,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @AutoLog(value = "客户管理-升级为渠道商")
 	 @ApiOperation(value="客户管理-升级为渠道商", notes="客户管理-升级为渠道商")
+	 @RequiresPermissions("customer:rider_customer:upgradeSite")
 	 @PostMapping(value = "/upgradeSite")
 	 public Result<String> upgradeSite(@RequestParam(name="ids",required=true) String ids,@RequestParam(name="profit",required=true) Integer profit,@RequestParam(name="commission",required=true) Integer commission) {
 		 if(StringUtils.isEmpty(ids)){
