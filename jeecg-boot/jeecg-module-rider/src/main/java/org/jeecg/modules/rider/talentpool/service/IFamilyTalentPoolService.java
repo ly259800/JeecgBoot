@@ -20,5 +20,7 @@ public interface IFamilyTalentPoolService extends IService<FamilyTalentPool> {
 
     List<FamilyTalentPoolDTO> queryList(Wrapper<FamilyTalentPool> queryWrapper);
 
+    FamilyTalentPool getByPhone(String phone);
+
 
 }

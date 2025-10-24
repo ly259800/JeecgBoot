@@ -1,7 +1,9 @@
 package org.jeecg.modules.rider.talentpool.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.jeecg.modules.rider.customer.entity.RiderCustomer;
 import org.jeecg.modules.rider.talentpool.dto.FamilyTalentPoolDTO;
 import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
 import org.jeecg.modules.rider.talentpool.mapper.FamilyTalentPoolMapper;
@@ -29,5 +31,12 @@ public class FamilyTalentPoolServiceImpl extends ServiceImpl<FamilyTalentPoolMap
     @Override
     public List<FamilyTalentPoolDTO> queryList(Wrapper<FamilyTalentPool> queryWrapper) {
         return baseMapper.queryList(queryWrapper);
+    }
+
+    @Override
+    public FamilyTalentPool getByPhone(String phone) {
+        QueryWrapper<FamilyTalentPool> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(FamilyTalentPool::getPhone,phone).last("limit 1");
+        return baseMapper.selectOne(wrapper);
     }
 }

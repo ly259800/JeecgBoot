@@ -174,5 +174,8 @@ public class RiderInterview implements Serializable {
     @ApiModelProperty(value = "视频文件链接")
     private java.lang.String videoUrl;
 
+    @ApiModelProperty(value = "申请人")
+    private java.lang.String applyUserId;
+
 
 }

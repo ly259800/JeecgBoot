@@ -14,6 +14,8 @@ import org.jeecg.modules.rider.fadada.dto.UserSignNotifyDto;
 import org.jeecg.modules.rider.fadada.service.SignaturesService;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
+import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
+import org.jeecg.modules.rider.talentpool.service.IFamilyTalentPoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +46,8 @@ public class SignturesNotifyController {
     @Autowired
     private SignaturesService signaturesService;
 
+    @Autowired
+    private IFamilyTalentPoolService familyTalentPoolService;
 
     @Value("${fadada.appSecret}")
     private String appSecret;
@@ -118,6 +122,15 @@ public class SignturesNotifyController {
                     updateCustomer.setIdCard(identityInfo.getUserIdentInfo().getIdentNo());
                     updateCustomer.setName(identityInfo.getUserIdentInfo().getUserName());
                     riderCustomerService.updateById(updateCustomer);
+                    //查看人才库
+                    FamilyTalentPool familyTalentPool = familyTalentPoolService.getByPhone(riderCustomer.getPhone());
+                    //更新人才库的用户信息
+                    if(Objects.nonNull(familyTalentPool) && StringUtils.isEmpty(familyTalentPool.getCustomerId())){
+                        FamilyTalentPool updatePool = new FamilyTalentPool();
+                        updatePool.setId(familyTalentPool.getId());
+                        updatePool.setCustomerId(riderCustomer.getId());
+                        familyTalentPoolService.updateById(updatePool);
+                    }
                 }
             }
         }

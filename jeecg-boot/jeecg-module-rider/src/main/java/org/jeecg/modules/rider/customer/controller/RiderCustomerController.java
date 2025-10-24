@@ -199,7 +199,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	  */
 	 @ApiOperation(value="我的领取列表", notes="我的领取列表")
 	 @RequestMapping(value = "/listByMyResume", method = RequestMethod.GET)
-	 public Result<List<FamilyTalentPoolDTO>> listByMyResume(@RequestParam(name="customerId",required=false) String customerId) {
+	 public Result<List<FamilyTalentPoolDTO>> listByMyResume(@RequestParam(name="customerId",required=false) String customerId,@RequestParam(name="promoterName",required=false) String promoterName) {
 		 if(StringUtils.isNotEmpty(customerId)){
 			 RiderParams remove_resume_date = riderParamsService.getByCode("REMOVE_RESUME_DATE");
 			 long remove_date = 7L;
@@ -209,6 +209,21 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 QueryWrapper<FamilyTalentPool> queryWrapper = new QueryWrapper<>();
 			 queryWrapper.eq("tp.receiver",customerId)
 					 .orderByDesc("tp.create_time");
+
+			 if(StringUtils.isNotBlank(promoterName)){
+				 QueryWrapper<RiderCustomer> query = new QueryWrapper<>();
+				 query.lambda().like(RiderCustomer::getName,promoterName);
+				 List<RiderCustomer> list = riderCustomerService.list(query);
+				 List<String> ids = list.stream().map(x -> x.getId()).collect(Collectors.toList());
+				 queryWrapper.and(wrapper1 -> wrapper1
+						 .like("ifnull(rc.name,tp.name)", promoterName)
+						 .or()
+						 .like("tp.phone",promoterName)
+						 .or()
+						 .in(ids.size() > 0,"rc.reference",ids)
+				 );
+			 }
+
 			 List<FamilyTalentPoolDTO> list = familyTalentPoolService.queryList(queryWrapper);
 			 final long final_remove_date = remove_date;
 			 List<FamilyTalentPoolDTO> customerDTOList = list.stream().map(x -> {
@@ -362,20 +377,24 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if(riderCustomer.getIdentity() == CustomerIdentityEnum.TOURIST.getCode()){
 			 throw new JeecgBootException("该用户未报名，不允许申请!");
 		 }
-		 //判断是否存在已支付的岗位
-		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>()
-				 .eq("pay_status", 1)
-				 .eq("phone", riderCustomer.getPhone())
-				 .last(" limit 1 "));
-		 if(one == null) {
+		 //判断是否存在该申请人的报名记录
+		 List<RiderInterview> list = riderInterviewService.list(new QueryWrapper<RiderInterview>()
+				 .eq("apply_user_id", familyTalentPool.getReceiver()));
+		 if(CollectionUtils.isEmpty(list)) {
+			 return Result.error("该用户未报名，不允许申请！");
+		 }
+		 //不存在已支付的报名记录
+		 boolean flag = list.stream().anyMatch(s -> Objects.equals(s.getPayStatus(), 1));
+		 if(!flag){
+			 return Result.error("该用户报名未支付，不允许申请！");
 			 //判断是否存在工厂岗位
-			 String pid = "1946598810814877697";
+			 /*String pid = "1946598810814877697";
 			 List<String> categoryIds = sysCategoryService.queryAllChildIds(pid);
 			 //判断是否存在报名工厂的岗位
 			 List<RiderInterview> riderInterviews = riderInterviewService.queryListByCategory(riderCustomer.getPhone(), categoryIds);
 			 if(CollectionUtils.isEmpty(riderInterviews)) {
 				 return Result.error("该用户报名未支付，不允许申请！");
-			 }
+			 }*/
 		 }
 		 familyTalentPool.setApplyStatus(1);
 		 familyTalentPoolService.updateById(familyTalentPool);
@@ -608,6 +627,29 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 }
 
 	 /**
+	  *  确认风控
+	  *
+	  * @param ids
+	  * @return
+	  */
+	 @AutoLog(value = "客户管理-确认风控")
+	 @ApiOperation(value="客户管理-确认风控", notes="客户管理-确认风控")
+	 @PostMapping(value = "/comfirmRiskControl")
+	 public Result<String> comfirmRiskControl(@RequestParam(name="ids",required=true) String ids) {
+		 if(StringUtils.isEmpty(ids)){
+			 return Result.error("请选择行数据!");
+		 }
+		 List<RiderCustomer> list = riderCustomerService.listByIds(Arrays.asList(ids.split(",")));
+		 for (RiderCustomer r : list) {
+			 if (!Objects.equals( CustomerIdentityEnum.PARTNER.getCode(),r.getIdentity())) {
+				 return Result.error("请选择主理人！");
+			 }
+		 }
+		 this.riderCustomerService.comfirmRiskControl(ids);
+		 return Result.OK("确认风控成功!");
+	 }
+
+	 /**
 	  *  升级为渠道商
 	  *
 	  * @param ids
@@ -673,6 +715,17 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 }
 		 String qrcode = riderCustomer.getQrcode();
 		 return Result.OK(qrcode);
+	 }
+
+
+	 @ApiOperation(value="获取滚动条数据", notes="获取滚动条数据")
+	 @GetMapping(value = "/getScrollbar")
+	 public Result<List<String>> getScrollbar() {
+		 RiderParams scrollbar_data = riderParamsService.getByCode("SCROLLBAR_DATA");
+		 if(Objects.nonNull(scrollbar_data) && StringUtils.isNotEmpty(scrollbar_data.getParamValue())){
+			 return Result.OK(Arrays.asList(scrollbar_data.getParamValue().split(",")));
+		 }
+		 return Result.OK(null);
 	 }
 
 

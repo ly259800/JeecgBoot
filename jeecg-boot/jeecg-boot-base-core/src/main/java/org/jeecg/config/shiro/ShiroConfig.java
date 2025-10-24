@@ -102,6 +102,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/post/post/queryById", "anon"); //获取岗位详情排除
         filterChainDefinitionMap.put("/course/videoCourse/queryUrlById", "anon"); //获取视频链接接口排除
         filterChainDefinitionMap.put("/course/videoCourse/checkVideoById", "anon"); //获取视频链接接口排除
+        filterChainDefinitionMap.put("/starwall/familyStarWall/listForApp", "anon"); //星光墙接口排除
+        filterChainDefinitionMap.put("/customer/riderCustomer/getScrollbar", "anon"); //滚动条接口排除
         filterChainDefinitionMap.put("/sys/logout", "anon"); //登出接口排除
         filterChainDefinitionMap.put("/wxpay/notify", "anon"); //支付回调接口排除
         filterChainDefinitionMap.put("/transfer/notify", "anon"); //转账回调接口排除

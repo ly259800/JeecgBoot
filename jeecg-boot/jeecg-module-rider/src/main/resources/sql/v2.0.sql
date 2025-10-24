@@ -165,3 +165,40 @@ create table family_talent_pool
 )
     collate = utf8mb4_unicode_ci;
 
+
+-- auto-generated definition
+create table family_star_wall
+(
+    id           varchar(36)  not null
+        primary key,
+    create_by    varchar(50)  null comment '创建人',
+    create_time  datetime     null comment '创建日期',
+    update_by    varchar(50)  null comment '更新人',
+    update_time  datetime     null comment '更新日期',
+    sys_org_code varchar(64)  null comment '所属部门',
+    name         varchar(32)  null comment '姓名',
+    image        varchar(128) null comment '图片',
+    description  varchar(256) null comment '描述',
+    like_cnt     int          null comment '点赞数',
+    identity     int          null comment '身份'
+) collate = utf8mb4_unicode_ci;
+
+-- auto-generated definition
+create table family_like_record
+(
+    id           varchar(36) not null
+        primary key,
+    create_by    varchar(50) null comment '创建人',
+    create_time  datetime    null comment '创建日期',
+    update_by    varchar(50) null comment '更新人',
+    update_time  datetime    null comment '更新日期',
+    sys_org_code varchar(64) null comment '所属部门',
+    customer_id  varchar(32) null comment '点赞人ID',
+    star_id      varchar(32) null comment '星光墙ID'
+) collate = utf8mb4_unicode_ci;
+
+
+alter table rider_interview add column `apply_user_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '申请人id';
+
+
+alter table rider_customer add column `risk_control` int DEFAULT 0 comment '是否风控(1-是 0-否)';

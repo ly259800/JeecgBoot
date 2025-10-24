@@ -173,5 +173,9 @@ public class RiderCustomer implements Serializable {
     private java.lang.Integer moveStatus;
 
 
+    @ApiModelProperty(value = "是否风控(1-是 0-否)")
+    private Integer riskControl;
+
+
 
 }

@@ -20,6 +20,7 @@ import org.jeecg.modules.rider.customer.enums.CustomerIdentityEnum;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
 import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
+import org.jeecg.modules.rider.talentpool.dto.FamilyTalentPoolDTO;
 import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
 import org.jeecg.modules.rider.talentpool.service.IFamilyTalentPoolService;
 
@@ -32,6 +33,7 @@ import org.jeecgframework.core.util.ApplicationContextUtil;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.entity.ImportParams;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -158,22 +160,31 @@ public class FamilyTalentPoolController extends JeecgController<FamilyTalentPool
 	//@AutoLog(value = "人才库-分页列表查询")
 	@ApiOperation(value="人才库-分页列表查询", notes="人才库-分页列表查询")
 	@GetMapping(value = "/list")
-	public Result<IPage<FamilyTalentPool>> queryPageList(FamilyTalentPool familyTalentPool,
-								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
-								   HttpServletRequest req) {
+	public Result<IPage<FamilyTalentPoolDTO>> queryPageList(FamilyTalentPool familyTalentPool,
+															@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+															@RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+															HttpServletRequest req) {
         QueryWrapper<FamilyTalentPool> queryWrapper = QueryGenerator.initQueryWrapper(familyTalentPool, req.getParameterMap());
 		Page<FamilyTalentPool> page = new Page<FamilyTalentPool>(pageNo, pageSize);
 		IPage<FamilyTalentPool> pageList = familyTalentPoolService.page(page, queryWrapper);
-		pageList.getRecords().forEach(x -> {
-			if(StringUtils.isEmpty(x.getName()) && StringUtils.isNotEmpty(x.getCustomerId())){
+		IPage<FamilyTalentPoolDTO> dtoPageList = pageList.convert(x -> {
+			FamilyTalentPoolDTO dto = new FamilyTalentPoolDTO();
+			BeanUtils.copyProperties(x, dto);
+			if (StringUtils.isEmpty(x.getName()) && StringUtils.isNotEmpty(x.getCustomerId())) {
 				RiderCustomer customer = riderCustomerService.getById(x.getCustomerId());
-				if(Objects.nonNull(customer)){
-					x.setName(customer.getName());
+				if (Objects.nonNull(customer)) {
+					dto.setName(customer.getName());
 				}
 			}
+			if (StringUtils.isNotBlank(x.getReceiver())) {
+				RiderCustomer customer = riderCustomerService.getById(x.getReceiver());
+				if (Objects.nonNull(customer)) {
+					dto.setReceiverName(customer.getName());
+				}
+			}
+			return dto;
 		});
-		return Result.OK(pageList);
+		return Result.OK(dtoPageList);
 	}
 	
 	/**

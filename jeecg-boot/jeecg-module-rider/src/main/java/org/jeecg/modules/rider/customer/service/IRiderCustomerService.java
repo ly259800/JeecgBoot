@@ -25,6 +25,9 @@ public interface IRiderCustomerService extends IService<RiderCustomer> {
 
     void upgradePartner(String ids);
 
+
+    void comfirmRiskControl(String ids);
+
     void upgradeSite(String ids,  Integer profit, Integer commission);
 
     void updateQrcode(String id);

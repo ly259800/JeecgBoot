@@ -78,6 +78,15 @@ public class RiderCustomerServiceImpl extends ServiceImpl<RiderCustomerMapper, R
     }
 
     @Override
+    public void comfirmRiskControl(String ids) {
+        LambdaUpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper<RiderCustomer>()
+                .lambda()
+                .in(RiderCustomer::getId, Arrays.asList(ids.split(",")))
+                .set(RiderCustomer::getRiskControl, 1);
+        this.update(updateWrapper);
+    }
+
+    @Override
     public void upgradeSite(String ids, Integer profit, Integer commission) {
         LambdaUpdateWrapper<RiderCustomer> updateWrapper = new UpdateWrapper<RiderCustomer>()
                 .lambda()

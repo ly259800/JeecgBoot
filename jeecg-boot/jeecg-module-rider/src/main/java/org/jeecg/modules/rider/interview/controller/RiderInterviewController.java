@@ -35,6 +35,8 @@ import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
 import org.jeecg.modules.rider.post.entity.Post;
 import org.jeecg.modules.rider.post.service.IPostService;
+import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
+import org.jeecg.modules.rider.talentpool.service.IFamilyTalentPoolService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -67,6 +69,9 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 
 	 @Autowired
 	 private IRiderParamsService riderParamsService;
+
+	 @Autowired
+	 private IFamilyTalentPoolService familyTalentPoolService;
 	
 	/**
 	 * 分页列表查询
@@ -92,6 +97,17 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
         QueryWrapper<RiderInterview> queryWrapper = QueryGenerator.initQueryWrapper(riderInterview, req.getParameterMap(),customeRuleMap);
 		Page<RiderInterview> page = new Page<RiderInterview>(pageNo, pageSize);
 		IPage<RiderInterview> pageList = riderInterviewService.page(page, queryWrapper);
+		pageList.convert(x -> {
+			RiderInterviewDTO dto = new RiderInterviewDTO();
+			BeanUtils.copyProperties(x,dto);
+			if (StringUtils.isNotBlank(x.getApplyUserId())) {
+				RiderCustomer customer = riderCustomerService.getById(x.getApplyUserId());
+				if (Objects.nonNull(customer)) {
+					dto.setApplyUserName(customer.getName());
+				}
+			}
+			return dto;
+		});
 		return Result.OK(pageList);
 	}
 
@@ -261,6 +277,12 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderCustomer.getPhone()).eq("site_id", riderInterview.getSiteId()));
 		 if(one != null) {
 			 return Result.error("您已经报名过该岗位，不能重复报名！");
+		 }
+		 //若存在人才库
+		 FamilyTalentPool familyTalentPool = familyTalentPoolService.getByPhone(riderCustomer.getPhone());
+		 if(Objects.nonNull(familyTalentPool)){
+			 //设置报名记录的申请人为当前领取人
+			 riderInterview.setApplyUserId(familyTalentPool.getReceiver());
 		 }
 		 riderInterview.setName(riderCustomer.getName());
 		 riderInterview.setPhone(riderCustomer.getPhone());
