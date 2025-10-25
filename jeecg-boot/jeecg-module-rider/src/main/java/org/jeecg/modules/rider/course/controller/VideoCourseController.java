@@ -214,21 +214,21 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 	  * @return
 	  */
 	 //@AutoLog(value = "课程管理-通过id查询")
-	 @ApiOperation(value="课程管理-获取视频链接", notes="课程管理-获取视频链接")
+	 /*@ApiOperation(value="课程管理-获取视频链接", notes="课程管理-获取视频链接")
 	 @GetMapping(value = "/queryUrlById")
 	 public Result<VideoCourse> queryUrlById(@RequestParam(name="id",required=true) String id) {
 		 //获取当前用户
-		 /*LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 *//*LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
 		 if (oConvertUtils.isEmpty(loginUser)) {
 			 return Result.error("请登录系统！");
-		 }*/
+		 }*//*
 		 VideoCourse videoCourse = videoCourseService.getById(id);
 		 if(videoCourse==null) {
 			 return Result.error("未找到对应数据");
 		 }
 		 return Result.OK(videoCourse);
 		 //免费
-		 /*if(videoCourse.getPayType() == 0) {
+		 *//*if(videoCourse.getPayType() == 0) {
 			 return Result.OK(videoCourse);
 		 }
 		 //判断是否是合伙人
@@ -242,8 +242,8 @@ public class VideoCourseController extends JeecgController<VideoCourse, IVideoCo
 			 return Result.OK(videoCourse);
 		 } else {
 			 return Result.error("请先解锁该课程");
-		 }*/
-	 }
+		 }*//*
+	 }*/
 
 	 /**
 	  * 校验视频权限

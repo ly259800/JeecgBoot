@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.interview.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,8 @@ import org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
 import org.jeecg.modules.rider.post.entity.Post;
 import org.jeecg.modules.rider.post.service.IPostService;
+import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
+import org.jeecg.modules.rider.talentpool.service.IFamilyTalentPoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,13 +49,32 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
     @Autowired
     private IRiderCommissionService riderCommissionService;
 
+    @Autowired
+    private IFamilyTalentPoolService familyTalentPoolService;
+
     @Override
     public void passBatch(String ids) {
-        LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
-                .lambda()
-                .in(RiderInterview::getId, Arrays.asList(ids.split(",")))
-                .set(RiderInterview::getPassStatus,1);
-        this.update(updateWrapper);
+        QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<RiderInterview>();
+        queryWrapper.lambda().in(RiderInterview::getId, Arrays.asList(ids.split(",")));
+        List<RiderInterview> list = this.list(queryWrapper);
+        list.forEach(x -> {
+            if(StringUtils.isNotBlank(x.getApplyUserId())){
+                //更新人才库
+                LambdaUpdateWrapper<FamilyTalentPool> toolUpdateWrapper = new UpdateWrapper<FamilyTalentPool>()
+                        .lambda()
+                        .eq(FamilyTalentPool::getReceiver, x.getApplyUserId())
+                        .eq(FamilyTalentPool::getPhone, x.getPhone())
+                        .set(FamilyTalentPool::getApplyStatus,1);
+                familyTalentPoolService.update(toolUpdateWrapper);
+            }
+            //更新入职状态
+            LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
+                    .lambda()
+                    .eq(RiderInterview::getId, x.getId())
+                    .set(RiderInterview::getPassStatus,1);
+            this.update(updateWrapper);
+        });
+
     }
 
     @Override
