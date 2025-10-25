@@ -153,26 +153,18 @@ public class FamilyStarWallController extends JeecgController<FamilyStarWall, IF
 			 throw new JeecgBootException("操作太频繁，请勿重复提交");
 		 }
 		 //尝试获取锁，3秒内不允许重复提交
-		 redisUtil.set(lockKey, "1", 3L);
+		 redisUtil.set(lockKey, "1", 1L);
 		 //获取当天时间
 		 Date date = Date.from(DateUtils.getLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-		 QueryWrapper<FamilyLikeRecord> queryWrapper = new QueryWrapper<>();
-		 queryWrapper.lambda().eq(FamilyLikeRecord::getStarId, familyStarWall.getId())
-				 .eq(FamilyLikeRecord::getCustomerId, riderCustomer.getId())
-				 .gt(FamilyLikeRecord::getCreateTime, date);
-		 long count = familyLikeRecordService.count(queryWrapper);
-		 if (count > 0) {
-			 return Result.error("您今天已经点赞过这条记录了！");
-		 }
 		 Integer todayNum = 10;
 		 RiderParams star_wall_like_num = riderParamsService.getByCode("STAR_WALL_LIKE_NUM");
 		 if (oConvertUtils.isNotEmpty(star_wall_like_num)) {
 			 todayNum = Integer.parseInt(star_wall_like_num.getParamValue());
 		 }
-		 queryWrapper.clear();
+		 QueryWrapper<FamilyLikeRecord> queryWrapper = new QueryWrapper<>();
 		 queryWrapper.lambda().eq(FamilyLikeRecord::getCustomerId, riderCustomer.getId())
 				 .gt(FamilyLikeRecord::getCreateTime, date);
-		 count = familyLikeRecordService.count(queryWrapper);
+		 long count = familyLikeRecordService.count(queryWrapper);
 		 if (count > todayNum) {
 			 return Result.error("您今天点赞已经超过"+todayNum+"次了，不能再点赞！");
 		 }
