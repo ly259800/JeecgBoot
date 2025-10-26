@@ -170,10 +170,18 @@ public class FamilyTalentPoolController extends JeecgController<FamilyTalentPool
 		IPage<FamilyTalentPoolDTO> dtoPageList = pageList.convert(x -> {
 			FamilyTalentPoolDTO dto = new FamilyTalentPoolDTO();
 			BeanUtils.copyProperties(x, dto);
-			if (StringUtils.isEmpty(x.getName()) && StringUtils.isNotEmpty(x.getCustomerId())) {
+			if (StringUtils.isNotEmpty(x.getCustomerId())) {
 				RiderCustomer customer = riderCustomerService.getById(x.getCustomerId());
 				if (Objects.nonNull(customer)) {
-					dto.setName(customer.getName());
+					if(StringUtils.isEmpty(x.getName())){
+						dto.setName(customer.getName());
+					}
+					if(StringUtils.isNotBlank(customer.getReference())){
+						RiderCustomer reference = riderCustomerService.getById(customer.getReference());
+						if(Objects.nonNull(reference)) {
+							dto.setPromoterName(reference.getName());
+						}
+					}
 				}
 			}
 			if (StringUtils.isNotBlank(x.getReceiver())) {
