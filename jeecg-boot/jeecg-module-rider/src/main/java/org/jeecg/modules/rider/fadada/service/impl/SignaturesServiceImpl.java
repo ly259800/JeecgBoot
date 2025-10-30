@@ -265,7 +265,7 @@ public class SignaturesServiceImpl implements SignaturesService {
             //该签署任务的发起方。
             createWithTemplateReq.setInitiator(OpenId.getInstance(IdTypeEnum.CORP.getCode(), openCorpId));
             //签署任务主题。长度最大100个字符。
-            createWithTemplateReq.setSignTaskSubject("安置单签署");
+            createWithTemplateReq.setSignTaskSubject("主理人协议签署");
             //指定签署模板ID。 法大大平台将从该签署模板中复制预先设定的文档、控件和签署方，并对每个签署方指定具体的用户或企业。
             createWithTemplateReq.setSignTemplateId(signTemplateId);
             // 获取当前时间
