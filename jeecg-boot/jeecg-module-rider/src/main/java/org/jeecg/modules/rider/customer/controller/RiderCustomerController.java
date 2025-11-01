@@ -99,7 +99,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	//@AutoLog(value = "客户管理-分页列表查询")
 	@ApiOperation(value="客户管理-分页列表查询", notes="客户管理-分页列表查询")
 	@GetMapping(value = "/list")
-	public Result<IPage<RiderCustomer>> queryPageList(RiderCustomer riderCustomer,
+	public Result<IPage<RiderCustomerDTO>> queryPageList(RiderCustomer riderCustomer,
 														 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 														 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 														 HttpServletRequest req) {
@@ -110,7 +110,18 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
         QueryWrapper<RiderCustomer> queryWrapper = QueryGenerator.initQueryWrapper(riderCustomer, req.getParameterMap(),customeRuleMap);
 		Page<RiderCustomer> page = new Page<RiderCustomer>(pageNo, pageSize);
 		IPage<RiderCustomer> pageList = riderCustomerService.page(page, queryWrapper);
-		return Result.OK(pageList);
+		IPage<RiderCustomerDTO> dtoPageList = pageList.convert(x -> {
+			RiderCustomerDTO dto = new RiderCustomerDTO();
+			BeanUtils.copyProperties(x, dto);
+			if (StringUtils.isNotBlank(x.getReference())) {
+				RiderCustomer customer = riderCustomerService.getById(x.getReference());
+				if (Objects.nonNull(customer)) {
+					dto.setPromoterName(customer.getName());
+				}
+			}
+			return dto;
+		});
+		return Result.OK(dtoPageList);
 	}
 
 	 /**
