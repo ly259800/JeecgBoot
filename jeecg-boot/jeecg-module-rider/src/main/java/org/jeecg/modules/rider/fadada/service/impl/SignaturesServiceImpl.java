@@ -67,6 +67,9 @@ public class SignaturesServiceImpl implements SignaturesService {
     @Value("${fadada.openCorpId}")
     private String openCorpId;
 
+    @Value("${fadada.sealId}")
+    private Long sealId;
+
     @Value("${fadada.mobile}")
     private String mobile;
 
@@ -352,7 +355,7 @@ public class SignaturesServiceImpl implements SignaturesService {
         String TemplateFieldDocId = signTemplateDetailRes.getDocs().get(0).getDocId().toString();
         //（可选）签署权限参与方关联的签章控件列表。
         List<AddSignFieldInfo> signFields = new ArrayList<>();
-        AddSignFieldInfo addSignFieldInfo = getAddSignFieldInfo(TemplateFieldDocId, "signature", "签名", null,true);
+        AddSignFieldInfo addSignFieldInfo = getAddSignFieldInfo(TemplateFieldDocId, "signature", "签名", sealId,true);
         signFields.add(addSignFieldInfo);
 
         //（可选）签署权限参与方的签署配置信息
@@ -400,7 +403,7 @@ public class SignaturesServiceImpl implements SignaturesService {
 
         //（可选）签署权限参与方关联的签章控件列表。
         List<AddSignFieldInfo> signFields2 = new ArrayList<>();
-        AddSignFieldInfo addSignFieldInfo2 = getAddSignFieldInfo(TemplateFieldDocId, "seal", "印章", null,true);
+        AddSignFieldInfo addSignFieldInfo2 = getAddSignFieldInfo(TemplateFieldDocId, "seal", "印章", sealId,true);
         signFields2.add(addSignFieldInfo2);
 
         //签署权限参与方的签署配置信息

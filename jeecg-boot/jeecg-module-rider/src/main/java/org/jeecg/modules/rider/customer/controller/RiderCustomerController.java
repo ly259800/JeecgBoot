@@ -170,7 +170,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 QueryWrapper<FamilyTalentPool> queryWrapper = new QueryWrapper<>();
 		 Page<FamilyTalentPool> page = new Page<FamilyTalentPool>(pageNo, pageSize);
 		 queryWrapper.eq("tp.receive_status",0)
-				 .orderByDesc("tp.create_time");
+				 .orderByDesc("tp.id");
 		 if(StringUtils.isNotBlank(talentPoolDTO.getPromoterName())){
 			 QueryWrapper<RiderCustomer> query = new QueryWrapper<>();
 			 query.lambda().like(RiderCustomer::getName,talentPoolDTO.getPromoterName());
@@ -208,7 +208,7 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 			 }
 			 QueryWrapper<FamilyTalentPool> queryWrapper = new QueryWrapper<>();
 			 queryWrapper.eq("tp.receiver",customerId)
-					 .orderByDesc("tp.create_time");
+					 .orderByDesc("tp.id");
 
 			 if(StringUtils.isNotBlank(promoterName)){
 				 QueryWrapper<RiderCustomer> query = new QueryWrapper<>();

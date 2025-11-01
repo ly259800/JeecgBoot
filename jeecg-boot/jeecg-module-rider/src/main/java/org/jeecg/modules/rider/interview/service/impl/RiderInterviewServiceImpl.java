@@ -1,8 +1,10 @@
 package org.jeecg.modules.rider.interview.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.exception.JeecgBootException;
@@ -10,6 +12,7 @@ import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.modules.rider.commission.entity.RiderCommission;
 import org.jeecg.modules.rider.commission.service.IRiderCommissionService;
 import org.jeecg.modules.rider.customer.service.IRiderCustomerService;
+import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.interview.mapper.RiderInterviewMapper;
 import org.jeecg.modules.rider.interview.service.IRiderInterviewService;
@@ -51,6 +54,11 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
 
     @Autowired
     private IFamilyTalentPoolService familyTalentPoolService;
+
+    @Override
+    public IPage<RiderInterviewDTO> pageList(IPage<RiderInterview> page, Wrapper<RiderInterview> queryWrapper) {
+        return this.baseMapper.pageList(page, queryWrapper);
+    }
 
     @Override
     public void passBatch(String ids) {

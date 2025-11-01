@@ -1,5 +1,9 @@
 package org.jeecg.modules.rider.interview.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.apache.ibatis.annotations.Param;
+import org.jeecg.modules.rider.interview.dto.RiderInterviewDTO;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,6 +17,9 @@ import java.util.List;
  * @Version: V1.0
  */
 public interface IRiderInterviewService extends IService<RiderInterview> {
+
+    IPage<RiderInterviewDTO> pageList(IPage<RiderInterview> page, @Param("ew") Wrapper<RiderInterview> queryWrapper);
+
 
     void passBatch(String ids);
 

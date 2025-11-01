@@ -46,4 +46,7 @@ public class RiderInterviewDTO extends RiderInterview {
     @ApiModelProperty(value = "申请人名称")
     private java.lang.String applyUserName;
 
+    @ApiModelProperty(value = "主理人名称")
+    private java.lang.String promoterName;
+
 }

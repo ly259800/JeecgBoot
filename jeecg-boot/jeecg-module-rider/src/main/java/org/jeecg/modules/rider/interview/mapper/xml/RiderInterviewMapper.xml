@@ -11,4 +11,14 @@
         </foreach>
     </select>
 
+    <select id="pageList" resultType="org.jeecg.modules.rider.interview.dto.RiderInterviewDTO">
+        select ri.*,rc.name applyUserName,rc1.name promoterName
+        from rider_interview ri
+         inner join family_post fp on ri.site_id = fp.id
+         left join rider_customer rc on ri.apply_user_id = rc.id
+         left join rider_customer rc1 on ri.reference = rc1.id
+        ${ew.customSqlSegment}
+    </select>
+
+
 </mapper>

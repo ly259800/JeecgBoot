@@ -61,6 +61,8 @@ public class RiderUserOrderController extends JeecgController<RiderUserOrder, IR
 								   HttpServletRequest req) {
         QueryWrapper<RiderUserOrder> queryWrapper = QueryGenerator.initQueryWrapper(riderUserOrder, req.getParameterMap());
 		Page<RiderUserOrder> page = new Page<RiderUserOrder>(pageNo, pageSize);
+		//查询支付成功的订单
+		queryWrapper.lambda().eq(RiderUserOrder::getOrderState, 1);
 		IPage<RiderUserOrder> pageList = riderUserOrderService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}

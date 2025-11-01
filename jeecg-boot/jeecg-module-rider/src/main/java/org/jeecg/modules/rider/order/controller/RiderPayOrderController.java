@@ -70,6 +70,8 @@ public class RiderPayOrderController extends JeecgController<RiderPayOrder, IRid
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
         QueryWrapper<RiderPayOrder> queryWrapper = QueryGenerator.initQueryWrapper(riderPayOrder, req.getParameterMap());
+		//查询支付成功的订单
+		queryWrapper.lambda().eq(RiderPayOrder::getTradeState, 1);
 		Page<RiderPayOrder> page = new Page<RiderPayOrder>(pageNo, pageSize);
 		IPage<RiderPayOrder> pageList = riderPayOrderService.page(page, queryWrapper);
 		return Result.OK(pageList);
