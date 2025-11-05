@@ -146,7 +146,14 @@ public class SignaturesController{
         }
         RiderInterviewDTO interviewDTO = new RiderInterviewDTO();
         BeanUtils.copyProperties(interview, interviewDTO);
-        interviewDTO.setContacts(post.getContacts());
+        if(StringUtils.isNotEmpty(interviewDTO.getReference())){
+            RiderCustomer reference = riderCustomerService.getById(interviewDTO.getReference());
+            if(Objects.nonNull( reference)){
+                interviewDTO.setContacts(reference.getName());
+            }
+        }else {
+            interviewDTO.setContacts("平台客服");
+        }
         interviewDTO.setCategoryName(post.getCategoryName());
         //若价格为0，则取岗位的价格
         if(Objects.isNull(interviewDTO.getPrice()) || interviewDTO.getPrice().compareTo(BigDecimal.ZERO)<=0){

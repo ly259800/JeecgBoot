@@ -634,6 +634,12 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if(StringUtils.isEmpty(ids)){
 			 return Result.error("请选择行数据!");
 		 }
+		 List<RiderCustomer> list = riderCustomerService.listByIds(Arrays.asList(ids.split(",")));
+		 for (RiderCustomer r : list) {
+			 if (StringUtils.isEmpty(r.getIdCard())) {
+				 return Result.error("用户未实名！");
+			 }
+		 }
 		 this.riderCustomerService.upgradePartner(ids);
 		 return Result.OK("批量更新成功!");
 	 }
