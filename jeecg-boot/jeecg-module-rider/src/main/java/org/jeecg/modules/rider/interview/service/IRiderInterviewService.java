@@ -25,6 +25,8 @@ public interface IRiderInterviewService extends IService<RiderInterview> {
 
     void settleBatch(String ids);
 
+    void marketCompleteBatch(String ids);
+
 
     void updatePriceBatch(String ids, BigDecimal price);
 
@@ -35,5 +37,7 @@ public interface IRiderInterviewService extends IService<RiderInterview> {
     void updateSite(RiderInterview riderInterview);
 
     List<RiderInterview> queryListByCategory(String phone,List<String> categoryIds);
+
+    void updatePayPrice(String ids, BigDecimal payPrice);
 
 }

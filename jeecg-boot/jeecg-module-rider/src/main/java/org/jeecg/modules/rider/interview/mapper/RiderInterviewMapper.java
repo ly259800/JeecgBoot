@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.interview.mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -20,6 +21,8 @@ public interface RiderInterviewMapper extends BaseMapper<RiderInterview> {
     List<RiderInterview> queryListByCategory(@Param("phone") String phone , @Param("categoryIds") List<String> categoryIds);
 
     IPage<RiderInterviewDTO> pageList(IPage<RiderInterview> page, @Param("ew") Wrapper<RiderInterview> queryWrapper);
+
+    void updatePayPrice(@Param("id") String id, @Param("price") BigDecimal price);
 
 
 }

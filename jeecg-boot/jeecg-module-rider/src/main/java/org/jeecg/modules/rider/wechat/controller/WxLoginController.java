@@ -188,38 +188,53 @@ public class WxLoginController {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 try {
-                    //新增客户信息
-                    RiderCustomer riderCustomer = new RiderCustomer();
-                    BeanUtils.copyProperties(dto,riderCustomer);
-                    if(StringUtils.isNotBlank(dto.getShareUserId())){
-                        riderCustomer.setReference(dto.getShareUserId());
+                    RiderCustomer byPhone = riderCustomerService.getByPhone(dto.getPhone());
+                    if(Objects.isNull(byPhone)){
+                        //新增客户信息
+                        RiderCustomer riderCustomer = new RiderCustomer();
+                        BeanUtils.copyProperties(dto,riderCustomer);
+                        if(StringUtils.isNotBlank(dto.getShareUserId())){
+                            riderCustomer.setReference(dto.getShareUserId());
+                        }
+                        if(StringUtils.isNotBlank(dto.getShareUserPhone())){
+                            riderCustomer.setReferencePhone(dto.getShareUserPhone());
+                        }
+                        riderCustomerService.save(riderCustomer);
+                        //新增用户信息
+                        SysUser user = new SysUser();
+                        //手机号作为用户名
+                        user.setUsername(dto.getPhone());
+                        //密码默认为手机号后8位
+                        user.setPassword(dto.getPhone().substring(3));
+                        user.setAvatar(dto.getAvatar());
+                        user.setPhone(dto.getPhone());
+                        user.setRealname(dto.getName());
+                        user.setSex(dto.getSex());
+                        user.setCreateTime(new Date());//设置创建时间
+                        String salt = oConvertUtils.randomGen(8);
+                        user.setSalt(salt);
+                        String passwordEncode = PasswordUtil.encrypt(user.getUsername(), user.getPassword(), salt);
+                        user.setPassword(passwordEncode);
+                        user.setStatus(1);
+                        user.setDelFlag(CommonConstant.DEL_FLAG_0);
+                        //用户表字段org_code不能在这里设置他的值
+                        user.setOrgCode(null);
+                        // 保存用户走一个service 保证事务
+                        sysUserService.saveUser(user, "1169504891467464705", null, null);
+                        baseCommonService.addLog("小程序注册用户，username： " +user.getUsername() ,CommonConstant.LOG_TYPE_2, 2);
+                    } else {
+                        //若用户为会员，则更新客户信息
+                        if(byPhone.getIdentity() == CustomerIdentityEnum.TOURIST.getCode()){
+                            RiderCustomer riderCustomer = new RiderCustomer();
+                            riderCustomer.setSex(dto.getSex());
+                            riderCustomer.setName(dto.getName());
+                            riderCustomer.setAge(dto.getAge());
+                            riderCustomer.setIntention(dto.getIntention());
+                            riderCustomer.setId(byPhone.getId());
+                            riderCustomerService.updateById(riderCustomer);
+                            baseCommonService.addLog("小程序注册修改用户，username： " +dto.getPhone() ,CommonConstant.LOG_TYPE_2, 2);
+                        }
                     }
-                    if(StringUtils.isNotBlank(dto.getShareUserPhone())){
-                        riderCustomer.setReferencePhone(dto.getShareUserPhone());
-                    }
-                    riderCustomerService.save(riderCustomer);
-                    //新增用户信息
-                    SysUser user = new SysUser();
-                    //手机号作为用户名
-                    user.setUsername(dto.getPhone());
-                    //密码默认为手机号后8位
-                    user.setPassword(dto.getPhone().substring(3));
-                    user.setAvatar(dto.getAvatar());
-                    user.setPhone(dto.getPhone());
-                    user.setRealname(dto.getName());
-                    user.setSex(dto.getSex());
-                    user.setCreateTime(new Date());//设置创建时间
-                    String salt = oConvertUtils.randomGen(8);
-                    user.setSalt(salt);
-                    String passwordEncode = PasswordUtil.encrypt(user.getUsername(), user.getPassword(), salt);
-                    user.setPassword(passwordEncode);
-                    user.setStatus(1);
-                    user.setDelFlag(CommonConstant.DEL_FLAG_0);
-                    //用户表字段org_code不能在这里设置他的值
-                    user.setOrgCode(null);
-                    // 保存用户走一个service 保证事务
-                    sysUserService.saveUser(user, "1169504891467464705", null, null);
-                    baseCommonService.addLog("小程序注册用户，username： " +user.getUsername() ,CommonConstant.LOG_TYPE_2, 2);
                 }catch (Exception e){
                     //抛出异常，事务回滚
                     throw e;

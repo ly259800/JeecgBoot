@@ -131,14 +131,26 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
     }
 
     @Override
+    public void marketCompleteBatch(String ids) {
+        List<String> idList = Arrays.asList(ids.split(","));
+        List<RiderInterview> riderInterviews = this.listByIds(idList);
+        if(riderInterviews.stream().anyMatch(s-> Objects.equals(s.getPayStatus() , 0))){
+            throw new JeecgBootException("不能选择未支付的记录！");
+        }
+        //更新市场确认状态
+        LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
+                .lambda()
+                .in(RiderInterview::getId, idList)
+                .set(RiderInterview::getMarketCompleteStatus,1);
+        this.update(updateWrapper);
+    }
+
+    @Override
     public void updatePriceBatch(String ids, BigDecimal price) {
         List<String> idList = Arrays.asList(ids.split(","));
         RiderInterview riderInterview = this.getById(idList.get(0));
         if (riderInterview == null){
             throw new JeecgBootException("报名记录不存在！");
-        }
-        if(riderInterview.getPayStatus() == 1){
-            throw new JeecgBootException("该报名记录已支付，不能修改价格！");
         }
         //获取岗位信息
         Post post = postService.getById(riderInterview.getSiteId());
@@ -152,6 +164,7 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
         LambdaUpdateWrapper<RiderInterview> updateWrapper = new UpdateWrapper<RiderInterview>()
                 .lambda()
                 .eq(RiderInterview::getId, riderInterview.getId())
+                .set(RiderInterview::getPayStatus , 0)
                 .set(RiderInterview::getPrice,price);
         this.update(updateWrapper);
     }
@@ -201,6 +214,11 @@ public class RiderInterviewServiceImpl extends ServiceImpl<RiderInterviewMapper,
                 .set(RiderInterview::getSiteId,riderInterview.getSiteId())
                 .set(RiderInterview::getSiteName,site.getPostName());
         this.update(updateWrapper);
+    }
+
+    @Override
+    public void updatePayPrice(String ids, BigDecimal payPrice) {
+        this.baseMapper.updatePayPrice(ids,payPrice);
     }
 
     @Override

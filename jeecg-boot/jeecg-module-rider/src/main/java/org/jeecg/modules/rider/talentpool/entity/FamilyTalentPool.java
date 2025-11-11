@@ -65,6 +65,17 @@ public class FamilyTalentPool implements Serializable {
 	@Excel(name = "手机号", width = 15)
     @ApiModelProperty(value = "手机号")
     private java.lang.String phone;
+
+    @Excel(name = "性别", width = 15, dicCode = "sex")
+    @Dict(dicCode = "sex")
+    @ApiModelProperty(value = "性别")
+    private java.lang.Integer sex;
+
+    /**年龄*/
+    @Excel(name = "年龄", width = 15)
+    @ApiModelProperty(value = "年龄")
+    private java.lang.Integer age;
+
 	/**常用标签*/
 	//@Excel(name = "常用标签", width = 15)
     @ApiModelProperty(value = "常用标签")

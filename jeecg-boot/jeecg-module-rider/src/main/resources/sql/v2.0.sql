@@ -202,3 +202,19 @@ alter table rider_interview add column `apply_user_id` varchar(100) COLLATE utf8
 
 
 alter table rider_customer add column `risk_control` int DEFAULT 0 comment '是否风控(1-是 0-否)';
+
+alter table rider_customer add column `sex` int DEFAULT NULL COMMENT '性别';
+
+alter table rider_customer add column `age` int DEFAULT NULL COMMENT '年龄';
+
+alter table family_post add column `market_status` int DEFAULT '0' COMMENT '是否进入市场部';
+
+alter table rider_interview add column `market_complete_status` int DEFAULT '0' COMMENT '市场部确认完成状态';
+
+alter table rider_interview add column `pay_price` decimal(10,2) DEFAULT NULL COMMENT '已支付金额';
+
+
+
+alter table family_talent_pool add column `sex` int DEFAULT NULL COMMENT '性别';
+
+alter table family_talent_pool add column `age` int DEFAULT NULL COMMENT '年龄';

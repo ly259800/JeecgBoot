@@ -343,6 +343,37 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 	 }
 
 	 /**
+	  *  我的推广-打标签
+	  *
+	  * @param receiveDTO
+	  * @return
+	  */
+	 @AutoLog(value = "我的推广-打标签")
+	 @ApiOperation(value="我的推广-打标签", notes="打标签")
+	 @RequiresPermissions("customer:rider_customer:edit")
+	 @RequestMapping(value = "/setCustomerTag", method = {RequestMethod.POST})
+	 public Result<String> setCustomerTag(@RequestBody RiderCustomerReceiveDTO receiveDTO) {
+		 RiderCustomer riderCustomer = riderCustomerService.getById(receiveDTO.getId());
+		 if(Objects.isNull(riderCustomer)){
+			 throw new JeecgBootException("该用户不存在!");
+		 }
+		 //	获取当前用户
+		 LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if (oConvertUtils.isEmpty(loginUser)) {
+			 return Result.error("请登录系统！");
+		 }
+		 RiderCustomer r = riderCustomerService.getByPhone(loginUser.getPhone());
+		 if (oConvertUtils.isEmpty(r)) {
+			 return Result.error("请注册用户！");
+		 }
+		 riderCustomer.setTag(receiveDTO.getTag());
+		 riderCustomer.setIntention(receiveDTO.getIntention());
+		 riderCustomer.setPostRequirement(receiveDTO.getPostRequirement());
+		 riderCustomerService.updateById(riderCustomer);
+		 return Result.OK("设置标签成功!");
+	 }
+
+	 /**
 	  *  移除客户
 	  *
 	  * @param receiveDTO
@@ -437,6 +468,11 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 FamilyTalentPool talentPool = new FamilyTalentPool();
 		 talentPool.setName(riderCustomer.getName());
 		 talentPool.setPhone(riderCustomer.getPhone());
+		 talentPool.setAge(riderCustomer.getAge());
+		 talentPool.setSex(riderCustomer.getSex());
+		 talentPool.setTag(riderCustomer.getTag());
+		 talentPool.setIntention(riderCustomer.getIntention());
+		 talentPool.setPostRequirement(riderCustomer.getPostRequirement());
 		 talentPool.setCustomerId(riderCustomer.getId());
 		 familyTalentPoolService.save(talentPool);
 		 riderCustomer.setMoveStatus(1);

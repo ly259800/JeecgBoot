@@ -243,12 +243,8 @@ public class RiderPayOrderServiceImpl extends ServiceImpl<RiderPayOrderMapper, R
                 userOrderWrapper.lambda().eq(RiderUserOrder::getUpdateTime, userOrderUpdateTime);
             }
             riderUserOrderService.getBaseMapper().update(riderUserOrder, userOrderWrapper);
-            //3.更新报名记录为已支付
-            RiderInterview riderInterview = new RiderInterview();
-            riderInterview.setPayStatus(1);
-            riderInterview.setId(riderUserOrder.getInterviewId());
-            riderInterview.setPrice(payAmount);
-            riderInterviewService.updateById(riderInterview);
+            //3.更新报名记录支付金额
+            riderInterviewService.updatePayPrice(riderUserOrder.getInterviewId(), payAmount);
         }
     }
 

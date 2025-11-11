@@ -151,7 +151,9 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 			 queryWrapper.eq("ri.status", riderInterview.getStatus());
 		 }
 		 queryWrapper.and(wrapper1 -> wrapper1
-				 .eq("fp.pay_type", 0)
+				 .apply(" (fp.pay_type = 0 and fp.market_status = 0)")
+				 .or()
+				 .apply(" (fp.pay_type = 0 and fp.market_status = 1 and ri.market_complete_status = 1)")
 				 .or()
 				 .apply(" (fp.pay_type = 1 and fp.training_status = 0 and ri.sign_status = 1)")
 				 .or()
@@ -200,6 +202,49 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 }
 		 queryWrapper.and(wrapper1 -> wrapper1
 				 .apply(" (fp.pay_type = 1 and fp.training_status = 1 and ri.sign_status = 1 and ri.training_status = 0)")
+		 );
+		 queryWrapper.orderByDesc("ri.id");
+		 IPage<RiderInterviewDTO> pageList = riderInterviewService.pageList(page, queryWrapper);
+		 return Result.OK(pageList);
+	 }
+
+	 /**
+	  * 市场部信息查询
+	  * @param riderInterview
+	  * @param pageNo
+	  * @param pageSize
+	  * @param req
+	  * @return
+	  */
+	 @ApiOperation(value="面试管理-市场部信息", notes="面试管理-市场部信息")
+	 @GetMapping(value = "/marketList")
+	 public Result<IPage<RiderInterviewDTO>> queryMarketList(RiderInterview riderInterview,
+															@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+															@RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+															HttpServletRequest req) {
+		 // 自定义查询规则
+		 QueryWrapper<RiderInterview> queryWrapper = new QueryWrapper<>();
+		 Page<RiderInterview> page = new Page<RiderInterview>(pageNo, pageSize);
+		 if(StringUtils.isNotBlank(riderInterview.getName())){
+			 queryWrapper.like("ri.name", riderInterview.getName());
+		 }
+		 if(StringUtils.isNotBlank(riderInterview.getPhone())){
+			 queryWrapper.like("ri.phone", riderInterview.getPhone());
+		 }
+		 if(StringUtils.isNotBlank(riderInterview.getReferencePhone())){
+			 queryWrapper.like("ri.reference_phone", riderInterview.getReferencePhone());
+		 }
+		 if(Objects.nonNull(riderInterview.getPassStatus())){
+			 queryWrapper.eq("ri.pass_status", riderInterview.getPassStatus());
+		 }
+		 if(Objects.nonNull(riderInterview.getSettleStatus())){
+			 queryWrapper.eq("ri.settle_status", riderInterview.getSettleStatus());
+		 }
+		 if(Objects.nonNull(riderInterview.getStatus())){
+			 queryWrapper.eq("ri.status", riderInterview.getStatus());
+		 }
+		 queryWrapper.and(wrapper1 -> wrapper1
+				 .apply(" (fp.pay_type = 0 and fp.market_status = 1 and ri.market_complete_status = 0)")
 		 );
 		 queryWrapper.orderByDesc("ri.id");
 		 IPage<RiderInterviewDTO> pageList = riderInterviewService.pageList(page, queryWrapper);
@@ -452,6 +497,22 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 }
 		 riderInterviewService.confirmTraining(ids, trainingTeacher);
 		 return Result.OK("确认培训成功!");
+	 }
+
+	 /**
+	  *  转到安置信息
+	  * @return
+	  */
+	 @AutoLog(value = "面试管理-转到安置信息")
+	 @ApiOperation(value="面试管理-转到安置信息", notes="面试管理-转到安置信息")
+	 @RequiresPermissions("interview:rider_interview:marketCompleteBatch")
+	 @RequestMapping(value = "/marketCompleteBatch", method = {RequestMethod.POST})
+	 public Result<String> marketComplete(@RequestParam(name="ids",required=true) String ids) {
+		 if(StringUtils.isEmpty(ids)){
+			 throw new JeecgBootException("请选择要操作的记录！");
+		 }
+		 riderInterviewService.marketCompleteBatch(ids);
+		 return Result.OK("确认转到安置成功!");
 	 }
 
 	 /**

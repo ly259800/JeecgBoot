@@ -127,6 +127,8 @@ public class FamilyTalentPoolController extends JeecgController<FamilyTalentPool
 						 FamilyTalentPool talentPool = new FamilyTalentPool();
 						 talentPool.setName(x.getName());
 						 talentPool.setPhone(x.getPhone());
+						 talentPool.setAge(x.getAge());
+						 talentPool.setSex(x.getSex());
 						 talentPool.setCustomerId(x.getId());
 						 return talentPool;
 					 }).collect(Collectors.toList());

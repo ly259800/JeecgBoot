@@ -128,6 +128,12 @@ public class Post implements Serializable {
     @Dict(dicCode = "yn")
     private java.lang.Integer trainingStatus;
 
+    /**是否进入市场部*/
+    @Excel(name = "是否进入市场部", width = 15)
+    @ApiModelProperty(value = "是否进入市场部")
+    @Dict(dicCode = "yn")
+    private java.lang.Integer marketStatus;
+
     /**联系电话*/
     @Excel(name = "联系电话", width = 15)
     @ApiModelProperty(value = "联系电话")

@@ -17,4 +17,7 @@ public class FamilyTalentPoolDTO extends FamilyTalentPool {
     @ApiModelProperty(value = "自动移除剩余时间")
     private java.lang.String remainTime;
 
+
+
+
 }

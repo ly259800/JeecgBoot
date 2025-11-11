@@ -160,6 +160,11 @@ public class RiderInterview implements Serializable {
     @ApiModelProperty(value = "付费价格")
     private java.math.BigDecimal price;
 
+    /**已支付金额*/
+    @Excel(name = "已支付金额", width = 15)
+    @ApiModelProperty(value = "已支付金额")
+    private java.math.BigDecimal payPrice;
+
     @ApiModelProperty(value = "签署任务")
     private java.lang.String signTaskId;
 
@@ -177,5 +182,8 @@ public class RiderInterview implements Serializable {
     @ApiModelProperty(value = "申请人")
     private java.lang.String applyUserId;
 
+    @Excel(name = "市场部确认状态", width = 15)
+    @ApiModelProperty(value = "市场部确认状态")
+    private java.lang.Integer marketCompleteStatus;
 
 }

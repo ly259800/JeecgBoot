@@ -61,7 +61,19 @@ public class RiderCustomer implements Serializable {
 	@Excel(name = "名称", width = 15)
     @ApiModelProperty(value = "名称")
     private java.lang.String name;
-	/**手机号*/
+
+    /**性别*/
+    @Excel(name = "性别", width = 15, dicCode = "sex")
+    @Dict(dicCode = "sex")
+    @ApiModelProperty(value = "性别 1-男 2-女")
+    private java.lang.Integer sex;
+
+    /**年龄*/
+    @Excel(name = "年龄", width = 15)
+    @ApiModelProperty(value = "年龄")
+    private java.lang.Integer age;
+
+    /**手机号*/
 	@Excel(name = "手机号", width = 15)
     @ApiModelProperty(value = "手机号")
     private java.lang.String phone;
@@ -175,7 +187,6 @@ public class RiderCustomer implements Serializable {
 
     @ApiModelProperty(value = "是否风控(1-是 0-否)")
     private Integer riskControl;
-
 
 
 }

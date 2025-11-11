@@ -12,13 +12,18 @@
     </select>
 
     <select id="pageList" resultType="org.jeecg.modules.rider.interview.dto.RiderInterviewDTO">
-        select ri.*,rc.name applyUserName,rc1.name promoterName
+        select ri.*,rc.name applyUserName,rc1.name promoterName,fp.category_name
         from rider_interview ri
          inner join family_post fp on ri.site_id = fp.id
          left join rider_customer rc on ri.apply_user_id = rc.id
          left join rider_customer rc1 on ri.reference = rc1.id
         ${ew.customSqlSegment}
     </select>
+
+    <update id="updatePayPrice">
+        update rider_interview set pay_price = ifnull(pay_price,0) + #{price},pay_status = 1
+        WHERE id = #{id}
+    </update>
 
 
 </mapper>
