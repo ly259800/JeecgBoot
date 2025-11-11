@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @Description: 阿里云 oss 上传工具类(高依赖版)
@@ -136,15 +137,25 @@ public class OssBootUtil {
             } else {
                 filePath = "https://" + newBucket + "." + endPoint + SymbolConstant.SINGLE_SLASH + fileUrl;
             }
-            PutObjectResult result = ossClient.putObject(newBucket, fileUrl.toString(), file.getInputStream());
+            // 改为异步上传
+            StringBuilder finalFileUrl = fileUrl;
+            String finalNewBucket = newBucket;
+            CompletableFuture.runAsync(() -> {
+                try {
+                    PutObjectResult result = ossClient.putObject(finalNewBucket, finalFileUrl.toString(), file.getInputStream());
+                    if (result != null){
+                        log.info("------OSS文件异步上传成功------" + finalFileUrl);
+                    } else {
+                        log.error("------OSS文件异步上传失败------" + finalFileUrl);
+                    }
+                } catch (IOException e) {
+                    log.error("OSS文件异步上传失败：", e);
+                }
+            });
+            //等待1秒
+            Thread.sleep(1000);
             // 设置权限(公开读)
 //            ossClient.setBucketAcl(newBucket, CannedAccessControlList.PublicRead);
-            if (result != null) {
-                log.info("------OSS文件上传成功------" + fileUrl);
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(),e);
-            return null;
         }catch (Exception e) {
             log.error(e.getMessage(),e);
             return null;
