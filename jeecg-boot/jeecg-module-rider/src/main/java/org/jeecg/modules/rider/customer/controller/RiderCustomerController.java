@@ -119,6 +119,12 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 					dto.setPromoterName(customer.getName());
 				}
 			}
+			//获取主理人推广人数
+			if(Objects.equals(CustomerIdentityEnum.PARTNER.getCode(), x.getIdentity())){
+				LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
+				query.eq(RiderCustomer::getReference, x.getId());
+				dto.setPromoterCount(riderCustomerService.count(query));
+			}
 			return dto;
 		});
 		return Result.OK(dtoPageList);

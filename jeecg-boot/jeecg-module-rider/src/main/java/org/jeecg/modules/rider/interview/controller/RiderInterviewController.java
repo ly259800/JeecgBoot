@@ -37,6 +37,9 @@ import org.jeecg.modules.rider.post.entity.Post;
 import org.jeecg.modules.rider.post.service.IPostService;
 import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
 import org.jeecg.modules.rider.talentpool.service.IFamilyTalentPoolService;
+import org.jeecgframework.poi.excel.def.NormalExcelConstants;
+import org.jeecgframework.poi.excel.entity.ExportParams;
+import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -312,6 +315,10 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 				 Post riderSite = riderSiteMap.get(x.getSiteId());
 				 //佣金
 				 interviewDTO.setSiteCommission(riderSite.getCommission().intValue());
+			 }
+			 //若未支付，则佣金设置为null
+			 if(Objects.equals(0,x.getPayStatus())){
+				 interviewDTO.setSiteCommission(null);
 			 }
 			 return interviewDTO;
 		 }).collect(Collectors.toList());
@@ -727,6 +734,18 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 		 update.setConfirmStatus(1);
 		 riderInterviewService.updateById(update);
 		 return Result.ok();
+	 }
+
+
+	 /**
+	  * 导出excel
+	  * @param request
+	  * @param riderInterview
+	  */
+	 @RequiresPermissions("interview:rider_interview:exportXls")
+	 @RequestMapping(value = "/exportXls")
+	 public ModelAndView exportXls(HttpServletRequest request, RiderInterview riderInterview) {
+		 return super.exportXls(request, riderInterview, RiderInterview.class, "报名管理");
 	 }
 
 }

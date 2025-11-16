@@ -43,10 +43,15 @@ public class RiderInterviewDTO extends RiderInterview {
     private java.lang.String categoryName;
 
 
+    @Excel(name = "申请人名称", width = 15)
     @ApiModelProperty(value = "申请人名称")
     private java.lang.String applyUserName;
 
+    @Excel(name = "主理人名称", width = 15)
     @ApiModelProperty(value = "主理人名称")
     private java.lang.String promoterName;
+
+    @ApiModelProperty(value = "导出页面")
+    private java.lang.String exportPage;
 
 }

@@ -20,6 +20,9 @@ public class RiderCustomerDTO extends RiderCustomer {
     @ApiModelProperty(value = "已结算")
     private Integer settleCount;
 
+    @ApiModelProperty(value = "推广人数")
+    private Long promoterCount;
+
     @ApiModelProperty(value = "推广人名称")
     private java.lang.String promoterName;
 

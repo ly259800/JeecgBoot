@@ -98,9 +98,9 @@ public class RiderCustomer implements Serializable {
     @ApiModelProperty(value = "二维码")
     private java.lang.String qrcode;
 
-    /**站点城市*/
-    @Excel(name = "站点城市", width = 15)
-    @ApiModelProperty(value = "站点城市")
+    /**所属城市*/
+    @Excel(name = "所属城市", width = 15)
+    @ApiModelProperty(value = "所属城市")
     private java.lang.String siteCity;
 
     @Excel(name = "我的佣金", width = 15)
