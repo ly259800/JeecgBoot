@@ -1,5 +1,7 @@
 package org.jeecg.modules.rider.starwall.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,6 +31,7 @@ import org.jeecg.modules.rider.likerecord.entity.FamilyLikeRecord;
 import org.jeecg.modules.rider.likerecord.service.IFamilyLikeRecordService;
 import org.jeecg.modules.rider.params.entity.RiderParams;
 import org.jeecg.modules.rider.params.service.IRiderParamsService;
+import org.jeecg.modules.rider.starwall.dto.FamilyStarWallDTO;
 import org.jeecg.modules.rider.starwall.entity.FamilyStarWall;
 import org.jeecg.modules.rider.starwall.service.IFamilyStarWallService;
 
@@ -118,14 +121,20 @@ public class FamilyStarWallController extends JeecgController<FamilyStarWall, IF
 	  */
 	 @ApiOperation(value="星光墙-列表查询", notes="星光墙-列表查询")
 	 @GetMapping(value = "/listForApp")
-	 public Result<List<FamilyStarWall>> listForApp(FamilyStarWall familyStarWall,
-												 HttpServletRequest req) {
+	 public Result<List<FamilyStarWall>> listForApp(FamilyStarWallDTO familyStarWall,
+													HttpServletRequest req) {
 		 // 自定义查询规则
 		 Map<String, QueryRuleEnum> customeRuleMap = new HashMap<>();
 		 QueryWrapper<FamilyStarWall> queryWrapper = QueryGenerator.initQueryWrapper(familyStarWall, req.getParameterMap(),customeRuleMap);
-		 queryWrapper.lambda().orderByDesc(FamilyStarWall::getLikeCnt);
-		 List<FamilyStarWall> starWallList = familyStarWallService.list(queryWrapper);
-		 return Result.OK(starWallList);
+		if(Objects.nonNull(familyStarWall.getTotalDate())){
+			List<FamilyStarWall> starWallList = familyStarWallService.getStarWallList(familyStarWall);
+			return Result.OK(starWallList);
+		} else {
+			 //查询全部
+			 queryWrapper.lambda().orderByDesc(FamilyStarWall::getLikeCnt);
+			 List<FamilyStarWall> starWallList = familyStarWallService.list(queryWrapper);
+			 return Result.OK(starWallList);
+		 }
 	 }
 
 	 /**
@@ -152,7 +161,7 @@ public class FamilyStarWallController extends JeecgController<FamilyStarWall, IF
 		 if (redisUtil.hasKey(lockKey)) {
 			 throw new JeecgBootException("操作太频繁，请稍后...");
 		 }
-		 //尝试获取锁，3秒内不允许重复提交
+		 //尝试获取锁，1秒内不允许重复提交
 		 redisUtil.set(lockKey, "1", 1L);
 		 //获取当天时间
 		 Date date = Date.from(DateUtils.getLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -165,7 +174,7 @@ public class FamilyStarWallController extends JeecgController<FamilyStarWall, IF
 		 queryWrapper.lambda().eq(FamilyLikeRecord::getCustomerId, riderCustomer.getId())
 				 .gt(FamilyLikeRecord::getCreateTime, date);
 		 long count = familyLikeRecordService.count(queryWrapper);
-		 if (count > todayNum) {
+		 if (count >= todayNum) {
 			 return Result.error("您今天点赞已经超过"+todayNum+"次了，不能再点赞！");
 		 }
 		 transactionTemplate.execute(new TransactionCallback<Void>() {

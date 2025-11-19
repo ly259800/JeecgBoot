@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,6 +22,7 @@ import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.DateUtils;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.config.JeecgBaseConfig;
 import org.jeecg.modules.rider.customer.dto.RiderCustomerDTO;
 import org.jeecg.modules.rider.customer.dto.RiderCustomerReceiveDTO;
 import org.jeecg.modules.rider.customer.dto.RiderReferenceDTO;
@@ -46,6 +48,9 @@ import org.jeecg.modules.rider.talentpool.entity.FamilyTalentPool;
 import org.jeecg.modules.rider.talentpool.service.IFamilyTalentPoolService;
 import org.jeecg.modules.system.service.ISysCategoryService;
 import org.jeecgframework.core.util.ApplicationContextUtil;
+import org.jeecgframework.poi.excel.def.NormalExcelConstants;
+import org.jeecgframework.poi.excel.entity.ExportParams;
+import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,6 +91,9 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 
 	 @Autowired
 	 private IFamilyTalentPoolService familyTalentPoolService;
+
+	 @Resource
+	 private JeecgBaseConfig jeecgBaseConfig;
 
 	/**
 	 * 分页列表查询
@@ -799,7 +807,54 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
     @RequiresPermissions("customer:rider_customer:exportXls")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(HttpServletRequest request, RiderCustomer riderCustomer) {
-        return super.exportXls(request, riderCustomer, RiderCustomer.class, "客户管理");
+        super.exportXls(request, riderCustomer, RiderCustomer.class, "客户管理");
+		String title = "客户管理";
+
+		QueryWrapper<RiderCustomer> queryWrapper = QueryGenerator.initQueryWrapper(riderCustomer, request.getParameterMap());
+		LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
+		// 过滤选中数据
+		String selections = request.getParameter("selections");
+		if (oConvertUtils.isNotEmpty(selections)) {
+			List<String> selectionList = Arrays.asList(selections.split(","));
+			queryWrapper.in("id",selectionList);
+		}
+		// Step.2 获取导出数据
+		List<RiderCustomer> entityList = riderCustomerService.list(queryWrapper);
+		queryWrapper.clear();
+		queryWrapper.in("id", entityList.stream().filter(s->StringUtils.isNotBlank(s.getReference())).map(x->x.getReference()).collect(Collectors.toSet()));
+		List<RiderCustomer> list = riderCustomerService.list(queryWrapper);
+		Map<String, RiderCustomer> map = list.stream().collect(Collectors.toMap(RiderCustomer::getId, Function.identity(), (a, b) -> b));
+		List<RiderCustomerDTO> exportList = entityList.stream().map(x -> {
+			RiderCustomerDTO dto = new RiderCustomerDTO();
+			BeanUtils.copyProperties(x, dto);
+			if (StringUtils.isNotBlank(x.getReference())) {
+				RiderCustomer customer = map.get(x.getReference());
+				if (Objects.nonNull(customer)) {
+					dto.setPromoterName(customer.getName());
+				}
+			}
+			//获取主理人推广人数
+			if (Objects.equals(CustomerIdentityEnum.PARTNER.getCode(), x.getIdentity())) {
+				LambdaQueryWrapper<RiderCustomer> query = new LambdaQueryWrapper<>();
+				query.eq(RiderCustomer::getReference, x.getId());
+				dto.setPromoterCount(riderCustomerService.count(query));
+			}
+			return dto;
+		}).collect(Collectors.toList());
+
+		// Step.3 AutoPoi 导出Excel
+		ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
+		//此处设置的filename无效 ,前端会重更新设置一下
+		mv.addObject(NormalExcelConstants.FILE_NAME, title);
+		mv.addObject(NormalExcelConstants.CLASS, RiderCustomerDTO.class);
+		ExportParams exportParams=new ExportParams(title + "报表", "导出人:" + sysUser.getRealname(), title);
+		exportParams.setImageBasePath(jeecgBaseConfig.getPath().getUpload());
+		//update-end--Author:liusq  Date:20210126 for：图片导出报错，ImageBasePath未设置----------------------
+		mv.addObject(NormalExcelConstants.PARAMS,exportParams);
+		mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+		return mv;
+
     }
 
     /**

@@ -1,7 +1,10 @@
 package org.jeecg.modules.rider.starwall.service;
 
+import org.jeecg.modules.rider.starwall.dto.FamilyStarWallDTO;
 import org.jeecg.modules.rider.starwall.entity.FamilyStarWall;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * @Description: 首页星光墙
@@ -12,5 +15,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface IFamilyStarWallService extends IService<FamilyStarWall> {
 
     void addLikeCnt(String starWallId , Integer cnt);
+
+
+    List<FamilyStarWall> getStarWallList(FamilyStarWallDTO familyStarWall);
 
 }

@@ -8,4 +8,12 @@
         WHERE id = #{id}
     </update>
 
+    <select id="getStarWallList" resultType="org.jeecg.modules.rider.starwall.dto.FamilyStarWallDTO">
+        select fsw.id,fsw.name,fsw.image,fsw.description,count(flr.id) likeCnt
+        from family_star_wall fsw
+        left join family_like_record flr on fsw.id = flr.star_id and flr.create_time >= #{totalDate}
+         ${ew.customSqlSegment}
+    </select>
+
+
 </mapper>
