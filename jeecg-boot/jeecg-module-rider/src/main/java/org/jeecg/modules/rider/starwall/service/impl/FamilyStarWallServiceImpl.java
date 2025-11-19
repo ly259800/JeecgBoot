@@ -34,7 +34,7 @@ public class FamilyStarWallServiceImpl extends ServiceImpl<FamilyStarWallMapper,
     }
 
     @Override
-    public List<FamilyStarWall> getStarWallList(FamilyStarWallDTO familyStarWall) {
+    public List<FamilyStarWallDTO> getStarWallList(FamilyStarWallDTO familyStarWall) {
         Integer totalDate = familyStarWall.getTotalDate();
         QueryWrapper<FamilyStarWall> queryWrapper = new QueryWrapper<>();
         LocalDate localDate = LocalDate.now();
@@ -53,7 +53,28 @@ public class FamilyStarWallServiceImpl extends ServiceImpl<FamilyStarWallMapper,
             queryWrapper.eq("fsw.identity",familyStarWall.getIdentity());
         }
         queryWrapper.groupBy("fsw.id");
-        queryWrapper.orderByDesc("likeCnt");
+        if(Objects.equals(familyStarWall.getOrderType(),1)){
+            queryWrapper.orderByDesc("promoterCount");
+        } else {
+            queryWrapper.orderByDesc("likeCnt");
+        }
         return baseMapper.getStarWallList(queryWrapper,localDate);
+    }
+
+    @Override
+    public List<FamilyStarWallDTO> queryList(FamilyStarWallDTO familyStarWall) {
+        QueryWrapper<FamilyStarWall> queryWrapper = new QueryWrapper<>();
+        if(StringUtils.isNotEmpty(familyStarWall.getName())){
+            queryWrapper.like("fsw.name",familyStarWall.getName());
+        }
+        if(Objects.nonNull(familyStarWall.getIdentity())){
+            queryWrapper.eq("fsw.identity",familyStarWall.getIdentity());
+        }
+        if(Objects.equals(familyStarWall.getOrderType(),1)){
+            queryWrapper.orderByDesc("promoterCount");
+        } else {
+            queryWrapper.orderByDesc("fsw.like_cnt");
+        }
+        return baseMapper.queryList(queryWrapper);
     }
 }

@@ -77,4 +77,8 @@ public class FamilyStarWall implements Serializable {
 	@Excel(name = "身份", width = 15)
     @ApiModelProperty(value = "身份")
     private java.lang.Integer identity;
+
+    /**主理人ID*/
+    @ApiModelProperty(value = "主理人ID")
+    private java.lang.String customerId;
 }

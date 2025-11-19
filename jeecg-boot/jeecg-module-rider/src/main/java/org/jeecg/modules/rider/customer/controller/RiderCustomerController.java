@@ -149,6 +149,8 @@ public class RiderCustomerController extends JeecgController<RiderCustomer, IRid
 		 if(oConvertUtils.isNotEmpty(ids)){
 			 query.in(RiderCustomer::getId, ids.split(","));
 		 }
+		 //仅查询主理人
+		 query.eq(RiderCustomer::getIdentity, CustomerIdentityEnum.PARTNER.getCode());
 		 //此处查询忽略时间条件
 		 List<RiderCustomer> ls = riderCustomerService.list(query);
 		 result.setSuccess(true);

@@ -16,4 +16,12 @@ public class FamilyStarWallDTO extends FamilyStarWall{
 	/**统计时间*/
     @ApiModelProperty(value = "统计时间(1-本月 2-本周 3-今日)")
     private Integer totalDate;
+
+
+    @ApiModelProperty(value = "推广人数")
+    private Long promoterCount;
+
+
+    @ApiModelProperty(value = "1-按推广人数排序")
+    private Integer orderType;
 }

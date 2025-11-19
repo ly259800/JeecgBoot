@@ -121,18 +121,15 @@ public class FamilyStarWallController extends JeecgController<FamilyStarWall, IF
 	  */
 	 @ApiOperation(value="星光墙-列表查询", notes="星光墙-列表查询")
 	 @GetMapping(value = "/listForApp")
-	 public Result<List<FamilyStarWall>> listForApp(FamilyStarWallDTO familyStarWall,
+	 public Result<List<FamilyStarWallDTO>> listForApp(FamilyStarWallDTO familyStarWall,
 													HttpServletRequest req) {
 		 // 自定义查询规则
-		 Map<String, QueryRuleEnum> customeRuleMap = new HashMap<>();
-		 QueryWrapper<FamilyStarWall> queryWrapper = QueryGenerator.initQueryWrapper(familyStarWall, req.getParameterMap(),customeRuleMap);
 		if(Objects.nonNull(familyStarWall.getTotalDate())){
-			List<FamilyStarWall> starWallList = familyStarWallService.getStarWallList(familyStarWall);
+			List<FamilyStarWallDTO> starWallList = familyStarWallService.getStarWallList(familyStarWall);
 			return Result.OK(starWallList);
 		} else {
 			 //查询全部
-			 queryWrapper.lambda().orderByDesc(FamilyStarWall::getLikeCnt);
-			 List<FamilyStarWall> starWallList = familyStarWallService.list(queryWrapper);
+			 List<FamilyStarWallDTO> starWallList = familyStarWallService.queryList(familyStarWall);
 			 return Result.OK(starWallList);
 		 }
 	 }

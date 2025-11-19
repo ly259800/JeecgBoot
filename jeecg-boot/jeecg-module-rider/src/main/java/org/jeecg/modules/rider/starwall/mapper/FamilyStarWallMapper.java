@@ -20,6 +20,9 @@ public interface FamilyStarWallMapper extends BaseMapper<FamilyStarWall> {
 
     void addLikeCnt(@Param("id") String id, @Param("cnt") Integer cnt);
 
-    List<FamilyStarWall> getStarWallList(@Param("ew") Wrapper<FamilyStarWall> queryWrapper, @Param("totalDate") LocalDate totalDate);
+    List<FamilyStarWallDTO> getStarWallList(@Param("ew") Wrapper<FamilyStarWall> queryWrapper, @Param("totalDate") LocalDate totalDate);
+
+    List<FamilyStarWallDTO> queryList(@Param("ew") Wrapper<FamilyStarWall> queryWrapper);
+
 
 }

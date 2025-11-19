@@ -17,6 +17,9 @@ public interface IFamilyStarWallService extends IService<FamilyStarWall> {
     void addLikeCnt(String starWallId , Integer cnt);
 
 
-    List<FamilyStarWall> getStarWallList(FamilyStarWallDTO familyStarWall);
+    List<FamilyStarWallDTO> getStarWallList(FamilyStarWallDTO familyStarWall);
+
+    List<FamilyStarWallDTO> queryList(FamilyStarWallDTO familyStarWall);
+
 
 }
