@@ -156,7 +156,7 @@ public class FamilyStarWallController extends JeecgController<FamilyStarWall, IF
 		 // 构建防重复提交的key（用户ID+订单关键信息）
 		 String lockKey = "starwall:like:" + familyStarWall.getId() + ":" + riderCustomer.getId();
 		 if (redisUtil.hasKey(lockKey)) {
-			 throw new JeecgBootException("操作太频繁，请稍后...");
+			 return Result.error("操作太频繁，请稍后...");
 		 }
 		 //尝试获取锁，1秒内不允许重复提交
 		 redisUtil.set(lockKey, "1", 1L);
