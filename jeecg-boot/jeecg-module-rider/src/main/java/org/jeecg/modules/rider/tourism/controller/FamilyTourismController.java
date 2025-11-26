@@ -14,7 +14,11 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.post.entity.PostDetail;
+import org.jeecg.modules.rider.tourism.dto.FamilyTourismDTO;
 import org.jeecg.modules.rider.tourism.entity.FamilyTourism;
+import org.jeecg.modules.rider.tourism.entity.FamilyTourismDetail;
+import org.jeecg.modules.rider.tourism.service.IFamilyTourismDetailService;
 import org.jeecg.modules.rider.tourism.service.IFamilyTourismService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,6 +32,7 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +57,9 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class FamilyTourismController extends JeecgController<FamilyTourism, IFamilyTourismService> {
 	@Autowired
 	private IFamilyTourismService familyTourismService;
+
+	 @Autowired
+	 private IFamilyTourismDetailService familyTourismDetailService;
 	
 	/**
 	 * 分页列表查询
@@ -144,12 +152,16 @@ public class FamilyTourismController extends JeecgController<FamilyTourism, IFam
 	//@AutoLog(value = "旅游信息表-通过id查询")
 	@ApiOperation(value="旅游信息表-通过id查询", notes="旅游信息表-通过id查询")
 	@GetMapping(value = "/queryById")
-	public Result<FamilyTourism> queryById(@RequestParam(name="id",required=true) String id) {
+	public Result<FamilyTourismDTO> queryById(@RequestParam(name="id",required=true) String id) {
 		FamilyTourism familyTourism = familyTourismService.getById(id);
 		if(familyTourism==null) {
 			return Result.error("未找到对应数据");
 		}
-		return Result.OK(familyTourism);
+		FamilyTourismDTO tourismDTO = new FamilyTourismDTO();
+		BeanUtils.copyProperties(familyTourism, tourismDTO);
+		FamilyTourismDetail detail = familyTourismDetailService.getByTourismId(familyTourism.getId());
+		tourismDTO.setFamilyTourismDetail(detail);
+		return Result.OK(tourismDTO);
 	}
 
     /**

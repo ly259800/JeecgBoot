@@ -14,6 +14,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
+import org.jeecg.modules.rider.post.entity.PostDetail;
 import org.jeecg.modules.rider.tourism.entity.FamilyTourismDetail;
 import org.jeecg.modules.rider.tourism.service.IFamilyTourismDetailService;
 
@@ -98,10 +99,19 @@ public class FamilyTourismDetailController extends JeecgController<FamilyTourism
 	 */
 	@AutoLog(value = "旅游信息详情表-编辑")
 	@ApiOperation(value="旅游信息详情表-编辑", notes="旅游信息详情表-编辑")
-	@RequiresPermissions("tourism:family_tourism_detail:edit")
+	@RequiresPermissions("tourism:family_tourism:edit")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
 	public Result<String> edit(@RequestBody FamilyTourismDetail familyTourismDetail) {
-		familyTourismDetailService.updateById(familyTourismDetail);
+		FamilyTourismDetail oldDetail = familyTourismDetailService.getByTourismId(familyTourismDetail.getTourismId());
+		if(oldDetail != null){
+			oldDetail.setImage(familyTourismDetail.getImage());
+			oldDetail.setVideo(familyTourismDetail.getVideo());
+			oldDetail.setRoutePic(familyTourismDetail.getRoutePic());
+			oldDetail.setMemo(familyTourismDetail.getMemo());
+			familyTourismDetailService.updateById(oldDetail);
+		} else {
+			familyTourismDetailService.save(familyTourismDetail);
+		}
 		return Result.OK("编辑成功!");
 	}
 	
@@ -163,9 +173,6 @@ public class FamilyTourismDetailController extends JeecgController<FamilyTourism
 	 @GetMapping(value = "/queryByTourismId")
 	 public Result<FamilyTourismDetail> queryByTourismId(@RequestParam(name="tourismId",required=true) String tourismId) {
 		 FamilyTourismDetail familyTourismDetail = familyTourismDetailService.getByTourismId(tourismId);
-		 if(familyTourismDetail==null) {
-			 return Result.error("未找到对应数据");
-		 }
 		 return Result.OK(familyTourismDetail);
 	 }
 
