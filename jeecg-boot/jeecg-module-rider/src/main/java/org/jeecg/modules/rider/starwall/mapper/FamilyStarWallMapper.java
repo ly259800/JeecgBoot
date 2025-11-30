@@ -1,6 +1,7 @@
 package org.jeecg.modules.rider.starwall.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.rider.interview.entity.RiderInterview;
 import org.jeecg.modules.rider.starwall.dto.FamilyStarWallDTO;
@@ -20,9 +21,9 @@ public interface FamilyStarWallMapper extends BaseMapper<FamilyStarWall> {
 
     void addLikeCnt(@Param("id") String id, @Param("cnt") Integer cnt);
 
-    List<FamilyStarWallDTO> getStarWallList(@Param("ew") Wrapper<FamilyStarWall> queryWrapper, @Param("totalDate") LocalDate totalDate);
+    List<FamilyStarWallDTO> getStarWallList(IPage<FamilyStarWall> page, @Param("ew") Wrapper<FamilyStarWall> queryWrapper, @Param("totalDate") LocalDate totalDate);
 
-    List<FamilyStarWallDTO> queryList(@Param("ew") Wrapper<FamilyStarWall> queryWrapper);
+    List<FamilyStarWallDTO> queryList(IPage<FamilyStarWall> page,@Param("ew") Wrapper<FamilyStarWall> queryWrapper);
 
 
 }

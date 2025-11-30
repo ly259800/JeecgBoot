@@ -122,14 +122,17 @@ public class FamilyStarWallController extends JeecgController<FamilyStarWall, IF
 	 @ApiOperation(value="星光墙-列表查询", notes="星光墙-列表查询")
 	 @GetMapping(value = "/listForApp")
 	 public Result<List<FamilyStarWallDTO>> listForApp(FamilyStarWallDTO familyStarWall,
+													   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+													   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 													HttpServletRequest req) {
+		 Page<FamilyStarWall> page = new Page<FamilyStarWall>(pageNo, pageSize);
 		 // 自定义查询规则
 		if(Objects.nonNull(familyStarWall.getTotalDate())){
-			List<FamilyStarWallDTO> starWallList = familyStarWallService.getStarWallList(familyStarWall);
+			List<FamilyStarWallDTO> starWallList = familyStarWallService.getStarWallList(page,familyStarWall);
 			return Result.OK(starWallList);
 		} else {
 			 //查询全部
-			 List<FamilyStarWallDTO> starWallList = familyStarWallService.queryList(familyStarWall);
+			 List<FamilyStarWallDTO> starWallList = familyStarWallService.queryList(page,familyStarWall);
 			 return Result.OK(starWallList);
 		 }
 	 }

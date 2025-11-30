@@ -1,5 +1,6 @@
 package org.jeecg.modules.rider.starwall.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.jeecg.modules.rider.starwall.dto.FamilyStarWallDTO;
 import org.jeecg.modules.rider.starwall.entity.FamilyStarWall;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -17,9 +18,9 @@ public interface IFamilyStarWallService extends IService<FamilyStarWall> {
     void addLikeCnt(String starWallId , Integer cnt);
 
 
-    List<FamilyStarWallDTO> getStarWallList(FamilyStarWallDTO familyStarWall);
+    List<FamilyStarWallDTO> getStarWallList(IPage<FamilyStarWall> page, FamilyStarWallDTO familyStarWall);
 
-    List<FamilyStarWallDTO> queryList(FamilyStarWallDTO familyStarWall);
+    List<FamilyStarWallDTO> queryList(IPage<FamilyStarWall> page, FamilyStarWallDTO familyStarWall);
 
 
 }

@@ -1,6 +1,7 @@
 package org.jeecg.modules.rider.starwall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.DateUtils;
@@ -34,7 +35,7 @@ public class FamilyStarWallServiceImpl extends ServiceImpl<FamilyStarWallMapper,
     }
 
     @Override
-    public List<FamilyStarWallDTO> getStarWallList(FamilyStarWallDTO familyStarWall) {
+    public List<FamilyStarWallDTO> getStarWallList(IPage<FamilyStarWall> page, FamilyStarWallDTO familyStarWall) {
         Integer totalDate = familyStarWall.getTotalDate();
         QueryWrapper<FamilyStarWall> queryWrapper = new QueryWrapper<>();
         LocalDate localDate = LocalDate.now();
@@ -58,11 +59,11 @@ public class FamilyStarWallServiceImpl extends ServiceImpl<FamilyStarWallMapper,
         } else {
             queryWrapper.orderByDesc("likeCnt");
         }
-        return baseMapper.getStarWallList(queryWrapper,localDate);
+        return baseMapper.getStarWallList(page,queryWrapper,localDate);
     }
 
     @Override
-    public List<FamilyStarWallDTO> queryList(FamilyStarWallDTO familyStarWall) {
+    public List<FamilyStarWallDTO> queryList(IPage<FamilyStarWall> page,FamilyStarWallDTO familyStarWall) {
         QueryWrapper<FamilyStarWall> queryWrapper = new QueryWrapper<>();
         if(StringUtils.isNotEmpty(familyStarWall.getName())){
             queryWrapper.like("fsw.name",familyStarWall.getName());
@@ -75,6 +76,6 @@ public class FamilyStarWallServiceImpl extends ServiceImpl<FamilyStarWallMapper,
         } else {
             queryWrapper.orderByDesc("fsw.like_cnt");
         }
-        return baseMapper.queryList(queryWrapper);
+        return baseMapper.queryList(page,queryWrapper);
     }
 }
