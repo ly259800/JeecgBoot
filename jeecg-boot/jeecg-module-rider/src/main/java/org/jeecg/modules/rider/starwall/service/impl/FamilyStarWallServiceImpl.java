@@ -55,10 +55,11 @@ public class FamilyStarWallServiceImpl extends ServiceImpl<FamilyStarWallMapper,
         }
         queryWrapper.groupBy("fsw.id");
         if(Objects.equals(familyStarWall.getOrderType(),1)){
-            queryWrapper.orderByDesc("promoterCount,fsw.id");
+            queryWrapper.orderByDesc("promoterCount");
         } else {
-            queryWrapper.orderByDesc("likeCnt,fsw.id");
+            queryWrapper.orderByDesc("likeCnt");
         }
+        queryWrapper.orderByAsc("fsw.id");
         return baseMapper.getStarWallList(page,queryWrapper,localDate);
     }
 
@@ -72,10 +73,11 @@ public class FamilyStarWallServiceImpl extends ServiceImpl<FamilyStarWallMapper,
             queryWrapper.eq("fsw.identity",familyStarWall.getIdentity());
         }
         if(Objects.equals(familyStarWall.getOrderType(),1)){
-            queryWrapper.orderByDesc("promoterCount,fsw.id");
+            queryWrapper.orderByDesc("promoterCount");
         } else {
-            queryWrapper.orderByDesc("fsw.like_cnt,fsw.id");
+            queryWrapper.orderByDesc("fsw.like_cnt");
         }
+        queryWrapper.orderByAsc("fsw.id");
         return baseMapper.queryList(page,queryWrapper);
     }
 }
