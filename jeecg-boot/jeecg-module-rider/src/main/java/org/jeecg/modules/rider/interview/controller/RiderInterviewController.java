@@ -452,6 +452,66 @@ public class RiderInterviewController extends JeecgController<RiderInterview, IR
 	 }
 
 
+	 /**
+	  *   旅游报名申请
+	  */
+	 @AutoLog(value = "旅游报名申请")
+	 @ApiOperation(value="旅游报名申请", notes="旅游报名申请")
+	 @RequiresPermissions("interview:rider_interview:add")
+	 @PostMapping(value = "/tourismAdd")
+	 public Result<String> tourismAdd(@RequestBody RiderInterview riderInterview) {
+		 if(StringUtils.isEmpty(riderInterview.getSiteId())){
+			 return Result.error("岗位不能为空");
+		 }
+		 LoginUser sysUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+		 if(Objects.isNull(sysUser)){
+			 throw new JeecgBootException("请先登录");
+		 }
+		 RiderCustomer riderCustomer = riderCustomerService.getByPhone(sysUser.getPhone());
+		 if(riderCustomer == null){
+			 return Result.error("用户未注册");
+		 }
+
+		 Post post = postService.getById(riderInterview.getSiteId());
+		 if(post == null){
+			 return Result.error("岗位不存在");
+		 }
+		 if(StringUtils.isEmpty(riderCustomer.getIdCard())){
+			 Result result = new Result();
+			 result.setCode(10080);
+			 result.setMessage("用户未实名,请先实名认证!");
+			 return result;
+		 }
+		 RiderInterview one = riderInterviewService.getOne(new QueryWrapper<RiderInterview>().eq("phone", riderCustomer.getPhone()).eq("site_id", riderInterview.getSiteId()));
+		 if(one != null) {
+			 return Result.error("您已经报名过该岗位，不能重复报名！");
+		 }
+		 //若存在人才库
+		 FamilyTalentPool familyTalentPool = familyTalentPoolService.getByPhone(riderCustomer.getPhone());
+		 if(Objects.nonNull(familyTalentPool)){
+			 //设置报名记录的申请人为当前领取人
+			 riderInterview.setApplyUserId(familyTalentPool.getReceiver());
+		 }
+		 riderInterview.setName(riderCustomer.getName());
+		 riderInterview.setPhone(riderCustomer.getPhone());
+		 riderInterview.setSex(IdCardUtils.getGenderFromIdCard(riderCustomer.getIdCard()));
+		 riderInterview.setAge(IdCardUtils.getAgeFromIdCard(riderCustomer.getIdCard()));
+		 riderInterview.setSource("报名申请");
+		 riderInterview.setReference(riderCustomer.getReference());
+		 riderInterview.setReferencePhone(riderCustomer.getReferencePhone());
+		 riderInterview.setIdCard(riderCustomer.getIdCard());
+		 riderInterviewService.save(riderInterview);
+		 //若用户身份为会员，则更新为娘家人
+		 if(Objects.nonNull(riderCustomer.getIdentity()) && Objects.equals(riderCustomer.getIdentity(), CustomerIdentityEnum.TOURIST.getCode())){
+			 riderCustomer.setIdentity(CustomerIdentityEnum.RIDER.getCode());
+			 riderCustomerService.updateById(riderCustomer);
+		 }
+		 Result<String> ok = Result.OK("报名成功！");
+		 ok.setResult(riderInterview.getId());
+		 return ok;
+	 }
+
+
 
 	
 	/**
